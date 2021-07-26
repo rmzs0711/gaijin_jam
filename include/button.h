@@ -38,7 +38,7 @@ template <typename T>
 struct Button : Clickable<T> {
     Button() = delete;
     explicit Button(std::function<T()> func, std::string str_ = "")
-        : str(std::move(str_)) {}
+        : function(func), str(std::move(str_)) {}
     T handle_click() override {
         return function();
     }

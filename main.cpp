@@ -20,7 +20,7 @@ int main() {
 
     auto  f = text.getLocalBounds();
 
-    RectangleButton<void> button([]() {}, "go");
+    RectangleButton<void> button([&]() { window.close();}, "go");
     button.setSize({100, 100});
     button.setPosition({400, 300});
     button.setFillColor(sf::Color::Green);
@@ -31,7 +31,13 @@ int main() {
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window.close();
+            if (event.type == sf::Event::MouseButtonPressed) {
+                if (event.mouseButton.button == sf::Mouse::Left) {
+                    button.handle_click();
+                }
+            }
         }
+
 //        window.draw(circle);
         button.draw_button(window);
 //        window.draw(text);
