@@ -7,8 +7,7 @@
 
 struct CentralisedText : sf::Text {
     explicit CentralisedText(
-        const std::string &str,
-        const unsigned int &size,
+        const std::string &str = "",
         const std::string &fontAddress = "../data/fonts/mono.otf")
         : sf::Text() {
         static sf::Font font;
@@ -17,35 +16,38 @@ struct CentralisedText : sf::Text {
             throw std::exception();
         }
         setFont(font);
-
         setString(str);
-        setCharacterSize(size);
-        setOrigin(sf::Vector2f(sf::Vector2u(0, 0)));
-
+        centralise();
+    }
+    void centralise() {
         sf::FloatRect textRect = getLocalBounds();
-        setOrigin(textRect.left + textRect.width / 2.0f,
-                  textRect.top + textRect.height / 2.0f);
+        setOrigin(textRect.left + textRect.width / 2.f,
+                  textRect.top + textRect.height / 2.f);
     }
 };
 
 template <typename T>
 struct Clickable {
-    virtual T handle_click() = 0;
+    virtual T handleClick() = 0;
     virtual ~Clickable() = default;
 };
+
 
 template <typename T>
 struct Button : Clickable<T> {
     Button() = delete;
     explicit Button(std::function<T()> func, std::string str_ = "")
         : function(func), str(std::move(str_)) {}
-    T handle_click() override {
+    T handleClick() override {
         return function();
     }
     [[nodiscard]] const std::string &getString() const {
         return str;
     }
 
+    virtual void setClickableTexture() {
+
+    }
 private:
     std::function<T()> function;
     std::string str;
@@ -53,30 +55,42 @@ private:
 
 template <typename T>
 struct CircleButton : Button<T>, sf::CircleShape {
-    explicit CircleButton(std::function<T()> func,
-                          const std::string &str = "")
+    explicit CircleButton(std::function<T()> func, const std::string &str = "")
         : Button<T>(func, str) {}
-
+    void setTextSize(const unsigned int &newSize) {
+        textSize = newSize;
+    }
+    unsigned getTextSize() {
+        return textSize;
+    }
     void draw_button(sf::RenderWindow &window) const {
         window.draw(*this);
-        CentralisedText text(Button<T>::getString(), 100);
+        CentralisedText text(Button<T>::getString(), textSize);
         text.setPosition(getPosition());
         window.draw(text);
     }
+
+private:
+    int textSize = 30;
 };
 
-template<typename T>
+template <typename T>
 struct RectangleButton : Button<T>, sf::RectangleShape {
     explicit RectangleButton(std::function<T()> func,
-                          const std::string &str = "")
+                             const std::string &str = "")
         : Button<T>(func, str) {}
 
-    void draw_button(sf::RenderWindow &window) const {
+    void drawButton(sf::RenderWindow &window) const {
         window.draw(*this);
-        CentralisedText text(Button<T>::getString(), 100);
+        CentralisedText text;
+        text.setString("go");
+        text.setCharacterSize(30);
+        text.centralise();
         text.setPosition(getPosition() + getSize() / 2.f);
         window.draw(text);
     }
+
+private:
 };
 
 #endif  // GAIJIN_JAM_BUTTON_H
