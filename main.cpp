@@ -20,10 +20,21 @@ int main() {
     text.setString("11111");
     text.setFillColor(sf::Color::White);
 
-    RectangleButton<void> button([&]() { window.close(); }, "");
-    button.setSize({100, 100});
+    sf::Texture gay;
+    if (!gay.loadFromFile("../data/images/gay.png")) {
+        assert(0);
+    }
+    sf::Texture il;
+    if (!il.loadFromFile("../data/images/i.png")) {
+        assert(0);
+    }
+
+    CircleButton<void> button([&]() { window.close(); }, "");
+    button.setRadius(100);
     button.setPosition({400, 300});
-    button.setFillColor(sf::Color::Green);
+    button.setTexture(&gay);
+    button.setClickableTexture(&il);
+
 
     while (window.isOpen()) {
         sf::Event event{};
@@ -36,7 +47,7 @@ int main() {
                 }
             }
         }
-
+//        button.drawButton(circle);
         button.drawButton(window);
         window.display();
     }

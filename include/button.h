@@ -45,33 +45,52 @@ struct Button : Clickable<T> {
         return str;
     }
 
-    virtual void setClickableTexture() {
-
+    virtual void setClickableTexture(const sf::Texture* newTexture) {
+        clickableTexture = newTexture;
     }
+    [[nodiscard]] const sf::Texture *getClickableTexture() const {
+        return clickableTexture;
+    }
+
+    void setTextSize(const unsigned int &newSize) {
+        textSize = newSize;
+    }
+    [[nodiscard]] const unsigned& getTextSize() const {
+        return textSize;
+    }
+
 private:
     std::function<T()> function;
     std::string str;
+    unsigned textSize = 30;
+    const sf::Texture* clickableTexture = nullptr;
 };
 
 template <typename T>
 struct CircleButton : Button<T>, sf::CircleShape {
     explicit CircleButton(std::function<T()> func, const std::string &str = "")
         : Button<T>(func, str) {}
-    void setTextSize(const unsigned int &newSize) {
-        textSize = newSize;
-    }
-    unsigned getTextSize() {
-        return textSize;
-    }
-    void draw_button(sf::RenderWindow &window) const {
-        window.draw(*this);
-        CentralisedText text(Button<T>::getString(), textSize);
+
+    void drawButton(sf::RenderWindow &window) {
+
+        CentralisedText text(Button<T>::getString());
         text.setPosition(getPosition());
+        text.setCharacterSize(Button<T>::getTextSize());
+        text.centralise();
         window.draw(text);
+
+        window.draw(*this);
+        auto hitBox = getGlobalBounds();
+        if (hitBox.contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
+            auto texture = getTexture();
+            setTexture(Button<T>::getClickableTexture());
+            window.draw(*this);
+            setTexture(texture);
+        }
     }
 
 private:
-    int textSize = 30;
+
 };
 
 template <typename T>
@@ -80,14 +99,22 @@ struct RectangleButton : Button<T>, sf::RectangleShape {
                              const std::string &str = "")
         : Button<T>(func, str) {}
 
-    void drawButton(sf::RenderWindow &window) const {
-        window.draw(*this);
+    void drawButton(sf::RenderWindow &window) {
         CentralisedText text;
         text.setString("go");
-        text.setCharacterSize(30);
+        text.setCharacterSize(Button<T>::getTextSize());
         text.centralise();
         text.setPosition(getPosition() + getSize() / 2.f);
         window.draw(text);
+        window.draw(*this);
+        auto hitBox = getGlobalBounds();
+        if (hitBox.contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
+            auto texture = getTexture();
+            setTexture(Button<T>::getClickableTexture());
+            window.draw(*this);
+            setTexture(texture);
+
+        }
     }
 
 private:
