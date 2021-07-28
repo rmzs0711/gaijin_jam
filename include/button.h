@@ -72,6 +72,9 @@ struct CircleButton : Button<T>, sf::CircleShape {
         : Button<T>(func, str) {}
 
     void drawButton(sf::RenderTarget &target) override {
+        if (!Button<T>::getClickableTexture()) {
+            Button<T>::setClickableTexture(getTexture());
+        }
         CentralisedText text(Button<T>::getString());
         text.setPosition(getPosition());
         text.setCharacterSize(Button<T>::getTextSize());
@@ -79,10 +82,8 @@ struct CircleButton : Button<T>, sf::CircleShape {
         target.draw(text);
         auto hitBox = getGlobalBounds();
         target.draw(*this);
-        if (hitBox.contains(
-                target.mapPixelToCoords(sf::Mouse::getPosition
-                                        (dynamic_cast<sf::RenderWindow&>(target))
-                                        ))) {
+        if (hitBox.contains(target.mapPixelToCoords(sf::Mouse::getPosition(
+                dynamic_cast<sf::RenderWindow &>(target))))) {
             auto texture = getTexture();
             setTexture(Button<T>::getClickableTexture(), true);
 

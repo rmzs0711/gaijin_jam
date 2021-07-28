@@ -2,6 +2,7 @@
 #include "SFML/Graphics.hpp"
 #include "include/button.h"
 #include "include/menu.h"
+#include "textBox.h"
 
 int main() {
     sf::CircleShape circle;
@@ -21,7 +22,7 @@ int main() {
     text.setFillColor(sf::Color::White);
 
     sf::Texture gay;
-    if (!gay.loadFromFile("../data/images/gay.png")) {
+    if (!gay.loadFromFile("../data/images/white.png")) {
         assert(0);
     }
     sf::Texture il;
@@ -29,7 +30,7 @@ int main() {
         assert(0);
     }
     sf::Sprite back;
-
+    back.setColor(sf::Color(20, 20, 20, 255));
     back.setTexture(gay);
     //    back.setScale(static_cast<float>(window.getSize().x) /
     //    gay.getSize().x,
@@ -48,6 +49,15 @@ int main() {
     mainMenu.setButtons(buttons);
     mainMenu.scale(sf::Vector2f(window.getSize()), sf::Vector2f(gay.getSize()));
 
+    std::string name;
+    InputBox box;
+    box.setFont(font);
+    box.setTextSize(30);
+    box.setVarName("name");
+    box.setPosition(0, 0);
+    box.setSize({400, 100});
+    box.setFillColor(sf::Color::Red);
+    box.run(window, name);
     while (window.isOpen()) {
         window.draw(back);
         sf::Event event{};
@@ -62,7 +72,8 @@ int main() {
                 }
             }
         }
-        window.draw(mainMenu);
+//        window.draw(mainMenu);
+
         //        button.drawButton(circle);
         //        button.drawButton(window);
         window.display();
