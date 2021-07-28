@@ -84,9 +84,10 @@ struct CircleButton : Button<T>, sf::CircleShape {
                                         (dynamic_cast<sf::RenderWindow&>(target))
                                         ))) {
             auto texture = getTexture();
-            setTexture(Button<T>::getClickableTexture());
+            setTexture(Button<T>::getClickableTexture(), true);
+
             target.draw(*this);
-            setTexture(texture);
+            setTexture(texture, true);
         }
     }
 
