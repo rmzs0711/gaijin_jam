@@ -3,7 +3,7 @@ project(jam)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(jam main.cpp src/button.c include/button.h include/menu.h)
+add_executable(jam src/main.cpp src/button.c include/button.h include/menu.h)
 
 find_package(SFML REQUIRED system window graphics network audio)
 

@@ -1,7 +1,7 @@
 #include <cassert>
 #include "SFML/Graphics.hpp"
-#include "include/button.h"
-#include "include/menu.h"
+#include "button.h"
+#include "menu.h"
 #include "textBox.h"
 
 int main() {
@@ -14,7 +14,7 @@ int main() {
 
     sf::Text text;
     sf::Font font;
-    assert(font.loadFromFile("../data/fonts/mono.otf"));
+    assert(font.loadFromFile("data/fonts/mono.otf"));
     text.setFont(font);
     text.setPosition(0, 0);
     text.setCharacterSize(100);
@@ -22,11 +22,11 @@ int main() {
     text.setFillColor(sf::Color::White);
 
     sf::Texture gay;
-    if (!gay.loadFromFile("../data/images/white.png")) {
+    if (!gay.loadFromFile("data/images/white.png")) {
         assert(0);
     }
     sf::Texture il;
-    if (!il.loadFromFile("../data/images/mushroom.png")) {
+    if (!il.loadFromFile("data/images/mushroom.png")) {
         assert(0);
     }
     sf::Sprite back;

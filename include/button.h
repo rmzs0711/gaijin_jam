@@ -8,7 +8,7 @@
 struct CentralisedText : sf::Text {
     explicit CentralisedText(
         const std::string &str = "",
-        const std::string &fontAddress = "../data/fonts/mono.otf")
+        const std::string &fontAddress = "data/fonts/mono.otf")
         : sf::Text() {
         static sf::Font font;
         if (!font.loadFromFile(fontAddress)) {
