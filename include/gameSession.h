@@ -16,12 +16,12 @@ enum CellObject {
 };
 
 inline const size_t cellSize = 16;
+std::vector<sf::Texture *> texturePtrs;
+std::vector<sf::Time> stateDurations;
 
 struct Cell {
 public:
-    explicit Cell(std::vector<sf::Texture *> &texturePtrs_,
-                  std::vector<sf::Time> &stateDurations_)
-        : texturePtrs(texturePtrs_), stateDurations(stateDurations_) {
+    explicit Cell() {
         rect.setSize(sf::Vector2f(cellSize, cellSize));
     }
 
@@ -68,8 +68,6 @@ public:
     }
 
 private:
-    std::vector<sf::Texture *> &texturePtrs;
-    std::vector<sf::Time> &stateDurations;
     sf::RectangleShape rect;
     CellState state = NORMAL;
     CellObject object = EMPTY;
@@ -78,13 +76,10 @@ private:
 };
 
 struct Level {
-    Level(const std::vector<std::vector<CellObject>> &mapObjects,
-          std::vector<sf::Texture *> &texturePtrs_,
-          std::vector<sf::Time> &stateDurations_) {
+    Level(const std::vector<std::vector<CellObject>> &mapObjects) {
         map.resize(mapObjects.size());
         for (std::size_t i = 0; i < mapObjects.size(); i++) {
-            map[i].resize(mapObjects[i].size(),
-                          Cell(texturePtrs_, stateDurations_));
+            map[i].resize(mapObjects[i].size());
             for (std::size_t j = 0; j < mapObjects[i].size(); j++) {
                 map[i][j].setPosition(sf::Vector2f(
                     sf::Vector2<size_t>(j * cellSize, i * cellSize)));
@@ -107,13 +102,13 @@ private:
 struct GameSession {
     void startGame(sf::RenderWindow &window) {
         sf::Texture empty;
-        checkLoad(empty, "data/include/images/black.png");
-        std::vector<sf::Texture *> textures = {&empty};
-        std::vector<sf::Time> durations = {sf::Time::Zero};
+        checkLoad(empty, "data/images/black.png");
+        texturePtrs = {&empty};
+        stateDurations = {sf::Time::Zero};
 
         std::vector<std::vector<CellObject>> firstLevel = {
             {EMPTY, EMPTY, EMPTY}};
-        levels.emplace_back(firstLevel, textures, durations);
+        levels.emplace_back(firstLevel);
         while (window.isOpen()) {
             sf::Event event{};
             while (window.pollEvent(event)) {
