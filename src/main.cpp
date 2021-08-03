@@ -5,8 +5,9 @@
 int main() {
     sf::RenderWindow window(sf::VideoMode(512, 512), "SFML works!",
                             sf::Style::Default);
-
-    RectangleButton<void> startGameButton([&]() { window.close(); });
+    RectangleButton<void> startGameButton([&]() {
+        window.setSize({1024, 512});
+    });
     startGameButton.setSize({100.f, 50.f});
     startGameButton.setFillColor(sf::Color::Blue);
     startGameButton.setPosition(0, 100);
