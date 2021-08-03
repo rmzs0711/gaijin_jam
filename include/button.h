@@ -32,7 +32,6 @@ struct Clickable {
     virtual ~Clickable() = default;
 };
 
-
 template <typename T>
 struct Button : Clickable<T> {
     Button() = delete;
@@ -59,6 +58,7 @@ struct Button : Clickable<T> {
         return textSize;
     }
     virtual void drawButton(sf::RenderTarget &target) = 0;
+    virtual bool isCorrectClick(const sf::Vector2f &) = 0;
 
 private:
     std::function<T()> function;
@@ -71,6 +71,9 @@ template <typename T>
 struct CircleButton : Button<T>, sf::CircleShape {
     explicit CircleButton(std::function<T()> func, const std::string &str = "")
         : Button<T>(func, str) {}
+    bool isCorrectClick(const sf::Vector2f &pos) override {
+        return this->getGlobalBounds().contains(pos);
+    }
 
     void drawButton(sf::RenderTarget &target) override {
         if (!Button<T>::getClickableTexture()) {
@@ -101,7 +104,9 @@ struct RectangleButton : Button<T>, sf::RectangleShape {
     explicit RectangleButton(std::function<T()> func,
                              const std::string &str = "")
         : Button<T>(func, str) {}
-
+    bool isCorrectClick(const sf::Vector2f &pos) override {
+        return this->getGlobalBounds().contains(pos);
+    }
     void drawButton(sf::RenderTarget &target) override {
         CentralisedText text;
         text.setString("go");

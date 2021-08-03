@@ -7,8 +7,6 @@ include_directories(include)
 
 add_executable(jam src/main.cpp)
 
-
-
 find_package(SFML REQUIRED system window graphics network audio)
 
 target_link_libraries(jam ${SFML_LIBRARIES})

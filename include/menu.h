@@ -5,37 +5,42 @@
 #include "button.h"
 
 struct Menu : sf::Drawable {
-    void scale(const sf::Vector2f &windowSize,
-               const sf::Vector2f &textureSize) {
-        background.scale(windowSize.x / textureSize.x,
-                         windowSize.y / textureSize.y);
+    Menu() {
+        background.setPosition(0, 0);
     }
+    void setSize(const sf::Vector2f& newSize) {
+        background.setSize(newSize);
+    }
+    void setColor(const sf::Color& newColor) {
+        background.setFillColor(newColor);
+    }
+
     const std::vector<std::unique_ptr<Button<void>>> &getButtons() const {
         return buttons;
     }
-    void setButtons(std::vector<std::unique_ptr<Button<void>>>& newButtons) {
+    void setButtons(std::vector<std::unique_ptr<Button<void>>> &newButtons) {
         buttons.resize(newButtons.size());
         for (int i = 0; i < newButtons.size(); i++) {
             buttons[i] = std::move(newButtons[i]);
         }
     }
 
-    void setBackground(const sf::Sprite &background_) {
-        Menu::background = background_;
+    void setBackground(const sf::Texture *background_) {
+        Menu::background.setTexture(background_);
     }
-    const sf::Sprite &getBackground() const {
+    const sf::RectangleShape &getBackground() const {
         return background;
     }
 
 private:
-    void draw(sf::RenderTarget &target, sf::RenderStates states) const
-        override {
+    void draw(sf::RenderTarget &target,
+              sf::RenderStates states) const override {
         target.draw(background);
-        for (auto & button : buttons) {
+        for (auto &button : buttons) {
             button->drawButton(target);
         }
     }
-    sf::Sprite background;
+    sf::RectangleShape background;
     mutable std::vector<std::unique_ptr<Button<void>>> buttons;
 };
 
