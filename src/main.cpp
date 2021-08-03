@@ -2,11 +2,14 @@
 #include "gameSession.h"
 #include "menu.h"
 #include "usefulFunctions.h"
+
+
 int main() {
     sf::RenderWindow window(sf::VideoMode(512, 512), "SFML works!",
                             sf::Style::Default);
+    jam::GameSession game;
     RectangleButton<void> startGameButton([&]() {
-        window.setSize({1024, 512});
+        game.startGame(window);
     });
     startGameButton.setSize({100.f, 50.f});
     startGameButton.setFillColor(sf::Color::Blue);
