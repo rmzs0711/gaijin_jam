@@ -1,41 +1,31 @@
 #include "include/moving_object.h"
+#include "include/characters.h"
 #include <cassert>
+#include <iostream>
+
+std::vector<sf::Sprite *> objects;
+
+// нажми сначала правой на перса, он выделится, и им ходить можно будет
 
 int main() {
     sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "SFML works!", sf::Style::Default);
+    CharacterMouse character2("data/images/MiniWorldSprites/Characters/Soldiers/Melee/PurpleMelee/AssasinPurple.png", false); // убери false, если хочешь, чтоб он всегда ходил, без выделений
+    character2.setScale(4, 4);
 
-    sf::Texture gay;
-    if (!gay.loadFromFile("data/images/gay.png")) {
-        assert(0);
-    }
-    sf::Texture il;
-    if (!il.loadFromFile("data/images/i.png")) {
-        assert(0);
-    }
-
-    std::vector<sf::Vector2f> point;
-    point.push_back(sf::Vector2f(0, 0));
-    point.push_back(sf::Vector2f(200, 0));
-    point.push_back(sf::Vector2f(200, 200));
-    point.push_back(sf::Vector2f(0, 200));
-    move::Polygon<void> button(point, [&]() {}, sf::Vector2f(200, 600));
-    button.setString("LaLa");
-    button.setFillColor(sf::Color::Red);
-    move::Object dragon("data/images/dragon.png", sf::Vector2f(50, 700));
-    move::Circle<void> circle([&]() {});
-    circle.setString("LoLo");
-    circle.setFillColor(sf::Color::White);
-    circle.setTexture(&gay);
-    circle.setClickableTexture(&il);
-
-    sf::Vector2f mouse;
+    sf::Image pop;
+    sf::Texture pop2;
+    sf::Sprite pop3;
+    pop.loadFromFile("data/images/MiniWorldSprites/Ground/TexturedGrass.png");
+    pop2.loadFromImage(pop);
+    pop3.setTexture(pop2);
+    pop3.setPosition(300, 500);
+    objects.push_back(&pop3);
 
     while (window.isOpen()) {
         window.clear(sf::Color(255, 160, 122));
-        button.draw(window);
-        dragon.draw(window);
-        circle.draw(window);
         sf::Event event;
+        window.draw(pop3);
+        character2.drawCharacter(window);
 
         while (window.pollEvent(event)) {
             switch (event.type) {
@@ -47,28 +37,11 @@ int main() {
                 case sf::Event::Closed: {
                     window.close();
                 } break;
-                case sf::Event::MouseMoved: {
-                    button.move_object(window.mapPixelToCoords(sf::Vector2i(event.mouseMove.x, event.mouseMove.y)), mouse);
-                    dragon.move_object(window.mapPixelToCoords(sf::Vector2i(event.mouseMove.x, event.mouseMove.y)), mouse);
-                    circle.move_object(window.mapPixelToCoords(sf::Vector2i(event.mouseMove.x, event.mouseMove.y)), mouse);
-                } break;
-                case sf::Event::MouseButtonPressed: {
-                    if (event.mouseButton.button == sf::Mouse::Left) {
-                        button.click_mouse_left(window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y)), mouse);
-                        dragon.click_mouse_left(window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y)), mouse);
-                        circle.click_mouse_left(window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y)), mouse);
-                    }
-                    else {
-                        if (event.mouseButton.button == sf::Mouse::Right) {
-                            button.click_mouse_right(window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y)), mouse);
-                            dragon.click_mouse_right(window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y)), mouse);
-                            circle.click_mouse_right(window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y)), mouse);
-                        }
-                    }
-                } break;
                 default: {
                 }
             }
+
+            character2.event(event, window);
         }
 
         window.display();
