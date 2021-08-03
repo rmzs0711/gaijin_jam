@@ -32,6 +32,7 @@ struct Clickable {
     virtual ~Clickable() = default;
 };
 
+
 template <typename T>
 struct Button : Clickable<T> {
     Button() = delete;
