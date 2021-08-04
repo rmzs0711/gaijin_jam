@@ -43,13 +43,14 @@ std::vector<sf::Time> stateDurations;
 
 struct Cell {
 public:
-    explicit Cell() {
+    Cell() {
         rect.setSize(sf::Vector2f(cellSize, cellSize));
     }
 
     void setState(const CellState &newState,
                   const sf::Time &newStateStartTime = sf::Time::Zero) {
         stateStartTime = newStateStartTime;
+        state = newState;
         switch (state) {
             case NORMAL:
                 rect.setFillColor(sf::Color::White);
@@ -80,7 +81,7 @@ public:
         rect.setTexture(texturePtrs[object]);
     }
     void updateState(const sf::Time &currentTime) {
-        if (stateDurations[state] < currentTime - stateStartTime) {
+        if (stateDurations[0] < currentTime - stateStartTime) {  // TODO
             switch (state) {
                 case NORMAL:
                     break;
@@ -116,6 +117,14 @@ struct Level {
                 map[i][j].setPosition(sf::Vector2f(
                     sf::Vector2<size_t>(j * cellSize, i * cellSize)));
                 map[i][j].setObject(mapObjects[i][j]);
+            }
+        }
+    }
+
+    void updateStates(const sf::Time &currentTime) {
+        for (auto &i : map) {
+            for (auto &j : i) {
+                j.updateState(currentTime);
             }
         }
     }

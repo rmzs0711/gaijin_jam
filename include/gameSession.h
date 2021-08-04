@@ -25,7 +25,7 @@ struct GameSession {
             texturePtrs[std::get<0>(assetInfo[i])] = &objectTextures[i];
         }
 
-        stateDurations = {sf::Time::Zero};
+        stateDurations = {sf::seconds(10)};
 
         std::vector<std::vector<CellObject>> firstLevel = {
             {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
@@ -52,7 +52,7 @@ struct GameSession {
                     // выделений
         character2.setPosition(100, 100);
         character2.setScale(4, 4);
-
+        sf::Clock clock1;
         while (window.isOpen()) {
             sf::Event event{};
 
@@ -66,6 +66,7 @@ struct GameSession {
                 }
                 character2.event(event, window);
             }
+            levels.back().updateStates(clock1.getElapsedTime());
             levels.back().draw(window);
             character2.drawCharacter(window);
 

@@ -4,11 +4,11 @@
 #include <cmath>
 #include <vector>
 #include "SFML/Graphics.hpp"
-#include "usefulFunctions.h"
 #include "gameSession.h"
+#include "usefulFunctions.h"
 int const UP = 1, DOWN = 0, LEFT = 3, RIGHT = 2;
 
-  // это вектор объектов, с которыми
+// это вектор объектов, с которыми
 // перс
 // не должен
 // сталкиваться, не
@@ -18,14 +18,19 @@ extern std::vector<jam::Cell> currentMap;
 
 bool isCorrectMove(const sf::Sprite &character) {
     for (int i = 0; i < currentMap.size(); i++) {
-        if (currentMap[i].getGlobalBounds().intersects(
-            character.getGlobalBounds()) && currentMap[i].getObject() == jam::EMPTY) {
-            return false;
+        switch (currentMap[i].getObject()) {
+            case jam::EMPTY:
+                if (currentMap[i].getGlobalBounds().intersects(
+                    character.getGlobalBounds())) {
+                    return false;
+                }
+                break;
+            default:
+                break;
         }
     }
     return true;
 }
-
 
 struct Character {
 protected:
