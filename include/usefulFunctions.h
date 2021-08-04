@@ -2,16 +2,26 @@
 #define JAM_USEFULFUNCTIONS_H
 #include <cstdlib>
 #include <string>
+#include <cassert>
 
-template<typename T>
-void checkLoad(T& var, const std::string& loadPath) {
-    if (!var.loadFromFile(loadPath)) {
-        std::exit(3);
+template <typename T>
+void checkLoad(T &var,
+               const std::string &loadPath,
+               const sf::IntRect &area = {-1, -1, -1, -1}) {
+    if (area == sf::IntRect(-1, -1, -1, -1)) {
+        if (!var.loadFromFile(loadPath)) {
+            assert(0);
+        }
+        return;
     }
+    if (!var.loadFromFile(loadPath, area)) {
+        assert(0);
+    }
+
 }
 
-template<typename T>
-bool isContains(const T& shape, const sf::Vector2i& pos) {
+template <typename T>
+bool isContains(const T &shape, const sf::Vector2i &pos) {
     return shape.getGlobalBounds().contains(pos);
 }
 

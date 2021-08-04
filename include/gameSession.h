@@ -2,20 +2,43 @@
 #define JAM_GAMESESSION_H
 #include <SFML/Graphics.hpp>
 #include <array>
+#include <tuple>
 #include <variant>
 #include <vector>
 #include "usefulFunctions.h"
 
 namespace jam {
 
-enum CellState { NORMAL, ON_FIRE, AFTER_FIRE };
+enum CellState { NORMAL, ON_FIRE, AFTER_FIRE, NUMBER_OF_STATES };
 
 enum CellObject {
     EMPTY,
-    //                  GRASS, BUILD_TABLE, FIRE
+    LIGHT_GREEN_GRASS,
+    DARK_GREEN_GRASS,
+    DEAD_GRASS,
+    //                  BUILD_TABLE, FIRE
+    NUMBER_OF_OBJECTS
 };
 
-inline const size_t cellSize = 16;
+const sf::Vector2i assetCellSize = {16, 16};
+const std::vector<std::tuple<CellObject, sf::Vector2i, std::string>> assetInfo =
+    {
+        std::make_tuple(EMPTY,
+                        sf::Vector2i(0, 0),
+                        "data/images/black"
+                        ".png"),
+        std::make_tuple(LIGHT_GREEN_GRASS,
+                        sf::Vector2i(16, 0),
+                        "data/MiniWorldSprites/Ground/Grass.png"),
+        std::make_tuple(DARK_GREEN_GRASS,
+                        sf::Vector2i(32, 0),
+                        "data/MiniWorldSprites/Ground/Grass.png"),
+        std::make_tuple(DEAD_GRASS,
+                        sf::Vector2i(48, 0),
+                        "data/MiniWorldSprites/Ground/Grass.png"),
+};
+
+inline const size_t cellSize = 64;
 std::vector<sf::Texture *> texturePtrs;
 std::vector<sf::Time> stateDurations;
 
@@ -60,6 +83,8 @@ public:
                 case AFTER_FIRE:
                     setState(CellState::NORMAL);
                     break;
+                default:
+                    break;
             }
         }
     }
@@ -76,7 +101,7 @@ private:
 };
 
 struct Level {
-    Level(const std::vector<std::vector<CellObject>> &mapObjects) {
+    explicit Level(const std::vector<std::vector<CellObject>> &mapObjects) {
         map.resize(mapObjects.size());
         for (std::size_t i = 0; i < mapObjects.size(); i++) {
             map[i].resize(mapObjects[i].size());
@@ -101,13 +126,20 @@ private:
 
 struct GameSession {
     void startGame(sf::RenderWindow &window) {
-        sf::Texture empty;
-        checkLoad(empty, "data/images/black.png");
-        texturePtrs = {&empty};
+
+        std::vector<sf::Texture> objectTextures(NUMBER_OF_OBJECTS);
+        texturePtrs.resize(NUMBER_OF_OBJECTS);
+
+        for (int i = 0; i < NUMBER_OF_OBJECTS; i++) {
+            checkLoad(objectTextures[i], std::get<2>(assetInfo[i]),
+                      sf::IntRect(std::get<1>(assetInfo[i]), assetCellSize));
+            texturePtrs[std::get<0>(assetInfo[i])] = &objectTextures[i];
+        }
+
         stateDurations = {sf::Time::Zero};
 
         std::vector<std::vector<CellObject>> firstLevel = {
-            {EMPTY, EMPTY, EMPTY}};
+            {EMPTY, LIGHT_GREEN_GRASS, DARK_GREEN_GRASS, DEAD_GRASS}};
         levels.emplace_back(firstLevel);
         while (window.isOpen()) {
             sf::Event event{};
