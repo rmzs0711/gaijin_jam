@@ -23,7 +23,8 @@ struct GameSession {
             texturePtrs[std::get<0>(assetInfo[i])] = &objectTextures[i];
         }
 
-        stateDurations = {sf::seconds(10)};
+        stateDurations.resize(NUMBER_OF_STATES, sf::seconds(10));
+
 
         std::vector<std::vector<CellObject>> firstLevel = {
             {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
@@ -37,14 +38,12 @@ struct GameSession {
 
         levels.emplace_back(firstLevel);
 
-//        character2.setPosition(100, 100);
         levels[0].characterSetPosition({100, 100});
-//        character2.setScale(4, 4);
         levels[0].characterSetScale({4, 4});
         sf::Clock clock1;
         while (window.isOpen()) {
+            levels[0].updateStates(clock1.getElapsedTime());
             sf::Event event{};
-
             while (window.pollEvent(event)) {
                 switch (event.type) {
                     case sf::Event::Closed:
@@ -53,13 +52,10 @@ struct GameSession {
                     default:
                         break;
                 }
-                levels[0].event(event, window);
-//                character2.event(event, window);
+                levels[0].event(event, window, clock1.getElapsedTime());
             }
             levels.back().updateStates(clock1.getElapsedTime());
             levels.back().draw(window);
-//            character2.drawCharacter(window);
-
             window.display();
         }
     }

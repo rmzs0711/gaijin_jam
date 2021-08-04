@@ -1,5 +1,3 @@
-#pragma once
-
 #include <SFML/Graphics.hpp>
 #include <array>
 #include <tuple>
@@ -28,15 +26,17 @@ struct Level {
             }
         }
     }
-    void characterSetPosition(const sf::Vector2f& newPos) {
+    void characterSetPosition(const sf::Vector2f &newPos) {
         hero.setPosition(newPos);
     }
-    void characterSetScale(const sf::Vector2f& newScale) {
+    void characterSetScale(const sf::Vector2f &newScale) {
         hero.setScale(newScale);
     }
 
-    void event(sf::Event& newEvent, sf::RenderWindow& window) {
-        hero.event(newEvent, window);
+    void event(sf::Event &newEvent,
+               sf::RenderWindow &window,
+               const sf::Time &currentTime) {
+        hero.event(newEvent, window, currentTime);
     }
 
     void updateStates(const sf::Time &currentTime) {

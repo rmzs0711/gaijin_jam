@@ -7,12 +7,18 @@
 #include <vector>
 #include "usefulFunctions.h"
 
-
 namespace jam {
 enum CellState {
     NORMAL,
-    ON_FIRE,
-    AFTER_FIRE,
+    LAVA,
+    AFTER_LAVA,
+    BLAST,
+    AFTER_BLAST,
+    FROZEN_BLAST,
+    AFTER_FROZEN_BLAST,
+    CLOUD,
+    BIG_WALL,
+    FROZEN_WALL,
     NUMBER_OF_STATES
 };
 
@@ -54,20 +60,32 @@ public:
     }
 
     void setState(const CellState &newState,
-                  const sf::Time &newStateStartTime = sf::Time::Zero) {
+                  const sf::Time &newStateStartTime = sf::Time()) {
         stateStartTime = newStateStartTime;
         state = newState;
         switch (state) {
             case NORMAL:
                 rect.setFillColor(sf::Color::White);
                 break;
-            case ON_FIRE:
+            case LAVA:
                 rect.setFillColor(sf::Color::Red);
                 break;
-            case AFTER_FIRE:
+            case AFTER_LAVA:
                 rect.setFillColor(sf::Color::White);
                 break;
-            default:
+            case BLAST:
+                rect.setFillColor(sf::Color::Blue);
+                break;
+            case AFTER_BLAST:
+            case FROZEN_BLAST:
+            case AFTER_FROZEN_BLAST:
+            case CLOUD:
+            case BIG_WALL:
+            case FROZEN_WALL:
+                rect.setFillColor(sf::Color::Black);
+                break;
+            case NUMBER_OF_STATES:
+                assert(0);
                 break;
         }
     }
@@ -87,17 +105,28 @@ public:
         rect.setTexture(texturePtrs[object]);
     }
     void updateState(const sf::Time &currentTime) {
-        if (stateDurations[0] < currentTime - stateStartTime) {  // TODO
+        if (stateDurations[state] < currentTime - stateStartTime) {
             switch (state) {
+                case NUMBER_OF_STATES:
+                    assert(0);
                 case NORMAL:
                     break;
-                case ON_FIRE:
-                    setState(CellState::AFTER_FIRE);
+                case LAVA:
+                    setState(CellState::AFTER_LAVA);
                     break;
-                case AFTER_FIRE:
-                    setState(CellState::NORMAL);
+                case BLAST:
+                    setState(AFTER_BLAST);
                     break;
-                default:
+                case FROZEN_BLAST:
+                    setState(AFTER_FROZEN_BLAST);
+                    break;
+                case CLOUD:
+                case BIG_WALL:
+                case AFTER_LAVA:
+                case AFTER_FROZEN_BLAST:
+                case FROZEN_WALL:
+                case AFTER_BLAST:
+                    setState(NORMAL);
                     break;
             }
         }
@@ -111,7 +140,6 @@ private:
     CellState state = NORMAL;
     CellObject object = EMPTY;
     sf::Time stateStartTime;
-    //    const size_t cellSize = 16;
 };
 
 }  // namespace jam

@@ -4,6 +4,10 @@
 #include <cstdlib>
 #include <string>
 
+int bounds(const int& x, const int& down, const int& up) {
+    return std::min(std::max(x, down), up - 1);
+}
+
 void checkLoadTexture(sf::Texture &var,
                       const std::string &loadPath,
                       const sf::IntRect &area = {-1, -1, -1, -1}) {
