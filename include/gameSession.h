@@ -61,7 +61,13 @@ public:
             case AFTER_FIRE:
                 rect.setFillColor(sf::Color::White);
                 break;
+            default:
+                break;
         }
+    }
+
+    sf::FloatRect getGlobalBounds() {
+        return rect.getGlobalBounds();
     }
 
     void setPosition(const sf::Vector2f &position) {
