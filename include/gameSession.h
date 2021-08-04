@@ -38,7 +38,7 @@ const std::vector<std::tuple<CellObject, sf::Vector2i, std::string>> assetInfo =
                         "data/MiniWorldSprites/Ground/Grass.png"),
 };
 
-inline const size_t cellSize = 64;
+inline const size_t cellSize = 40;
 std::vector<sf::Texture *> texturePtrs;
 std::vector<sf::Time> stateDurations;
 
@@ -126,7 +126,6 @@ private:
 
 struct GameSession {
     void startGame(sf::RenderWindow &window) {
-
         std::vector<sf::Texture> objectTextures(NUMBER_OF_OBJECTS);
         texturePtrs.resize(NUMBER_OF_OBJECTS);
 
@@ -139,7 +138,15 @@ struct GameSession {
         stateDurations = {sf::Time::Zero};
 
         std::vector<std::vector<CellObject>> firstLevel = {
-            {EMPTY, LIGHT_GREEN_GRASS, DARK_GREEN_GRASS, DEAD_GRASS}};
+            {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+            {EMPTY, DEAD_GRASS, LIGHT_GREEN_GRASS, DARK_GREEN_GRASS, EMPTY},
+            {EMPTY, LIGHT_GREEN_GRASS, LIGHT_GREEN_GRASS, DEAD_GRASS, EMPTY},
+            {EMPTY, DEAD_GRASS, DARK_GREEN_GRASS, DARK_GREEN_GRASS, EMPTY},
+            {EMPTY, LIGHT_GREEN_GRASS, DARK_GREEN_GRASS, DEAD_GRASS, EMPTY},
+            {EMPTY, LIGHT_GREEN_GRASS, DEAD_GRASS, DEAD_GRASS, EMPTY},
+            {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+        };
+
         levels.emplace_back(firstLevel);
         while (window.isOpen()) {
             sf::Event event{};
