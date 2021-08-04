@@ -3,14 +3,18 @@
 #include <cassert>
 #include <iostream>
 
-std::vector<sf::Sprite *> objects;
-
-// нажми сначала правой на перса, он выделится, и им ходить можно будет
+std::vector<sf::Sprite *> not_move_objects;
+std::vector<TemplateCharacter *> monsters;
+std::vector<TemplateCharacter*> heroes;
 
 int main() {
     sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "SFML works!", sf::Style::Default);
-    CharacterMouse character2("data/images/MiniWorldSprites/Characters/Soldiers/Melee/PurpleMelee/AssasinPurple.png", false); // убери false, если хочешь, чтоб он всегда ходил, без выделений
-    character2.setScale(4, 4);
+    Hero hero("data/images/MiniWorldSprites/Characters/Soldiers/Melee/PurpleMelee/AssasinPurple.png", 100, 0.5, false);
+    MonsterStanding monster("data/images/MiniWorldSprites/Characters/Monsters/Demons/ArmouredRedDemon.png", 100, 0.2);
+    monster.setScale(4, 4);
+    hero.setScale(4, 4);
+    hero.setPosition(600, 200);
+    monster.setPosition(800, 500);
 
     sf::Image pop;
     sf::Texture pop2;
@@ -19,13 +23,16 @@ int main() {
     pop2.loadFromImage(pop);
     pop3.setTexture(pop2);
     pop3.setPosition(300, 500);
-    objects.push_back(&pop3);
+    not_move_objects.push_back(&pop3);
+    monsters.push_back(&monster);
+    heroes.push_back(&hero);
 
     while (window.isOpen()) {
         window.clear(sf::Color(255, 160, 122));
         sf::Event event;
         window.draw(pop3);
-        character2.drawCharacter(window);
+        hero.drawCharacter(window);
+        monster.drawCharacter(window);
 
         while (window.pollEvent(event)) {
             switch (event.type) {
@@ -41,7 +48,8 @@ int main() {
                 }
             }
 
-            character2.event(event, window);
+            hero.event(event, window);
+           // monster.event(event, window);
         }
 
         window.display();
