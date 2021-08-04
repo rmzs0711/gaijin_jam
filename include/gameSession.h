@@ -10,8 +10,6 @@
 #include "usefulFunctions.h"
 
 
-std::vector<jam::Cell> currentMap;
-
 namespace jam {
 struct GameSession {
     void startGame(sf::RenderWindow &window) {
@@ -39,19 +37,10 @@ struct GameSession {
 
         levels.emplace_back(firstLevel);
 
-        for (auto &i : levels.back().getMap()) {
-            for (auto &j : i) {
-                currentMap.push_back(j);
-            }
-        }
-
-        CharacterMouse character2(
-            "data/images/MiniWorldSprites/Characters/Soldiers/Melee/"
-            "PurpleMelee/AssasinPurple.png",
-            true);  // убери false, если хочешь, чтоб он всегда ходил, без
-                    // выделений
-        character2.setPosition(100, 100);
-        character2.setScale(4, 4);
+//        character2.setPosition(100, 100);
+        levels[0].characterSetPosition({100, 100});
+//        character2.setScale(4, 4);
+        levels[0].characterSetScale({4, 4});
         sf::Clock clock1;
         while (window.isOpen()) {
             sf::Event event{};
@@ -64,11 +53,12 @@ struct GameSession {
                     default:
                         break;
                 }
-                character2.event(event, window);
+                levels[0].event(event, window);
+//                character2.event(event, window);
             }
             levels.back().updateStates(clock1.getElapsedTime());
             levels.back().draw(window);
-            character2.drawCharacter(window);
+//            character2.drawCharacter(window);
 
             window.display();
         }

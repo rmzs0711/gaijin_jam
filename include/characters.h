@@ -3,30 +3,25 @@
 
 #include <cmath>
 #include <vector>
+#include "Cell.h"
 #include "SFML/Graphics.hpp"
-#include "gameSession.h"
 #include "usefulFunctions.h"
 int const UP = 1, DOWN = 0, LEFT = 3, RIGHT = 2;
 
-// это вектор объектов, с которыми
-// перс
-// не должен
-// сталкиваться, не
-// обязательно Sprite главное чтоб можно было следующую функцию
-// реализовать
-extern std::vector<jam::Cell> currentMap;
-
-bool isCorrectMove(const sf::Sprite &character) {
-    for (int i = 0; i < currentMap.size(); i++) {
-        switch (currentMap[i].getObject()) {
-            case jam::EMPTY:
-                if (currentMap[i].getGlobalBounds().intersects(
-                    character.getGlobalBounds())) {
-                    return false;
-                }
-                break;
-            default:
-                break;
+bool isCorrectMove(const sf::Sprite &character,
+                   const std::vector<std::vector<jam::Cell>> &map) {
+    for (auto &i : map) {
+        for (auto &j : i) {
+            switch (j.getObject()) {
+                case jam::EMPTY:
+                    if (j.getGlobalBounds().intersects(
+                            character.getGlobalBounds())) {
+                        return false;
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
     }
     return true;
@@ -34,6 +29,7 @@ bool isCorrectMove(const sf::Sprite &character) {
 
 struct Character {
 protected:
+    std::vector<std::vector<jam::Cell>> &map;
     sf::Texture character_texture, icon_texture;
     sf::Sprite character, icon;
     float speed;
@@ -62,7 +58,7 @@ protected:
         float dx, dy, old_dx, old_dy;
         initializingCoordinates(dx, dy, direction);
         character.move(dx, dy);
-        while (!isCorrectMove(character)) {
+        while (!isCorrectMove(character, map)) {
             character.move(-dx, -dy);
             direction =
                 (direction +
@@ -79,10 +75,12 @@ protected:
 
 public:
     Character(const std::string &file_name,
+              std::vector<std::vector<jam::Cell>> &map_,
               bool is_always_move_ = true,
               int quantity_frames_ = 4,
               int size_frame_ = 16)
-        : quantity_frames(quantity_frames_),
+        : map(map_),
+          quantity_frames(quantity_frames_),
           size_frame(size_frame_),
           is_always_move(is_always_move_),
           is_move(is_always_move_),
@@ -100,9 +98,6 @@ public:
         checkLoad(
             icon_image,
             "data/images/MiniWorldSprites/Objects/FireballProjectile.png");
-        //        icon_image.loadFromFile
-        //        ("data/images/MiniWorldSprites/Objects/FireballProjectile
-        //        .png");
         // В useful functions есть функция которая сразу
         //        проверяет правильно ли скачана картинка
         icon_texture.loadFromImage(icon_image);
@@ -183,11 +178,15 @@ private:
 
 public:
     CharacterKeyboard(const std::string &file_name,
+                      std::vector<std::vector<jam::Cell>> &map_,
                       bool is_always_move_ = true,
                       int quantity_frames_ = 4,
                       int size_frame_ = 16)
-        : Character(file_name, is_always_move_, quantity_frames_, size_frame_) {
-    }
+        : Character(file_name,
+                    map_,
+                    is_always_move_,
+                    quantity_frames_,
+                    size_frame_) {}
 
     void event(const sf::Event &event, sf::RenderWindow &window) {
         if (event.type == sf::Event::KeyPressed) {
@@ -201,7 +200,7 @@ public:
         }
     }
 
-    void drawCharacter(sf::RenderWindow &window) {
+    void drawCharacter(sf::RenderWindow &window) override {
         window.draw(character);
         if (is_move) {
             icon.setPosition(character.getPosition() -
@@ -258,10 +257,15 @@ private:
 
 public:
     CharacterMouse(const std::string &file_name,
+                   std::vector<std::vector<jam::Cell>> &map_,
                    bool is_always_move_ = true,
                    int quantity_frames_ = 4,
                    int size_frame_ = 16)
-        : Character(file_name, is_always_move_, quantity_frames_, size_frame_),
+        : Character(file_name,
+                    map_,
+                    is_always_move_,
+                    quantity_frames_,
+                    size_frame_),
           position(character.getPosition()) {}
 
     void event(const sf::Event &event, sf::RenderWindow &window) {
