@@ -29,13 +29,13 @@ const std::vector<std::tuple<CellObject, sf::Vector2i, std::string>> assetInfo =
                         ".png"),
         std::make_tuple(LIGHT_GREEN_GRASS,
                         sf::Vector2i(16, 0),
-                        "data/MiniWorldSprites/Ground/Grass.png"),
+                        "data/images/MiniWorldSprites/Ground/Grass.png"),
         std::make_tuple(DARK_GREEN_GRASS,
                         sf::Vector2i(32, 0),
-                        "data/MiniWorldSprites/Ground/Grass.png"),
+                        "data/images/MiniWorldSprites/Ground/Grass.png"),
         std::make_tuple(DEAD_GRASS,
                         sf::Vector2i(48, 0),
-                        "data/MiniWorldSprites/Ground/Grass.png"),
+                        "data/images/MiniWorldSprites/Ground/Grass.png"),
 };
 
 inline const size_t cellSize = 40;
@@ -130,8 +130,9 @@ struct GameSession {
         texturePtrs.resize(NUMBER_OF_OBJECTS);
 
         for (int i = 0; i < NUMBER_OF_OBJECTS; i++) {
-            checkLoad(objectTextures[i], std::get<2>(assetInfo[i]),
-                      sf::IntRect(std::get<1>(assetInfo[i]), assetCellSize));
+            checkLoadTexture(
+                objectTextures[i], std::get<2>(assetInfo[i]),
+                sf::IntRect(std::get<1>(assetInfo[i]), assetCellSize));
             texturePtrs[std::get<0>(assetInfo[i])] = &objectTextures[i];
         }
 
