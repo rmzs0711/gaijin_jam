@@ -5,23 +5,27 @@
 #include <vector>
 #include "SFML/Graphics.hpp"
 #include "usefulFunctions.h"
+#include "gameSession.h"
 int const UP = 1, DOWN = 0, LEFT = 3, RIGHT = 2;
 
-extern std::vector<sf::Sprite *>
-    objects;  // это вектор объектов, с которыми перс не должен сталкиваться, не
-              // обязательно Sprite главное чтоб можно было следующую функцию
-              // реализовать
+  // это вектор объектов, с которыми
+// перс
+// не должен
+// сталкиваться, не
+// обязательно Sprite главное чтоб можно было следующую функцию
+// реализовать
+extern std::vector<jam::Cell> currentMap;
 
 bool isCorrectMove(const sf::Sprite &character) {
-    for (int i = 0; i < objects.size(); i++) {
-        if ((*objects[i])
-                .getGlobalBounds()
-                .intersects(character.getGlobalBounds())) {
+    for (int i = 0; i < currentMap.size(); i++) {
+        if (currentMap[i].getGlobalBounds().intersects(
+            character.getGlobalBounds()) && currentMap[i].getObject() == jam::EMPTY) {
             return false;
         }
     }
     return true;
 }
+
 
 struct Character {
 protected:

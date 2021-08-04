@@ -3,7 +3,6 @@
 #include "menu.h"
 #include "usefulFunctions.h"
 
-
 // Нажми на кнопку, запуститься игра и первый уровень
 
 int main() {
