@@ -7,7 +7,7 @@
 #include "SFML/Graphics.hpp"
 #include "usefulFunctions.h"
 
-int const UP = 1, DOWN = 0, LEFT = 3, RIGHT = 2, FIGHTING = 4;
+int const UP = 1, DOWN = 0, LEFT = 3, RIGHT = 2, FIGHTING = 4, NOT_FIGHTING = -1;
 // int const CAST_DOWN = 4, CAST_UP = 6, CAST_RIGHT = 8, CAST_LEFT = 10;
 enum POWER_ELEMENT { FIRE, ICE, EARTH, NUMBER_OF_POWER_ELEMENTS };
 enum ABILITY { FIRE_BLAST, CLOUD, LAVA, FROZEN_BLAST, FROZEN_WALL, BIG_WALL };
@@ -117,11 +117,10 @@ public:
   //  virtual void drawCharacter(sf::RenderWindow& window) = 0;
 };
 
-TemplateCharacter* intersectionObjects(const sf::Sprite& character, std::vector<std::unique_ptr<TemplateCharacter>>& objects) {
+TemplateCharacter* intersectionObjects(const sf::Sprite& character, std::vector<TemplateCharacter *>& objects) {
     for (auto &i : objects) {
-        if ((*(*i).getSprite()).getGlobalBounds().intersects(character.getGlobalBounds()) && (*i).getSprite()
-            != &character) {
-                return i.get();
+        if ((*(*i).getSprite()).getGlobalBounds().intersects(character.getGlobalBounds()) && (*i).getSprite() != &character) {
+                return i;
         }
     }
     return nullptr;
@@ -129,17 +128,16 @@ TemplateCharacter* intersectionObjects(const sf::Sprite& character, std::vector<
 
 
 
-/*extern std::vector<TemplateCharacter*> heroes;
-
 struct MonsterStanding : TemplateCharacter {
 protected:
     int state;
 
     void changeState(int state_, float damage_ = 0) {
         sf::Clock clock;
-        if (state_ == FIGHTING) {
-            state = DOWN;
-            state_ = 4 + state;
+        if (state_ == NOT_FIGHTING) {
+
+        }
+        else if (state_ == FIGHTING) {
             state = FIGHTING;
             character.setTextureRect(sf::IntRect((current_frame % (quantity_frames)) * size_frame.x, state_ * size_frame.y,
                 size_frame.x, size_frame.y));
@@ -151,7 +149,7 @@ protected:
         }
     }
 
-    void isFighting() {
+    void isFighting(std::vector<TemplateCharacter*>& heroes) {
         sf::Clock clock;
         TemplateCharacter* hero = intersectionObjects(character, heroes);
         if (hero != nullptr) {
@@ -159,27 +157,26 @@ protected:
             changeState(FIGHTING, (*hero).getDamage());
         }
         else {
-            changeState(DOWN);
+            changeState(NOT_FIGHTING);
         }
     }
 
     void death() {
-
         health = current_health * 4;
     }
 
 public:
 
-    MonsterStanding(const std::string& file_name, float health_, float damage_, int quantity_frames_ = 4,
+    MonsterStanding(const std::string& file_name, float health_, float damage_, std::vector<std::vector<jam::Cell>>& map_, int quantity_frames_ = 4,
         sf::Vector2i size_frame_ = sf::Vector2i(16, 16)) : TemplateCharacter(file_name, quantity_frames_, size_frame_, health_,
-            damage_), state(DOWN) {}
+            damage_, map_), state(DOWN) {}
 
 
-    void drawCharacter(sf::RenderWindow& window) {
+    void drawCharacter(sf::RenderWindow& window, std::vector<TemplateCharacter*>& heroes) {
         if (isDraw()) {
             if (isLive()) {
                 // moving
-                isFighting();
+                isFighting(heroes);
             }
             else {
                 death();
@@ -191,11 +188,11 @@ public:
 
 
 
-*/
+
 
 struct Hero : TemplateCharacter {
 protected:
-    std::vector<std::unique_ptr<TemplateCharacter>> &monsters;
+  //  std::vector<std::unique_ptr<TemplateCharacter>> &monsters;
     std::vector<POWER_ELEMENT> elements;
     ABILITY ability;
     bool readyToCast = false;
@@ -208,13 +205,16 @@ protected:
         return character.getGlobalBounds().contains(mouse);
     }
 
-    void isFighting() {
+    void isFighting(std::vector<TemplateCharacter*>& monsters) {
         sf::Clock clock;
         TemplateCharacter* monster = intersectionObjects(character, monsters);
         if (monster != nullptr) {
             position = character.getPosition();
             current_frame = (current_frame + static_cast<int>(clock.getElapsedTime().asMicroseconds())) % quantity_frames;
             changeState(FIGHTING, (*monster).getDamage());
+        } 
+        else {
+            changeState(NOT_FIGHTING);
         }
     }
 
@@ -395,6 +395,10 @@ protected:
             health -= damage_;
             return;
         }
+        if (state_ == NOT_FIGHTING) {
+            character.setTextureRect(sf::IntRect(current_frame * size_frame.x, state * size_frame.y, size_frame.x, size_frame.y));
+            return;
+        }
         float dx, dy;
         initializingCoordinates(dx, dy, state_);
         character.move(dx, dy);
@@ -435,9 +439,9 @@ protected:
     }
 
 public:
-    Hero(const std::string& file_name, float health_, float damage_, std::vector<std::unique_ptr<TemplateCharacter>>& monsters_, std::vector<std::vector<jam::Cell>>& map_, bool is_always_move_ = true, int quantity_frames_ = 4,
+    Hero(const std::string& file_name, float health_, float damage_, std::vector<std::vector<jam::Cell>>& map_, bool is_always_move_ = true, int quantity_frames_ = 4,
         sf::Vector2i size_frame_ = sf::Vector2i(16, 16)) : TemplateCharacter(file_name, quantity_frames_, size_frame_, health_,
-            damage_, map_), monsters(monsters_), ability(CLOUD), elements(2, POWER_ELEMENT::FIRE), state(DOWN), is_always_move(is_always_move_), is_move(is_always_move_), position(sf::Vector2f(0, 0)) {}
+            damage_, map_)/*, monsters(monsters_)*/, ability(CLOUD), elements(2, POWER_ELEMENT::FIRE), state(DOWN), is_always_move(is_always_move_), is_move(is_always_move_), position(sf::Vector2f(0, 0)) {}
 
     void setPosition(float x, float y) {
         character.setPosition(x, y);
@@ -461,11 +465,11 @@ public:
         }
     }
 
-    void drawCharacter(sf::RenderWindow& window) {
+    void drawCharacter(sf::RenderWindow& window, std::vector<TemplateCharacter*>& monsters) {
         if (isDraw()) {
             if (isLive()) {
                 moveToPosition();
-                isFighting();
+                isFighting(monsters);
             }
             death();
             window.draw(character);
