@@ -49,7 +49,7 @@ const std::vector<std::tuple<CellObject, sf::Vector2i, std::string>> assetInfo =
                         "data/images/MiniWorldSprites/Ground/Grass.png"),
 };
 
-inline const size_t cellSize = 64;
+const size_t cellSize = 64;
 std::vector<sf::Texture *> texturePtrs;
 std::vector<sf::Time> stateDurations;
 

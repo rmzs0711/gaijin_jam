@@ -38,8 +38,13 @@ struct GameSession {
 
         levels.emplace_back(firstLevel);
 
-        levels[0].characterSetPosition({100, 100});
-        levels[0].characterSetScale({4, 4});
+        levels[0].heroSetPosition({100, 100});
+        levels[0].heroSetScale({4, 4});
+        levels[0].monsterSetPosition({ 60, 200 });
+        levels[0].monsterSetScale({ 3, 3 });
+        levels[0].monsterSetPosition({ 200, 290 }, 1);
+        levels[0].monsterSetScale({ 3, 3 }, 1);
+
         sf::Clock clock1;
         while (window.isOpen()) {
             levels[0].updateStates(clock1.getElapsedTime());
