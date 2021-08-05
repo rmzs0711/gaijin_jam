@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <vector>
+#include <list>
 #include "Cell.h"
 #include "SFML/Graphics.hpp"
 #include "usefulFunctions.h"
@@ -42,8 +43,9 @@ protected:
     sf::Texture character_texture, icon_texture;
     sf::Sprite character, icon;
 
-    TemplateCharacter(const std::string& file_name, int quantity_frames_, sf::Vector2i size_frame_, float health_, float damage_, std::vector<std::vector<jam::Cell>>& map_)
-        : map(map_), current_frame(0), size_frame(size_frame_), quantity_frames(quantity_frames_), speed(1), current_health(health_),
+    TemplateCharacter(const std::string& file_name, int quantity_frames_, sf::Vector2i size_frame_, float health_, float damage_, 
+        std::vector<std::vector<jam::Cell>>& map_)
+        : map(map_), current_frame(0), size_frame(size_frame_), quantity_frames(quantity_frames_), speed(0.2), current_health(health_),
         current_damage(damage_), health(health_), damage(damage_), scale(sf::Vector2f(0, 0)) {
 
         sf::Clock clock;
@@ -112,15 +114,14 @@ public:
         return true;
     }
 
-    virtual void drawCharacter(sf::RenderWindow& window) = 0;
+  //  virtual void drawCharacter(sf::RenderWindow& window) = 0;
 };
 
-TemplateCharacter* intersectionObjects(const sf::Sprite& character, const std::vector<TemplateCharacter*>& objects) {
-    for (int i = 0; i < objects.size(); i++) {
-        if ((*(*objects[i]).getSprite()).getGlobalBounds().intersects(character.getGlobalBounds()) && (*objects[i]).getSprite()
+TemplateCharacter* intersectionObjects(const sf::Sprite& character, std::vector<std::unique_ptr<TemplateCharacter>>& objects) {
+    for (auto &i : objects) {
+        if ((*(*i).getSprite()).getGlobalBounds().intersects(character.getGlobalBounds()) && (*i).getSprite()
             != &character) {
-
-            return objects[i];
+                return i.get();
         }
     }
     return nullptr;
@@ -194,7 +195,7 @@ public:
 
 struct Hero : TemplateCharacter {
 protected:
-    std::vector<TemplateCharacter*> &monsters;
+    std::vector<std::unique_ptr<TemplateCharacter>> &monsters;
     std::vector<POWER_ELEMENT> elements;
     ABILITY ability;
     bool readyToCast = false;
@@ -434,7 +435,7 @@ protected:
     }
 
 public:
-    Hero(const std::string& file_name, float health_, float damage_, std::vector<TemplateCharacter*>& monsters_, std::vector<std::vector<jam::Cell>>& map_, bool is_always_move_ = true, int quantity_frames_ = 4,
+    Hero(const std::string& file_name, float health_, float damage_, std::vector<std::unique_ptr<TemplateCharacter>>& monsters_, std::vector<std::vector<jam::Cell>>& map_, bool is_always_move_ = true, int quantity_frames_ = 4,
         sf::Vector2i size_frame_ = sf::Vector2i(16, 16)) : TemplateCharacter(file_name, quantity_frames_, size_frame_, health_,
             damage_, map_), monsters(monsters_), ability(CLOUD), elements(2, POWER_ELEMENT::FIRE), state(DOWN), is_always_move(is_always_move_), is_move(is_always_move_), position(sf::Vector2f(0, 0)) {}
 
