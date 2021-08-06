@@ -9,7 +9,6 @@
 #include "moving_object.h"
 #include "usefulFunctions.h"
 
-
 namespace jam {
 struct GameSession {
     void startGame(sf::RenderWindow &window) {
@@ -23,14 +22,20 @@ struct GameSession {
             texturePtrs[std::get<0>(assetInfo[i])] = &objectTextures[i];
         }
 
-        stateDurations.resize(NUMBER_OF_STATES, sf::seconds(10));
-
-
-        std::vector<std::vector<CellObject>> firstLevel = {
+        stateDurations.resize(NUMBER_OF_STATES, sf::seconds(2));
+        {
+            int cnt = 0;
+            for (auto &i : fire) {
+                checkLoad(i, "data/images/fire/" + std::to_string(cnt) +
+                               ".png");
+                cnt++;
+            }
+        }
+        std::vector<std::vector<int>> firstLevel = {
             {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-            {EMPTY, DEAD_GRASS, LIGHT_GREEN_GRASS, DARK_GREEN_GRASS, EMPTY},
-            {EMPTY, LIGHT_GREEN_GRASS, LIGHT_GREEN_GRASS, DEAD_GRASS, EMPTY},
-            {EMPTY, DEAD_GRASS, DARK_GREEN_GRASS, DARK_GREEN_GRASS, EMPTY},
+            {EMPTY, FROZEN_GRASS, TREE_1, DARK_GREEN_GRASS, EMPTY},
+            {EMPTY, TREE_2, FROZEN_TREE_1, DEAD_GRASS, EMPTY},
+            {EMPTY, DEAD_GRASS, TREE_3, DARK_GREEN_GRASS, EMPTY},
             {EMPTY, LIGHT_GREEN_GRASS, DARK_GREEN_GRASS, DEAD_GRASS, EMPTY},
             {EMPTY, LIGHT_GREEN_GRASS, DEAD_GRASS, DEAD_GRASS, EMPTY},
             {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
@@ -38,12 +43,12 @@ struct GameSession {
 
         levels.emplace_back(firstLevel);
 
-        levels[0].heroSetPosition({100, 100});
+        levels[0].heroSetPosition({150, 150});
         levels[0].heroSetScale({4, 4});
-        levels[0].monsterSetPosition({ 60, 200 });
-        levels[0].monsterSetScale({ 3, 3 });
-        levels[0].monsterSetPosition({ 200, 290 }, 1);
-        levels[0].monsterSetScale({ 3, 3 }, 1);
+        levels[0].monsterSetPosition({60, 200});
+        levels[0].monsterSetScale({3, 3});
+        levels[0].monsterSetPosition({200, 290}, 1);
+        levels[0].monsterSetScale({3, 3}, 1);
 
         sf::Clock clock1;
         while (window.isOpen()) {

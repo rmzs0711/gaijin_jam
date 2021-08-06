@@ -11,7 +11,7 @@
 namespace jam {
 
 struct Level {
-    explicit Level(const std::vector<std::vector<CellObject>> &mapObjects) {
+    explicit Level(const std::vector<std::vector<int>> &mapObjects) {
         heroes.push_back(std::make_unique<Hero>("data/images/MiniWorldSprites/Characters/Soldiers/Melee/PurpleMelee/AssasinPurple.png", 100, 0.1, map));
         monsters.push_back(std::make_unique<MonsterStanding>("data/images/MiniWorldSprites/Characters/Monsters/Demons/ArmouredRedDemon.png", 50, 0.1, map));
         monsters.push_back(std::make_unique<MonsterStanding>("data/images/MiniWorldSprites/Characters/Monsters/Demons/PurpleDemon.png", 200, 0.1, map));

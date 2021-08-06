@@ -18,6 +18,7 @@ void checkLoadTexture(sf::Texture &var,
         return;
     }
     if (!var.loadFromFile(loadPath, area)) {
+        std::cout << loadPath << std::endl;
         assert(0);
     }
 }
