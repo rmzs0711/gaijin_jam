@@ -114,7 +114,7 @@ const std::vector<std::tuple<int, sf::Vector2i, std::string>> assetInfo = {
                     "data/images/MiniWorldSprites/Nature/Rocks.png"),
 };
 
-const size_t cellSize = 64;
+const size_t cellSize = 128;
 std::vector<sf::Texture *> texturePtrs;
 std::vector<sf::Time> stateDurations;
 

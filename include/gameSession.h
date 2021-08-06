@@ -5,6 +5,7 @@
 #include <variant>
 #include <vector>
 #include "Level.h"
+#include "building.h"
 #include "characters.h"
 #include "moving_object.h"
 #include "usefulFunctions.h"

@@ -15,30 +15,30 @@ enum ABILITY { FIRE_BLAST, CLOUD, LAVA, FROZEN_BLAST, FROZEN_WALL, BIG_WALL };
 
 bool isCorrectMove(const sf::Sprite &character,
                    const std::vector<std::vector<jam::Cell>> &map) {
-    for (auto &i : map) {
-        for (auto &j : i) {
-            switch (j.getObject()) {
-                case jam::ROCK:
-                case jam::FROZEN_ROCK:
-                case jam::TREE_3:
-                case jam::TREE_2:
-                case jam::TREE_1:
-                case jam::STUMP:
-                case jam::FROZEN_TREE_1:
-                case jam::FROZEN_TREE_2:
-                case jam::FROZEN_TREE_3:
-                case jam::DEAD_TREE:
-                case jam::FROZEN_DEAD_TREE:
-                case jam::EMPTY:
-                    if (j.getGlobalBounds().contains(character.getPosition())) {
-                        return false;
-                    }
-                    break;
-                default:
-                    break;
+    sf::Vector2i cell =
+        sf::Vector2i(character.getPosition() / (float)jam::cellSize);
+    switch (map[cell.y][cell.x].getObject()) {
+        case jam::ROCK:
+        case jam::FROZEN_ROCK:
+        case jam::TREE_3:
+        case jam::TREE_2:
+        case jam::TREE_1:
+        case jam::STUMP:
+        case jam::FROZEN_TREE_1:
+        case jam::FROZEN_TREE_2:
+        case jam::FROZEN_TREE_3:
+        case jam::DEAD_TREE:
+        case jam::FROZEN_DEAD_TREE:
+        case jam::EMPTY:
+            if (map[cell.y][cell.x].getGlobalBounds().contains(
+                    character.getPosition())) {
+                return false;
             }
-        }
+            break;
+        default:
+            break;
     }
+
     return true;
 }
 
@@ -175,11 +175,17 @@ protected:
         } else if (state == FIGHTING) {
             state = DOWN;
         } else if (state_ == FROZEN) {
+            state = state_;
+            health -= damage_;
             character.setColor(sf::Color::Blue);
         } else if (state_ == BURNED) {
+            state = state_;
             character.setColor(sf::Color::Red);
             health -= jam::fireDamage;
+            health -= damage_;
         } else if (state_ == SLOWED) {
+            state = state_;
+            health -= damage_;
             character.setColor(sf::Color(100, 100, 100));
             // TODO speed * slow_coef
         }
@@ -202,9 +208,14 @@ protected:
     void death() {
         health = current_health * 4;
     }
-    void isEffected() {
+    void isEffected(std::vector<TemplateCharacter *> &heroes) {
+        TemplateCharacter *hero = intersectionObjects(character, heroes);
         sf::Vector2i cell =
             sf::Vector2i(character.getPosition() / (float)jam::cellSize);
+        float damage_ = 0;
+        if (hero) {
+            damage_ = hero->getDamage();
+        }
 
         switch (map[cell.y][cell.x].getState()) {
             case jam::NORMAL:
@@ -212,13 +223,13 @@ protected:
                 break;
             case jam::LAVA:
             case jam::BLAST:
-                changeState(BURNED);
+                changeState(BURNED, damage_);
                 break;
             case jam::FROZEN_BLAST:
-                changeState(FROZEN);
+                changeState(FROZEN, damage_);
                 break;
             case jam::CLOUD:
-                changeState(SLOWED);
+                changeState(SLOWED, damage_);
                 break;
             case jam::BIG_WALL:
                 break;
@@ -243,13 +254,15 @@ public:
                             damage_,
                             map_),
           state(DOWN) {}
-
+    int getState() const {
+        return state;
+    }
     void drawCharacter(sf::RenderWindow &window,
                        std::vector<TemplateCharacter *> &heroes) {
         if (isDraw()) {
             if (isLive()) {
                 isFighting(heroes);
-                isEffected();
+                isEffected(heroes);
                 // moving
 
             } else {
@@ -284,7 +297,13 @@ protected:
                 (current_frame +
                  static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
                 quantity_frames;
-            changeState(FIGHTING, (*monster).getDamage());
+            float damage_ = 0;
+            sf::Vector2i cell = sf::Vector2i(
+                monster->getSprite()->getPosition() / (float)jam::cellSize);
+            if (map[cell.y][cell.x].getState() != jam::FROZEN_BLAST) {
+                damage_ = monster->getDamage();
+            }
+            changeState(FIGHTING, damage_);
         } else {
             changeState(NOT_FIGHTING);
         }
@@ -440,6 +459,13 @@ protected:
             readyToCast = false;
             position = window.mapPixelToCoords(
                 sf::Vector2i(event.mouseButton.x, event.mouseButton.y));
+            auto bounds =
+                sf::IntRect(sf::Vector2i(0, 0),
+                            sf::Vector2i(map[0].size() * jam::cellSize,
+                                         map.size() * jam::cellSize));
+            if (!bounds.contains(window.mapCoordsToPixel(position))) {
+                position = character.getPosition();
+            }
         }
     }
 

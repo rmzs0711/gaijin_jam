@@ -6,7 +6,7 @@
 // Нажми на кнопку, запуститься игра и первый уровень
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(512, 512), "SFML works!",
+    sf::RenderWindow window(sf::VideoMode(1920, 1080), "SFML works!",
                             sf::Style::Default);
     jam::GameSession game;
     RectangleButton<void> startGameButton([&]() {
