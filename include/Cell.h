@@ -204,11 +204,12 @@ public:
                     case FROZEN_TREE_2:
                     case FROZEN_TREE_3:
                     case FROZEN_DEAD_TREE:
-                        setObject(FROZEN_DEAD_TREE);
-                        prevObject = DEAD_TREE;
+                        prevObject = object;
                         break;
                     case FROZEN_GRASS:
-                        prevObject = DEAD_GRASS;
+                        if (prevObject == EMPTY) {
+                            prevObject = object;
+                        }
                         break;
                     case BUILD_SIGN:
                     case STUMP:

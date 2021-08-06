@@ -30,8 +30,7 @@ bool isCorrectMove(const sf::Sprite &character,
                 case jam::DEAD_TREE:
                 case jam::FROZEN_DEAD_TREE:
                 case jam::EMPTY:
-                    if (j.getGlobalBounds().contains(
-                            character.getPosition())) {
+                    if (j.getGlobalBounds().contains(character.getPosition())) {
                         return false;
                     }
                     break;
@@ -204,32 +203,29 @@ protected:
         health = current_health * 4;
     }
     void isEffected() {
-        for (auto &i : map) {
-            for (auto &j : i) {
-                if (j.getGlobalBounds().contains(character.getPosition())) {
-                    switch (j.getState()) {
-                        case jam::NORMAL:
-                            changeState(NOT_FIGHTING);
-                            break;
-                        case jam::LAVA:
-                        case jam::BLAST:
-                            changeState(BURNED);
-                            break;
-                        case jam::FROZEN_BLAST:
-                            changeState(FROZEN);
-                            break;
-                        case jam::CLOUD:
-                            changeState(SLOWED);
-                            break;
-                        case jam::BIG_WALL:
-                            break;
-                        case jam::FROZEN_WALL:
-                            break;
-                        case jam::NUMBER_OF_STATES:
-                            break;
-                    }
-                }
-            }
+        sf::Vector2i cell =
+            sf::Vector2i(character.getPosition() / (float)jam::cellSize);
+
+        switch (map[cell.y][cell.x].getState()) {
+            case jam::NORMAL:
+                changeState(NOT_FIGHTING);
+                break;
+            case jam::LAVA:
+            case jam::BLAST:
+                changeState(BURNED);
+                break;
+            case jam::FROZEN_BLAST:
+                changeState(FROZEN);
+                break;
+            case jam::CLOUD:
+                changeState(SLOWED);
+                break;
+            case jam::BIG_WALL:
+                break;
+            case jam::FROZEN_WALL:
+                break;
+            case jam::NUMBER_OF_STATES:
+                break;
         }
     }
 
@@ -403,10 +399,6 @@ protected:
                             if (std::abs(j) + std::abs(i) >= 3) {
                                 continue;
                             }
-                            auto x =
-                                bounds(selectedCell.x + i, 0, (int)map.size());
-                            auto y =
-                                bounds(selectedCell.y + j, 0, (int)map.size());
                             map[bounds(selectedCell.x + i, 0, (int)map.size())]
                                [bounds(selectedCell.y + j, 0,
                                        (int)map[0].size())]
