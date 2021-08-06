@@ -49,6 +49,7 @@ enum CellObject {
 sf::Texture fire[6];
 
 const sf::Vector2i assetCellSize = {16, 16};
+float fireDamage = 0.1;
 const std::vector<std::tuple<int, sf::Vector2i, std::string>> assetInfo = {
     std::make_tuple(EMPTY,
                     sf::Vector2i(0, 0),
@@ -251,6 +252,9 @@ public:
     }
     int getObject() const {
         return object;
+    }
+    CellState getState() const {
+        return state;
     }
     sf::FloatRect getGlobalBounds() const {
         return backRect.getGlobalBounds();

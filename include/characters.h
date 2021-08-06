@@ -9,7 +9,7 @@
 
 int const UP = 1, DOWN = 0, LEFT = 3, RIGHT = 2, FIGHTING = 4,
           NOT_FIGHTING = -1;
-int const CAST_DOWN = 4, CAST_UP = 6, CAST_RIGHT = 8, CAST_LEFT = 10;
+int const BURNED = -2, FROZEN = -3, SLOWED = -4;
 enum POWER_ELEMENT { FIRE, ICE, EARTH, NUMBER_OF_POWER_ELEMENTS };
 enum ABILITY { FIRE_BLAST, CLOUD, LAVA, FROZEN_BLAST, FROZEN_WALL, BIG_WALL };
 
@@ -18,9 +18,20 @@ bool isCorrectMove(const sf::Sprite &character,
     for (auto &i : map) {
         for (auto &j : i) {
             switch (j.getObject()) {
+                case jam::ROCK:
+                case jam::FROZEN_ROCK:
+                case jam::TREE_3:
+                case jam::TREE_2:
+                case jam::TREE_1:
+                case jam::STUMP:
+                case jam::FROZEN_TREE_1:
+                case jam::FROZEN_TREE_2:
+                case jam::FROZEN_TREE_3:
+                case jam::DEAD_TREE:
+                case jam::FROZEN_DEAD_TREE:
                 case jam::EMPTY:
-                    if (j.getGlobalBounds().intersects(
-                            character.getGlobalBounds())) {
+                    if (j.getGlobalBounds().contains(
+                            character.getPosition())) {
                         return false;
                     }
                     break;
@@ -154,7 +165,8 @@ protected:
     void changeState(int state_, float damage_ = 0) {
         sf::Clock clock;
         if (state_ == NOT_FIGHTING) {
-        } else if (state_ == FIGHTING) {
+            character.setColor(sf::Color::White);
+        } else if (state_ == FIGHTING && state != FROZEN) {
             state = FIGHTING;
             character.setTextureRect(
                 sf::IntRect((current_frame % (quantity_frames)) * size_frame.x,
@@ -163,6 +175,14 @@ protected:
             return;
         } else if (state == FIGHTING) {
             state = DOWN;
+        } else if (state_ == FROZEN) {
+            character.setColor(sf::Color::Blue);
+        } else if (state_ == BURNED) {
+            character.setColor(sf::Color::Red);
+            health -= jam::fireDamage;
+        } else if (state_ == SLOWED) {
+            character.setColor(sf::Color(100, 100, 100));
+            // TODO speed * slow_coef
         }
     }
 
@@ -182,6 +202,35 @@ protected:
 
     void death() {
         health = current_health * 4;
+    }
+    void isEffected() {
+        for (auto &i : map) {
+            for (auto &j : i) {
+                if (j.getGlobalBounds().contains(character.getPosition())) {
+                    switch (j.getState()) {
+                        case jam::NORMAL:
+                            changeState(NOT_FIGHTING);
+                            break;
+                        case jam::LAVA:
+                        case jam::BLAST:
+                            changeState(BURNED);
+                            break;
+                        case jam::FROZEN_BLAST:
+                            changeState(FROZEN);
+                            break;
+                        case jam::CLOUD:
+                            changeState(SLOWED);
+                            break;
+                        case jam::BIG_WALL:
+                            break;
+                        case jam::FROZEN_WALL:
+                            break;
+                        case jam::NUMBER_OF_STATES:
+                            break;
+                    }
+                }
+            }
+        }
     }
 
 public:
@@ -203,8 +252,10 @@ public:
                        std::vector<TemplateCharacter *> &heroes) {
         if (isDraw()) {
             if (isLive()) {
-                // moving
                 isFighting(heroes);
+                isEffected();
+                // moving
+
             } else {
                 death();
             }
@@ -320,8 +371,8 @@ protected:
                     for (int i = -1; i < 2; i++) {
                         for (int j = -1; j < 2; j++) {
                             map[bounds(selectedCell.x + i, 0, (int)map.size())]
-                               [bounds(selectedCell.y + j, 0, (int)map[0].size
-())]
+                               [bounds(selectedCell.y + j, 0,
+                                       (int)map[0].size())]
                                    .setState(jam::BLAST, currentTime);
                         }
                     }
@@ -330,8 +381,8 @@ protected:
                     for (int i = -1; i < 2; i++) {
                         for (int j = -1; j < 2; j++) {
                             map[bounds(selectedCell.x + i, 0, (int)map.size())]
-                               [bounds(selectedCell.y + j, 0, (int)map[0].size
-())]
+                               [bounds(selectedCell.y + j, 0,
+                                       (int)map[0].size())]
                                    .setState(jam::CLOUD, currentTime);
                         }
                     }
@@ -340,8 +391,8 @@ protected:
                     for (int i = 0; i < 2; i++) {
                         for (int j = 0; j < 2; j++) {
                             map[bounds(selectedCell.x + i, 0, (int)map.size())]
-                               [bounds(selectedCell.y + j, 0, (int)map[0].size
-                                                              ())]
+                               [bounds(selectedCell.y + j, 0,
+                                       (int)map[0].size())]
                                    .setState(jam::LAVA, currentTime);
                         }
                     }
@@ -357,8 +408,8 @@ protected:
                             auto y =
                                 bounds(selectedCell.y + j, 0, (int)map.size());
                             map[bounds(selectedCell.x + i, 0, (int)map.size())]
-                               [bounds(selectedCell.y + j, 0, (int)map[0].size
-                                                              ())]
+                               [bounds(selectedCell.y + j, 0,
+                                       (int)map[0].size())]
                                    .setState(jam::FROZEN_BLAST, currentTime);
                         }
                     }

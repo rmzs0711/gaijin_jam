@@ -26,19 +26,31 @@ struct GameSession {
         {
             int cnt = 0;
             for (auto &i : fire) {
-                checkLoad(i, "data/images/fire/" + std::to_string(cnt) +
-                               ".png");
+                checkLoad(i,
+                          "data/images/fire/" + std::to_string(cnt) + ".png");
                 cnt++;
             }
         }
         std::vector<std::vector<int>> firstLevel = {
-            {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-            {EMPTY, FROZEN_GRASS, TREE_1, DARK_GREEN_GRASS, EMPTY},
-            {EMPTY, TREE_2, FROZEN_TREE_1, DEAD_GRASS, EMPTY},
-            {EMPTY, DEAD_GRASS, TREE_3, DARK_GREEN_GRASS, EMPTY},
-            {EMPTY, LIGHT_GREEN_GRASS, DARK_GREEN_GRASS, DEAD_GRASS, EMPTY},
-            {EMPTY, LIGHT_GREEN_GRASS, DEAD_GRASS, DEAD_GRASS, EMPTY},
-            {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+            {EMPTY, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS,
+             LIGHT_GREEN_GRASS, LIGHT_GREEN_GRASS, EMPTY, EMPTY, EMPTY, EMPTY},
+            {EMPTY, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS,
+             LIGHT_GREEN_GRASS, LIGHT_GREEN_GRASS, FROZEN_GRASS, TREE_1,
+             DARK_GREEN_GRASS, EMPTY},
+            {EMPTY, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS,
+             LIGHT_GREEN_GRASS, LIGHT_GREEN_GRASS, TREE_2, FROZEN_TREE_1,
+             DEAD_GRASS, EMPTY},
+            {EMPTY, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS,
+             LIGHT_GREEN_GRASS, LIGHT_GREEN_GRASS, DEAD_GRASS, TREE_3,
+             DARK_GREEN_GRASS, EMPTY},
+            {EMPTY, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS,
+             LIGHT_GREEN_GRASS, LIGHT_GREEN_GRASS, LIGHT_GREEN_GRASS,
+             DARK_GREEN_GRASS, DEAD_GRASS, EMPTY},
+            {EMPTY, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS,
+             LIGHT_GREEN_GRASS, LIGHT_GREEN_GRASS, LIGHT_GREEN_GRASS,
+             DEAD_GRASS, DEAD_GRASS, EMPTY},
+            {EMPTY, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS,
+             LIGHT_GREEN_GRASS, LIGHT_GREEN_GRASS, EMPTY, EMPTY, EMPTY, EMPTY},
         };
 
         levels.emplace_back(firstLevel);
