@@ -1,5 +1,5 @@
-#ifndef JAM_USEFULFUNCTIONS_H
-#define JAM_USEFULFUNCTIONS_H
+#pragma once
+
 #include <cassert>
 #include <cstdlib>
 #include <string>
@@ -41,5 +41,3 @@ T quadraticDist(const sf::Vector2<T>& first, const sf::Vector2<T>& second) {
     T yDist = (first - second).y;
     return xDist * xDist + yDist * yDist;
 }
-
-#endif  // JAM_USEFULFUNCTIONS_H

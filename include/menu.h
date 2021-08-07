@@ -1,5 +1,5 @@
-#ifndef JAM_MENU_H
-#define JAM_MENU_H
+#pragma once
+
 #include <vector>
 #include "SFML/Graphics.hpp"
 #include "button.h"
@@ -43,5 +43,3 @@ private:
     sf::RectangleShape background;
     mutable std::vector<std::unique_ptr<Button<void>>> buttons;
 };
-
-#endif  // JAM_MENU_H

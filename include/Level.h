@@ -1,3 +1,5 @@
+#pragma once
+
 #include <SFML/Graphics.hpp>
 #include <array>
 #include <tuple>
@@ -12,10 +14,13 @@ namespace jam {
 
 struct Level {
     explicit Level(const std::vector<std::vector<int>> &mapObjects) {
-        heroes.push_back(std::make_shared<Hero>
-            ("data/images/MiniWorldSprites/Characters/Soldiers/Melee/PurpleMelee/AssasinPurple.png", 100, 0.1, map));
-        monsters.push_back(makeArmouredRedDemon(map));
-        monsters.push_back(makePirateGunnern(map));
+        heroes.push_back(makeAssasinLime(map));
+        std::vector<sf::Vector2f> monster_path;
+        monster_path.push_back(sf::Vector2f(200, 200));
+        monster_path.push_back(sf::Vector2f(220, 280));
+        monster_path.push_back(sf::Vector2f(260, 340));
+        monsters.push_back(makeYeti(map, monster_path));
+        monsters.push_back(makePirateGunnern(map, monster_path));
 
 
         map.resize(mapObjects.size());
