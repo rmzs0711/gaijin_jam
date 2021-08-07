@@ -84,8 +84,12 @@ public:
     const sf::Vector2i &getPosInMap() const {
         return posInMap;
     }
-    void setPosInMap(const sf::Vector2i &newPosInMap) {
+    void setPosInMap(
+        const sf::Vector2i &newPosInMap
+        //                     ,   std::vector<std::vector<Cell>>& map
+    ) {
         Building::posInMap = newPosInMap;
+        //        map[newPosInMap.y][newPosInMap.x].setObject(BUILD_SIGN);
         building.setPosition(sf::Vector2f(newPosInMap * (int)cellSize));
         building.move({0.5 * cellSize, cellSize});
     }

@@ -30,6 +30,7 @@ bool isCorrectMove(const sf::Sprite &character,
         case jam::DEAD_TREE:
         case jam::FROZEN_DEAD_TREE:
         case jam::EMPTY:
+        case jam::BUILD_SIGN:
             if (map[cell.y][cell.x].getGlobalBounds().contains(
                     character.getPosition())) {
                 return false;
@@ -430,8 +431,17 @@ protected:
                 case FROZEN_WALL:
                     for (int i = 0; i < 1; i++) {
                         for (int j = 0; j < 1; j++) {
+                            if (map[bounds(selectedCell.x + i, 0,
+                                           (int)map.size())]
+                                   [bounds(selectedCell.y + j, 0,
+                                           (int)map[0].size())]
+                                       .getGlobalBounds()
+                                       .contains(character.getPosition())) {
+                                continue;
+                            }
                             map[bounds(selectedCell.x + i, 0, (int)map.size())]
-                               [bounds(selectedCell.y + j, 0, (int)map.size())]
+                               [bounds(selectedCell.y + j, 0,
+                                       (int)map[0].size())]
                                    .setState(jam::FROZEN_WALL, currentTime);
                         }
                     }
@@ -439,8 +449,17 @@ protected:
                 case BIG_WALL:
                     for (int i = 0; i < 2; i++) {
                         for (int j = 0; j < 2; j++) {
+                            if (map[bounds(selectedCell.x + i, 0,
+                                           (int)map.size())]
+                                   [bounds(selectedCell.y + j, 0,
+                                           (int)map[0].size())]
+                                       .getGlobalBounds()
+                                       .contains(character.getPosition())) {
+                                continue;
+                            }
                             map[bounds(selectedCell.x + i, 0, (int)map.size())]
-                               [bounds(selectedCell.y + j, 0, (int)map.size())]
+                               [bounds(selectedCell.y + j, 0,
+                                       (int)map[0].size())]
                                    .setState(jam::BIG_WALL, currentTime);
                         }
                     }
@@ -505,14 +524,27 @@ protected:
         float dx, dy;
         initializingCoordinates(dx, dy, state_);
         character.move(dx, dy);
-        if (!isCorrectMove(character, map)) {
+        auto xMapPos = static_cast<int>(character.getGlobalBounds().left /
+                       jam::cellSize);
+        auto yMapPos = static_cast<int>(character.getGlobalBounds().top / jam::cellSize);
+
+        switch (map[yMapPos][xMapPos].getObject()) {
+            case jam::ROCK:
+            case jam::FROZEN_ROCK:
+                character.move(-dx, -dy);
+                state = state_;
+                return;
+            default:
+                break;
+        }
+        while (!isCorrectMove(character, map)) {
             character.move(-dx, -dy);
             state_ = (state_ + static_cast<int>(
                                    clock.getElapsedTime().asMicroseconds())) %
                      4;
             initializingCoordinates(dx, dy, state_);
-//            dx *= 2.5, dy *= 2.5;
-//            character.move(dx, dy);
+            dx *= 2.5, dy *= 2.5;
+            character.move(dx, dy);
         }
         state = state_;
         character.setTextureRect(sf::IntRect(current_frame * size_frame.x,
