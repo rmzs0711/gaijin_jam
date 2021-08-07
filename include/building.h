@@ -6,9 +6,12 @@ namespace jam {
 
 struct FlyingObject : sf::Transformable {
 public:
-    explicit FlyingObject(const std::shared_ptr<MonsterStanding> &targetPtr_)
-        : targetPtr(targetPtr_) {}
-
+    float getDamage() const {
+        return damage;
+    }
+    void setDamage(float newDamage) {
+        damage = newDamage;
+    }
     const sf::Sprite &getObject() const {
         return object;
     }
@@ -25,35 +28,44 @@ public:
         FlyingObject::speed = newSpeed;
     }
     void draw(sf::RenderWindow &window) {
-
         object.setOrigin(getOrigin());
         object.setScale(getScale());
         auto &curPos = getPosition();
-        auto &targetPos = targetPtr->getSprite()->getPosition();
+        targetPos = {targetPtr->getSprite()->getGlobalBounds().left +
+                         targetPtr->getSprite()->getGlobalBounds().width / 2,
+                     targetPtr->getSprite()->getGlobalBounds().top +
+                         targetPtr->getSprite()->getGlobalBounds().height / 2};
 
         auto xDist = targetPos.x - curPos.x;
         auto yDist = targetPos.y - curPos.y;
         auto Dist = std::sqrt((xDist * xDist) + (yDist * yDist));
 
-//        move(speed * sf::Vector2f{xDist / Dist, yDist / Dist});
-
-//        object.setRotation(std::acos(xDist / Dist));
+        move(speed * sf::Vector2f{xDist / Dist, yDist / Dist});
+        object.setRotation((asin(yDist / Dist) < 0 ? -1 : 1) *
+                               std::acos(xDist / Dist) * 180 / M_PI -
+                           90);
 
         object.setPosition(getPosition());
         window.draw(object);
-        object.setColor(sf::Color::Red);
-        object.setScale(1000, 1000);
-        window.draw(object);
     }
     bool isFinished() {
-        return object.getGlobalBounds().intersects(
-            targetPtr->getSprite()->getGlobalBounds());
+        if (object.getGlobalBounds().contains(targetPos)) {
+            targetPtr->takeDamage(damage);
+            return true;
+        }
+        return false;
+    }
+
+    void setTargetPtr(const std::shared_ptr<MonsterStanding> &targetPtr_) {
+        FlyingObject::targetPtr = targetPtr_;
     }
 
 protected:
     std::shared_ptr<MonsterStanding> targetPtr{};
     sf::Sprite object;
     float speed = 0;
+    float damage = 0;
+    sf::Vector2f targetPos;
 };
 
 struct Building {
@@ -75,12 +87,15 @@ public:
     void setPosInMap(const sf::Vector2i &newPosInMap) {
         Building::posInMap = newPosInMap;
         building.setPosition(sf::Vector2f(newPosInMap * (int)cellSize));
+        building.move({0.5 * cellSize, cellSize});
     }
-    void setTexture(const sf::Texture &newTexture, bool resetRect = true) {
-        building.setTexture(newTexture, resetRect);
+    void setTexture(const sf::Texture &newTexture) {
+        building.setTexture(newTexture);
     }
     void setTextureRect(const sf::IntRect &newRect) {
         building.setTextureRect(newRect);
+        building.setOrigin(building.getGlobalBounds().width / 2,
+                           building.getGlobalBounds().height);
     }
     void draw(sf::RenderWindow &window) {
         window.draw(building);
@@ -110,35 +125,34 @@ public:
     void setAttackRange(float newAttackRange) {
         AttackBuilding::attackRange = newAttackRange;
     }
-    float getDamage() const {
-        return damage;
-    }
-    void setDamage(float newDamage) {
-        AttackBuilding::damage = newDamage;
-    }
+
     void loadFlyingObjectTextureFromFile(const std::string &path) {
         checkLoad(flyingObjectTexture, path);
     }
-    sf::Vector2f getPosition() {
-        return sf::Vector2f(getPosInMap() * (int)cellSize) +
-               sf::Vector2f(getSizeInMap() * (int)cellSize) / 2.f;
+    void setAttackPosition(const sf::Vector2f &newPos) {
+        firePosition = newPos;
+    }
+    const sf::Vector2f &getFirePosition() const {
+        return firePosition;
     }
 
+    void setFlyingObject(const FlyingObject &flyingObject_) {
+        AttackBuilding::flyingObject = flyingObject_;
+    }
     void attack(const std::vector<std::shared_ptr<MonsterStanding>> &monsters) {
         if (clock.getElapsedTime() - lastAttackTime < attackCooldown) {
             return;
         }
         for (auto &i : monsters) {
-            if (quadraticDist(getPosition(), i->getSprite()->getPosition()) <
+            if (quadraticDist(building.getPosition(),
+                              i->getSprite()->getPosition()) <
                 getAttackRange() * getAttackRange()) {
-                FlyingObject arrow(i);
-                arrow.setTexture(flyingObjectTexture);
-                arrow.setTextureRect({{0, 16}, assetCellSize / 2});
-                arrow.setPosition(getPosition());
-                arrow.setScale(10, 10);
-                arrow.setSpeed(10);
-                arrow.setOrigin(sf::Vector2f(assetCellSize / 2));
-                objects.push_back(arrow);
+                flyingObject.setTexture(flyingObjectTexture);
+                flyingObject.setPosition(
+                    building.getGlobalBounds().left + firePosition.x,
+                    building.getGlobalBounds().top + firePosition.y);
+                flyingObject.setTargetPtr(i);
+                objects.push_back(flyingObject);
                 break;
             }
         }
@@ -151,8 +165,9 @@ protected:
     sf::Time lastAttackTime;
     sf::Time attackCooldown;
     float attackRange = 0;
-    float damage = 0;
     std::vector<FlyingObject> &objects;
+    FlyingObject flyingObject;
+    sf::Vector2f firePosition;
 };
 
 struct SupportBuilding : Building {};

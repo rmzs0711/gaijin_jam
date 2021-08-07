@@ -257,6 +257,9 @@ public:
     int getState() const {
         return state;
     }
+    void takeDamage(float damage_) {
+        health -= damage_;
+    }
     void drawCharacter(sf::RenderWindow &window,
                        std::vector<TemplateCharacter *> &heroes) {
         if (isDraw()) {
@@ -264,7 +267,6 @@ public:
                 isFighting(heroes);
                 isEffected(heroes);
                 // moving
-
             } else {
                 death();
             }
@@ -459,10 +461,9 @@ protected:
             readyToCast = false;
             position = window.mapPixelToCoords(
                 sf::Vector2i(event.mouseButton.x, event.mouseButton.y));
-            auto bounds =
-                sf::IntRect(sf::Vector2i(0, 0),
-                            sf::Vector2i(map[0].size() * jam::cellSize,
-                                         map.size() * jam::cellSize));
+            auto bounds = sf::IntRect(
+                sf::Vector2i(0, 0), sf::Vector2i(map[0].size() * jam::cellSize,
+                                                 map.size() * jam::cellSize));
             if (!bounds.contains(window.mapCoordsToPixel(position))) {
                 position = character.getPosition();
             }
@@ -504,14 +505,14 @@ protected:
         float dx, dy;
         initializingCoordinates(dx, dy, state_);
         character.move(dx, dy);
-        while (!isCorrectMove(character, map)) {
+        if (!isCorrectMove(character, map)) {
             character.move(-dx, -dy);
             state_ = (state_ + static_cast<int>(
                                    clock.getElapsedTime().asMicroseconds())) %
                      4;
             initializingCoordinates(dx, dy, state_);
-            dx *= 2.5, dy *= 2.5;
-            character.move(dx, dy);
+//            dx *= 2.5, dy *= 2.5;
+//            character.move(dx, dy);
         }
         state = state_;
         character.setTextureRect(sf::IntRect(current_frame * size_frame.x,

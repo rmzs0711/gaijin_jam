@@ -1,4 +1,3 @@
-#pragma once
 #include <SFML/Graphics.hpp>
 #include <array>
 #include <tuple>
@@ -58,7 +57,7 @@ struct GameSession {
 
         levels[0].heroSetPosition({150, 150});
         levels[0].heroSetScale({4, 4});
-        levels[0].monsterSetPosition({60, 200});
+        levels[0].monsterSetPosition({cellSize * 3, cellSize * 6});
         levels[0].monsterSetScale({3, 3});
         levels[0].monsterSetPosition({200, 290}, 1);
         levels[0].monsterSetScale({3, 3}, 1);
@@ -72,7 +71,6 @@ struct GameSession {
                   ".png");
         archersTower.setAttackCooldown(sf::seconds(1));
         archersTower.setAttackRange(1000);
-        archersTower.setDamage(1);
         archersTower.setTexture(archersTowerTexture);
         archersTower.setTextureRect({16, 16, 16, 32});
         archersTower.setPosInMap({3, 3});
@@ -80,9 +78,18 @@ struct GameSession {
         archersTower.setScale({(float)cellSize / 16, (float)cellSize / 16});
         archersTower.loadFlyingObjectTextureFromFile(
             "data/images/MiniWorldSprites/Objects/ArrowLong.png");
+        archersTower.setAttackPosition({cellSize / 2, cellSize / 2});
+        auto secondTower = archersTower;
+//        secondTower.setPosInMap({3, 2});
 
-            auto secondTower = archersTower;
-        secondTower.setPosInMap({3, 2});
+        FlyingObject arrow;
+        arrow.setTextureRect({{5, 3}, {5, 11}});
+        arrow.setOrigin(sf::Vector2f(2.5, 0));
+        arrow.setScale(5, 5);
+        arrow.setSpeed(1);
+        arrow.setDamage(50);
+
+        archersTower.setFlyingObject(arrow);
 
         while (window.isOpen()) {
             levels[0].updateStates(clock1.getElapsedTime());
@@ -102,11 +109,10 @@ struct GameSession {
             secondTower.draw(window);
             archersTower.draw(window);
             archersTower.attack(levels[0].getMonsters());
-            for (auto i = 0;
-                 i < flyingFireObjects.size(); i++) {
+            for (auto i = 0; i < flyingFireObjects.size(); i++) {
                 flyingFireObjects[i].draw(window);
-                if (flyingFireObjects
-                        [i].isFinished()) {
+
+                if (flyingFireObjects[i].isFinished()) {
                     flyingFireObjects.erase(flyingFireObjects.begin() + i);
                 }
             }
