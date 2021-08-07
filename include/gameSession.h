@@ -64,6 +64,26 @@ struct GameSession {
         levels[0].monsterSetScale({3, 3}, 1);
 
         sf::Clock clock1;
+        std::vector<FlyingObject> flyingFireObjects;
+        AttackBuilding archersTower(flyingFireObjects, clock1);
+        sf::Texture archersTowerTexture;
+        checkLoad(archersTowerTexture,
+                  "data/images/MiniWorldSprites/Buildings/Lime/LimeTower"
+                  ".png");
+        archersTower.setAttackCooldown(sf::seconds(1));
+        archersTower.setAttackRange(1000);
+        archersTower.setDamage(1);
+        archersTower.setTexture(archersTowerTexture);
+        archersTower.setTextureRect({16, 16, 16, 32});
+        archersTower.setPosInMap({3, 3});
+        archersTower.setSizeInMap({1, 2});
+        archersTower.setScale({(float)cellSize / 16, (float)cellSize / 16});
+        archersTower.loadFlyingObjectTextureFromFile(
+            "data/images/MiniWorldSprites/Objects/ArrowLong.png");
+
+            auto secondTower = archersTower;
+        secondTower.setPosInMap({3, 2});
+
         while (window.isOpen()) {
             levels[0].updateStates(clock1.getElapsedTime());
             sf::Event event{};
@@ -79,6 +99,17 @@ struct GameSession {
             }
             levels.back().updateStates(clock1.getElapsedTime());
             levels.back().draw(window);
+            secondTower.draw(window);
+            archersTower.draw(window);
+            archersTower.attack(levels[0].getMonsters());
+            for (auto i = 0;
+                 i < flyingFireObjects.size(); i++) {
+                flyingFireObjects[i].draw(window);
+                if (flyingFireObjects
+                        [i].isFinished()) {
+                    flyingFireObjects.erase(flyingFireObjects.begin() + i);
+                }
+            }
             window.display();
         }
     }
