@@ -5,16 +5,17 @@
 #include <vector>
 #include <memory>
 #include "Cell.h"
-#include "characters.h"
+#include "makeCharacters.h"
 #include "usefulFunctions.h"
 
 namespace jam {
 
 struct Level {
-    explicit Level(const std::vector<std::vector<CellObject>> &mapObjects) {
-        heroes.push_back(std::make_unique<Hero>("data/images/MiniWorldSprites/Characters/Soldiers/Melee/PurpleMelee/AssasinPurple.png", 100, 0.1, map));
-        monsters.push_back(std::make_unique<MonsterStanding>("data/images/MiniWorldSprites/Characters/Monsters/Demons/ArmouredRedDemon.png", 50, 0.1, map));
-        monsters.push_back(std::make_unique<MonsterStanding>("data/images/MiniWorldSprites/Characters/Monsters/Demons/PurpleDemon.png", 200, 0.1, map));
+    explicit Level(const std::vector<std::vector<int>> &mapObjects) {
+        heroes.push_back(std::make_shared<Hero>
+            ("data/images/MiniWorldSprites/Characters/Soldiers/Melee/PurpleMelee/AssasinPurple.png", 100, 0.1, map));
+        monsters.push_back(makeArmouredRedDemon(map));
+        monsters.push_back(makePirateGunnern(map));
 
 
         map.resize(mapObjects.size());
@@ -66,7 +67,9 @@ struct Level {
         std::vector<TemplateCharacter*> monsters_;
         for (int i = 0; i < monsters.size(); i++) {
             if ((*monsters[i]).isDraw()) {
-                monsters_.push_back(monsters[i].get());
+                if ((*monsters[i]).isLive()) {
+                    monsters_.push_back(monsters[i].get());
+                }
             }
             else {
                 monsters.erase(monsters.begin() + i);
@@ -81,7 +84,9 @@ struct Level {
         std::vector<TemplateCharacter*> heroes_;
         for (int i = 0; i < heroes.size(); i++) {
             if ((*heroes[i]).isDraw()) {
-                heroes_.push_back(heroes[i].get());
+                if ((*heroes[i]).isLive()) {
+                    heroes_.push_back(heroes[i].get());
+                }
             }
             else {
                 heroes.erase(heroes.begin() + i);
@@ -98,9 +103,17 @@ struct Level {
         return map;
     }
 
+    const std::vector<std::shared_ptr<Hero>> &getHeroes() const {
+        return heroes;
+    }
+    const std::vector<std::shared_ptr<MonsterStanding>> &getMonsters() const {
+        return monsters;
+    }
+
 private:
     std::vector<std::vector<Cell>> map;
-    std::vector<std::unique_ptr<Hero>> heroes;
-    std::vector<std::unique_ptr<MonsterStanding>> monsters;
+
+    std::vector<std::shared_ptr<Hero>> heroes;
+    std::vector<std::shared_ptr<MonsterStanding>> monsters;
 };
 }  // namespace jam

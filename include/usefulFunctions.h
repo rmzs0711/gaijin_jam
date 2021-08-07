@@ -18,6 +18,7 @@ void checkLoadTexture(sf::Texture &var,
         return;
     }
     if (!var.loadFromFile(loadPath, area)) {
+        std::cout << loadPath << std::endl;
         assert(0);
     }
 }
@@ -32,6 +33,13 @@ void checkLoad(T &var, const std::string &loadPath) {
 template <typename T>
 bool isContains(const T &shape, const sf::Vector2i &pos) {
     return shape.getGlobalBounds().contains(pos);
+}
+
+template<typename T>
+T quadraticDist(const sf::Vector2<T>& first, const sf::Vector2<T>& second) {
+    T xDist = (first - second).x;
+    T yDist = (first - second).y;
+    return xDist * xDist + yDist * yDist;
 }
 
 #endif  // JAM_USEFULFUNCTIONS_H
