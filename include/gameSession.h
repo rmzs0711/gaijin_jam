@@ -83,7 +83,7 @@ struct GameSession {
         arrow.setOrigin(sf::Vector2f(2.5, 0));
         arrow.setScale(5, 5);
         arrow.setSpeed(1);
-        arrow.setDamage(50);
+        arrow.setDamage(0);
 
         archersTower.setFlyingObject(arrow);
 

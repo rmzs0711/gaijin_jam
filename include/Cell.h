@@ -48,6 +48,7 @@ int NUMBER_OF_TEXTURES = NUMBER_OF_BACKGROUNDS;
 
 const sf::Vector2i assetCellSize = {16, 16};
 float fireDamage = 0.1;
+float earthShakeDamage = 0.05;
 const std::vector<std::tuple<int, sf::IntRect, std::string>> assetInfo = {
     std::make_tuple(NONE,
                     sf::IntRect(sf::Vector2i(0, 0), assetCellSize),
@@ -67,15 +68,17 @@ const std::vector<std::tuple<int, sf::IntRect, std::string>> assetInfo = {
     std::make_tuple(LAVA_FLOOR,
                     sf::IntRect({0, 0}, assetCellSize),
                     "data/images/lava.png"),
-    std::make_tuple(TREE,
-                    sf::IntRect({0, 0}, {assetCellSize.x * 4, assetCellSize.y}),
-                    "data/images/MiniWorldSprites/Nature/Trees.png"),
-    std::make_tuple(DEAD_TREE,
-                    sf::IntRect({0, 0}, {assetCellSize.x * 4, assetCellSize.y}),
-                    "data/images/MiniWorldSprites/Nature/DeadTrees.png"),
+    std::make_tuple(
+        TREE,
+        sf::IntRect({16, 0}, {assetCellSize.x * 3, assetCellSize.y}),
+        "data/images/MiniWorldSprites/Nature/Trees.png"),
+    std::make_tuple(
+        DEAD_TREE,
+        sf::IntRect({32, 0}, {assetCellSize.x * 2, assetCellSize.y}),
+        "data/images/MiniWorldSprites/Nature/DeadTrees.png"),
     std::make_tuple(
         FROZEN_TREE,
-        sf::IntRect({0, 48}, {assetCellSize.x * 4, assetCellSize.y}),
+        sf::IntRect({16, 48}, {assetCellSize.x * 3, assetCellSize.y}),
         "data/images/MiniWorldSprites/Nature/WinterTrees.png"),
     std::make_tuple(FROZEN_GRASS,
                     sf::IntRect({0, 0}, assetCellSize),
@@ -115,27 +118,31 @@ public:
     void setState(const CellState &newState,
                   const sf::Time &newStateStartTime = sf::Time()) {
         stateStartTime = newStateStartTime;
-
-        switch (newState) {
+        switch (stateType) {
             case NORMAL:
-                switch (stateType) {
-                    case EARTHSHAKE:
-                    case NORMAL:
-                    case FROZEN_BLAST:
-                    case BLAST:
-                    case LAVA:
-                        background.setTexture(*texturePtrs[prevBackground]);
-                        backgroundType = prevBackground;
-                    case CLOUD:
-                        background.setColor(sf::Color::White);
-                        break;
-                    case NUMBER_OF_STATES:
-                        assert(0);
-                        break;
-                }
                 break;
             case LAVA:
+            case BLAST:
                 prevBackground = DEAD_GRASS;
+                break;
+            case EARTHSHAKE:
+            case FROZEN_BLAST:
+                backgroundType = prevBackground;
+                break;
+            case CLOUD:
+                background.setColor(sf::Color::White);
+                break;
+            case NUMBER_OF_STATES:
+                assert(0);
+                break;
+        }
+        switch (newState) {
+            case NORMAL:
+                background.setTexture(*texturePtrs[prevBackground]);
+                backgroundType = prevBackground;
+                background.setColor(sf::Color::White);
+                break;
+            case LAVA:
                 background.setTexture(*texturePtrs[LAVA_FLOOR]);
                 backgroundType = LAVA_FLOOR;
                 break;
@@ -251,15 +258,14 @@ private:
     int prevBackground = LIGHT_GREEN_GRASS;
 };
 
-
 struct FreeObject {
     const Object &getObjectType() const {
         return objectType;
     }
-    void setScale(const sf::Vector2f& newScale) {
+    void setScale(const sf::Vector2f &newScale) {
         object.setScale(newScale);
     }
-    explicit FreeObject(const Object& newObjectType) {
+    explicit FreeObject(const Object &newObjectType) {
         objectType = newObjectType;
         object.setTexture(*texturePtrs[objectType]);
         setPosition({-1, -1});
@@ -276,7 +282,9 @@ struct FreeObject {
     void setOrigin(const sf::Vector2f &newOrigin) {
         object.setOrigin(newOrigin);
     }
-
+    const sf::Sprite &getSprite() const {
+        return object;
+    }
     void draw(sf::RenderWindow &window) const {
         window.draw(object);
     }

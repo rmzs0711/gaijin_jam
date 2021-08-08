@@ -633,17 +633,14 @@
 
 int const UP = 1, DOWN = 0, LEFT = 3, RIGHT = 2, FIGHTING = 4,
           NOT_FIGHTING = -1;
-int const BURNED = -2, FROZEN = -3, SLOWED = -4;
+int const BURNED = -2, FROZEN = -3, SLOWED = -4, STUNNED = -5;
 enum POWER_ELEMENT { FIRE, ICE, EARTH, NUMBER_OF_POWER_ELEMENTS };
 enum ABILITY { FIRE_BLAST, CLOUD, LAVA, FROZEN_BLAST, FROZEN_WALL, BIG_WALL };
 
 bool isCorrectMove(const sf::Sprite &character,
                    const std::list<jam::FreeObject> &objects) {
-    //    sf::Vector2i cell =
-    //        sf::Vector2i(character.getPosition() / (float)jam::cellSize);
-    // TODO
     for (auto &i : objects) {
-        if (i.getHitBox().contains(character.getPosition())) {
+        if (i.getSprite().getGlobalBounds().contains(character.getPosition())) {
             return false;
         }
     }
@@ -792,9 +789,9 @@ protected:
         sf::Clock clock;
         if (state_ == NOT_FIGHTING) {
             character.setColor(sf::Color::White);
-        } else if (state_ == FIGHTING && state != FROZEN) {
+        } else if (state_ == FIGHTING && state != FROZEN && state != STUNNED) {
             character.setColor(sf::Color::White);
-        } else if (state_ == FIGHTING && state != FROZEN) {
+        } else if (state_ == FIGHTING && state != FROZEN && state != STUNNED) {
             state = FIGHTING;
             character.setTextureRect(
                 sf::IntRect((current_frame % (quantity_frames)) * size_frame.x,
@@ -817,7 +814,11 @@ protected:
             health -= damage_;
             character.setColor(sf::Color(100, 100, 100));
             // TODO speed * slow_coef
-        } else {
+        } else if (state_ == STUNNED){
+            state = state_;
+            health -= damage_;
+            health -= jam::earthShakeDamage;
+    } else {
             float dx, dy;
             initializingCoordinates(dx, dy, state_);
             character.move(dx, dy);
@@ -868,6 +869,7 @@ protected:
                 changeState(SLOWED, damage_);
                 break;
             case jam::EARTHSHAKE:
+                changeState(STUNNED, damage_);
                 break;
             case jam::NUMBER_OF_STATES:
                 break;

@@ -10,7 +10,9 @@ FreeObject makeTree(const sf::Vector2f &position) {
 
     tree.setScale({(float)cellSize / (float)assetCellSize.x,
                    (float)cellSize / (float)assetCellSize.y});
-
+    tree.setHitBox({tree.getPosition().x - 3 * tree.getSprite().getScale().x,
+                    tree.getPosition().y - 20,
+                    6 * tree.getSprite().getScale().x, 20});
     return tree;
 }
 }  // namespace jam
