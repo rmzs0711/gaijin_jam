@@ -108,10 +108,18 @@ struct Level {
         return map;
     }
 
+    void addHero(std::shared_ptr<Hero> hero) {
+        heroes.push_back(hero);
+    }
+
+    void addMonster(std::shared_ptr<Monster> monster) {
+        monsters.push_back(monster);
+    }
+
     const std::vector<std::shared_ptr<Hero>> &getHeroes() const {
         return heroes;
     }
-    const std::vector<std::shared_ptr<MonsterStanding>> &getMonsters() const {
+    const std::vector<std::shared_ptr<Monster>> &getMonsters() const {
         return monsters;
     }
 
@@ -119,6 +127,6 @@ private:
     std::vector<std::vector<Cell>> map;
 
     std::vector<std::shared_ptr<Hero>> heroes;
-    std::vector<std::shared_ptr<MonsterStanding>> monsters;
+    std::vector<std::shared_ptr<Monster>> monsters;
 };
 }  // namespace jam

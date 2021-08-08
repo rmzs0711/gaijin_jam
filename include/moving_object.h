@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace move {
+
 
     struct DragAndDropAndClick {
     public:
@@ -23,6 +23,8 @@ namespace move {
       //  sf::Sprite object;
 
     public:
+        Object() {}
+
         Object(const std::string& name_file, const sf::Vector2f& position = sf::Vector2f(0, 0)) {
             sf::Image object_image;
             object_image.loadFromFile(name_file);
@@ -178,4 +180,3 @@ namespace move {
         }
     };
 
-}

@@ -57,12 +57,12 @@ namespace jam {
             return false;
         }
 
-        void setTargetPtr(const std::shared_ptr<MonsterStanding>& targetPtr_) {
+        void setTargetPtr(const std::shared_ptr<Monster>& targetPtr_) {
             FlyingObject::targetPtr = targetPtr_;
         }
 
     protected:
-        std::shared_ptr<MonsterStanding> targetPtr{};
+        std::shared_ptr<Monster> targetPtr{};
         sf::Sprite object;
         float speed = 0;
         float damage = 0;
@@ -140,7 +140,7 @@ namespace jam {
         void setFlyingObject(const FlyingObject& flyingObject_) {
             AttackBuilding::flyingObject = flyingObject_;
         }
-        void attack(const std::vector<std::shared_ptr<MonsterStanding>>& monsters) {
+        void attack(const std::vector<std::shared_ptr<Monster>>& monsters) {
             if (clock.getElapsedTime() - lastAttackTime < attackCooldown) {
                 return;
             }

@@ -10,6 +10,7 @@
 #include "makeCharacters.h"
 #include "moving_object.h"
 #include "usefulFunctions.h"
+#include "store.h"
 
 namespace jam {
     struct GameSession {
@@ -90,6 +91,8 @@ namespace jam {
 
             archersTower.setFlyingObject(arrow);
 
+            Store store(window);
+
             while (window.isOpen()) {
                 levels[0].updateStates(clock1.getElapsedTime());
                 sf::Event event{};
@@ -102,6 +105,7 @@ namespace jam {
                         break;
                     }
                     levels[0].event(event, window, clock1.getElapsedTime());
+                    // eventStore(event, window, levels[i]);
                 }
                 levels.back().updateStates(clock1.getElapsedTime());
                 levels.back().draw(window);
@@ -115,6 +119,8 @@ namespace jam {
                         flyingFireObjects.erase(flyingFireObjects.begin() + i);
                     }
                 }
+                store.drawStore(window);
+
                 window.display();
             }
         }

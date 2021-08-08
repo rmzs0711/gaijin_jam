@@ -1,6 +1,5 @@
 #include "../include/moving_object.h"
 
-namespace move {
 
         void DragAndDropAndClick::move_object(const sf::Vector2f& mouse, sf::Vector2f& old_mouse) {
             if (is_correct_click(mouse) && condition_for_move()) {
@@ -32,4 +31,3 @@ namespace move {
         void Object::change_position(const sf::Vector2f& position) {
             sf::Sprite::move(position);
         }
-}
