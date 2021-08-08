@@ -126,7 +126,6 @@ public:
                     case LAVA:
                         background.setTexture(*texturePtrs[prevBackground]);
                         backgroundType = prevBackground;
-                        break;
                     case CLOUD:
                         background.setColor(sf::Color::White);
                         break;
@@ -252,18 +251,20 @@ private:
     int prevBackground = LIGHT_GREEN_GRASS;
 };
 
+
 struct FreeObject {
-    void setObject(const FreeObject &newObject) {
-        auto pos = getPosition();
-        *this = newObject;
-        setPosition(pos);
-    }
     const Object &getObjectType() const {
         return objectType;
     }
-    void setTexture(const sf::Texture &texture) {
-        object.setTexture(texture);
+    void setScale(const sf::Vector2f& newScale) {
+        object.setScale(newScale);
+    }
+    explicit FreeObject(const Object& newObjectType) {
+        objectType = newObjectType;
+        object.setTexture(*texturePtrs[objectType]);
+        setPosition({-1, -1});
         setNumberOfFrames(texturesNumberOfFrames[objectType]);
+        object.setColor(sf::Color::White);
         setCurrentFrame({rand() % numberOfFrames.x, rand() % numberOfFrames.y});
     }
     void setPosition(const sf::Vector2f &newPos) {
@@ -276,7 +277,7 @@ struct FreeObject {
         object.setOrigin(newOrigin);
     }
 
-    void draw(sf::RenderWindow &window) {
+    void draw(sf::RenderWindow &window) const {
         window.draw(object);
     }
     const sf::FloatRect &getHitBox() const {
@@ -290,7 +291,8 @@ struct FreeObject {
     }
     void setCurrentFrame(const sf::Vector2i &newCurrentFrame) {
         FreeObject::currentFrame = newCurrentFrame;
-        object.setTextureRect({{0, 0}, currentFrame * assetCellSize.x});
+        object.setTextureRect(
+            {{currentFrame * assetCellSize.x}, assetCellSize});
     }
     const sf::Vector2i &getNumberOfFrames() const {
         return numberOfFrames;

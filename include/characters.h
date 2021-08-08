@@ -639,15 +639,14 @@ enum ABILITY { FIRE_BLAST, CLOUD, LAVA, FROZEN_BLAST, FROZEN_WALL, BIG_WALL };
 
 bool isCorrectMove(const sf::Sprite &character,
                    const std::list<jam::FreeObject> &objects) {
-    sf::Vector2i cell =
-        sf::Vector2i(character.getPosition() / (float)jam::cellSize);
+    //    sf::Vector2i cell =
+    //        sf::Vector2i(character.getPosition() / (float)jam::cellSize);
     // TODO
-    auto y = objects.size();
-//    for (auto &i : objects) {
-//        if (i.getHitBox().contains(character.getPosition())) {
-//            return false;
-//        }
-//    }
+    for (auto &i : objects) {
+        if (i.getHitBox().contains(character.getPosition())) {
+            return false;
+        }
+    }
     return true;
 }
 
@@ -936,21 +935,18 @@ public:
 
     void drawCharacter(sf::RenderWindow &window,
                        std::vector<TemplateCharacter *> &heroes) {
-
         if (isDraw()) {
             if (isLive()) {
                 isFighting(heroes);
-                if (positions.empty()) {
-                    assert(!positions.empty());
-                }
+
                 if (state == FIGHTING) {
                     if (positions[positions.size() - 1] !=
                         character.getPosition()) {
                         positions.push_back(character.getPosition());
                     }
-                } else if (positions.empty() && positions[positions.size() -
-                                                          1] ==
-                           character.getPosition()) {
+                } else if (!positions.empty() &&
+                           positions[positions.size() - 1] ==
+                               character.getPosition()) {
                     positions.pop_back();
                 }
                 moveToPosition();
@@ -1072,7 +1068,7 @@ protected:
             if (selectedCell.x == -1) {
                 assert(0);
             }
-            //TODO
+            // TODO
             switch (ability) {
                 case FIRE_BLAST:
                     for (int i = -1; i < 2; i++) {
@@ -1244,7 +1240,7 @@ public:
          float health_,
          float damage_,
          std::vector<std::vector<jam::Cell>> &map_,
-         std::list<jam::FreeObject>& objects_,
+         std::list<jam::FreeObject> &objects_,
          bool is_always_move_ = true,
          int quantity_frames_ = 4,
          sf::Vector2i size_frame_ = sf::Vector2i(16, 16))

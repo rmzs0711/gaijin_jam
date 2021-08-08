@@ -11,6 +11,7 @@
 #include "characters.h"
 #include "makeCharacters.h"
 #include "usefulFunctions.h"
+#include "makeFreeObjects.h"
 struct TemplateCharacter;
 namespace jam {
 
@@ -23,7 +24,7 @@ struct Level {
         monster_path.push_back(sf::Vector2f(260, 340));
         monsters.push_back(makeYeti(map, freeObjects, monster_path));
         monsters.push_back(makePirateGunnern(map, freeObjects, monster_path));
-
+        freeObjects.push_back(makeTree({200, 300}));
         map.resize(mapObjects.size());
         for (int i = 0; i < mapObjects.size(); i++) {
             map[i].resize(mapObjects[i].size());
