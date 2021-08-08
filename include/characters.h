@@ -635,7 +635,7 @@ int const UP = 1, DOWN = 0, LEFT = 3, RIGHT = 2, FIGHTING = 4,
           NOT_FIGHTING = -1;
 int const BURNED = -2, FROZEN = -3, SLOWED = -4, STUNNED = -5;
 enum POWER_ELEMENT { FIRE, ICE, EARTH, NUMBER_OF_POWER_ELEMENTS };
-enum ABILITY { FIRE_BLAST, CLOUD, LAVA, FROZEN_BLAST, FROZEN_WALL, BIG_WALL };
+enum ABILITY { FIRE_BLAST, CLOUD, LAVA, FROZEN_BLAST, WALL, EARTHSHAKE };
 
 bool isCorrectMove(const sf::Sprite &character,
                    const std::list<jam::FreeObject> &objects) {
@@ -1002,11 +1002,11 @@ protected:
         if (event.key.code == sf::Keyboard::R) {
             int whatAbility = (1 << elements[0]) | (1 << elements[1]);
             if (whatAbility == 4) {  // 100
-                ability = BIG_WALL;
+                ability = EARTHSHAKE;
             } else if (whatAbility == 5) {  // 101
                 ability = LAVA;
             } else if (whatAbility == 6) {  // 110
-                ability = FROZEN_WALL;
+                ability = WALL;
             } else if (whatAbility == 2) {  // 010
                 ability = FROZEN_BLAST;
             } else if (whatAbility == 3) {  // 011
@@ -1115,7 +1115,7 @@ protected:
                         }
                     }
                     break;
-                case BIG_WALL:
+                case EARTHSHAKE:
                     for (int i = 0; i < 2; i++) {
                         for (int j = 0; j < 2; j++) {
                             if (map[bounds(selectedCell.x + i, 0,
@@ -1133,7 +1133,7 @@ protected:
                         }
                     }
                     break;
-                case FROZEN_WALL:
+                case WALL:
                     break;
             }
         }
