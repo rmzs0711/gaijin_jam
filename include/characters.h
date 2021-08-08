@@ -629,6 +629,7 @@
 #include <vector>
 #include "Level.h"
 #include "SFML/Graphics.hpp"
+#include "makeFreeObjects.h"
 #include "usefulFunctions.h"
 
 int const UP = 1, DOWN = 0, LEFT = 3, RIGHT = 2, FIGHTING = 4,
@@ -639,8 +640,11 @@ enum ABILITY { FIRE_BLAST, CLOUD, LAVA, FROZEN_BLAST, WALL, EARTHSHAKE };
 
 bool isCorrectMove(const sf::Sprite &character,
                    const std::list<jam::FreeObject> &objects) {
+    auto hitBox = character.getGlobalBounds();
     for (auto &i : objects) {
-        if (i.getSprite().getGlobalBounds().contains(character.getPosition())) {
+        if (i.getHitBox().intersects({hitBox.left,
+                                      hitBox.top + hitBox.height / 2,
+                                      hitBox.width, hitBox.height / 2})) {
             return false;
         }
     }
@@ -814,14 +818,28 @@ protected:
             health -= damage_;
             character.setColor(sf::Color(100, 100, 100));
             // TODO speed * slow_coef
-        } else if (state_ == STUNNED){
+        } else if (state_ == STUNNED) {
             state = state_;
             health -= damage_;
             health -= jam::earthShakeDamage;
-    } else {
+        } else {
             float dx, dy;
             initializingCoordinates(dx, dy, state_);
             character.move(dx, dy);
+            bool isRock = false;
+            auto hitBox = character.getGlobalBounds();
+            for (auto &i : objects) {
+                if (i.getObjectType() == jam::ROCK && i.getHitBox().intersects
+                ({hitBox.left,
+                  hitBox.top + hitBox.height / 2,
+                  hitBox.width, hitBox.height / 2})) {
+                    isRock = true;
+                }
+            }
+            if (isRock) {
+                character.move(-dx, -dy);
+                return;
+            }
             state = state_;
             character.setTextureRect(sf::IntRect(current_frame * size_frame.x,
                                                  state_ * size_frame.y,
@@ -871,10 +889,10 @@ protected:
             case jam::EARTHSHAKE:
                 changeState(STUNNED, damage_);
                 break;
+            case jam::WALL:
             case jam::NUMBER_OF_STATES:
                 break;
         }
-        // TODO
     }
 
     void moveToPosition() {
@@ -1070,7 +1088,6 @@ protected:
             if (selectedCell.x == -1) {
                 assert(0);
             }
-            // TODO
             switch (ability) {
                 case FIRE_BLAST:
                     for (int i = -1; i < 2; i++) {
@@ -1134,6 +1151,11 @@ protected:
                     }
                     break;
                 case WALL:
+                    map[selectedCell.x][selectedCell.y].setState(jam::WALL,
+                                                                 currentTime);
+                    objects.push_back(jam::makeRock(sf::Vector2f(
+                        selectedCell.y * jam::cellSize + jam::cellSize / 2,
+                        selectedCell.x * jam::cellSize + jam::cellSize / 2)));
                     break;
             }
         }
@@ -1183,20 +1205,21 @@ protected:
         float dx, dy;
         initializingCoordinates(dx, dy, state_);
         character.move(dx, dy);
-        auto xMapPos =
-            static_cast<int>(character.getGlobalBounds().left / jam::cellSize);
-        auto yMapPos =
-            static_cast<int>(character.getGlobalBounds().top / jam::cellSize);
         // TODO
-        //        switch (map[yMapPos][xMapPos].getObject()) {
-        //            case jam::ROCK:
-        //            case jam::FROZEN_ROCK:
-        //                character.move(-dx, -dy);
-        //                state = state_;
-        //                return;
-        //            default:
-        //                break;
-        //        }
+        bool isRock = false;
+        auto hitBox = character.getGlobalBounds();
+        for (auto &i : objects) {
+            if (i.getObjectType() == jam::ROCK && i.getHitBox().intersects
+                                     ({hitBox.left,
+                                          hitBox.top + hitBox.height / 2,
+                                          hitBox.width, hitBox.height / 2})) {
+                isRock = true;
+            }
+        }
+        if (isRock) {
+            character.move(-dx, -dy);
+            return;
+        }
         while (!isCorrectMove(character, objects)) {
             character.move(-dx, -dy);
             state_ = (state_ + static_cast<int>(

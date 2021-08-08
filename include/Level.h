@@ -69,8 +69,16 @@ struct Level {
                 j.draw(window);
             }
         }
-        for (auto &i : freeObjects) {
-            i.draw(window);
+        for (auto i = freeObjects.begin(); i != freeObjects.end();) {
+            i->draw(window);
+            if (i->getObjectType() == ROCK) {
+                auto cell = sf::Vector2i(i->getPosition() / (float)cellSize);
+                if (map[cell.y][cell.x].getState() != WALL) {
+                    i = freeObjects.erase(i);
+                    continue;
+                }
+            }
+            i++;
         }
         std::vector<TemplateCharacter *> monsters_;
         for (int i = 0; i < monsters.size(); i++) {

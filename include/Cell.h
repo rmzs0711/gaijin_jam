@@ -19,6 +19,7 @@ enum CellState {
     FROZEN_BLAST,
     CLOUD,
     EARTHSHAKE,
+    WALL,
     NUMBER_OF_STATES
 };
 
@@ -121,6 +122,8 @@ public:
         switch (stateType) {
             case NORMAL:
                 break;
+
+            case WALL:
             case LAVA:
             case BLAST:
                 prevBackground = DEAD_GRASS;
@@ -162,6 +165,7 @@ public:
                 backgroundType = prevBackground;
                 break;
             case EARTHSHAKE:
+            case WALL:
                 break;
             case NUMBER_OF_STATES:
                 assert(0);
@@ -200,6 +204,7 @@ public:
             case BLAST:
             case LAVA:
             case EARTHSHAKE:
+            case WALL:
             case FROZEN_BLAST:
                 background.setColor(
                     sf::Color(brightness, brightness, brightness));
@@ -286,7 +291,19 @@ struct FreeObject {
         return object;
     }
     void draw(sf::RenderWindow &window) const {
+        sf::RectangleShape rect;
+        rect.setPosition(hitBox.left, hitBox.top);
+        rect.setSize({hitBox.width, hitBox.height});
+        rect.setFillColor(sf::Color::Transparent);
+        rect.setOutlineThickness(2);
+        rect.setOutlineColor(sf::Color::Red);
         window.draw(object);
+        window.draw(rect);
+        rect.setPosition(object.getGlobalBounds().left,
+                         object.getGlobalBounds().top);
+        rect.setSize(
+            {object.getGlobalBounds().width, object.getGlobalBounds().height});
+        window.draw(rect);
     }
     const sf::FloatRect &getHitBox() const {
         return hitBox;
