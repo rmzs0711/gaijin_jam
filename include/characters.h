@@ -642,11 +642,12 @@ bool isCorrectMove(const sf::Sprite &character,
     sf::Vector2i cell =
         sf::Vector2i(character.getPosition() / (float)jam::cellSize);
     // TODO
-    for (auto &i : objects) {
-        if (i.getHitBox().contains(character.getPosition())) {
-            return false;
-        }
-    }
+    auto y = objects.size();
+//    for (auto &i : objects) {
+//        if (i.getHitBox().contains(character.getPosition())) {
+//            return false;
+//        }
+//    }
     return true;
 }
 
@@ -864,7 +865,7 @@ protected:
             case jam::CLOUD:
                 changeState(SLOWED, damage_);
                 break;
-            case jam::EASRTHSHAKE:
+            case jam::EARTHSHAKE:
                 break;
             case jam::NUMBER_OF_STATES:
                 break;
@@ -932,9 +933,13 @@ public:
 
     void drawCharacter(sf::RenderWindow &window,
                        std::vector<TemplateCharacter *> &heroes) {
+
         if (isDraw()) {
             if (isLive()) {
                 isFighting(heroes);
+                if (positions.empty()) {
+                    assert(!positions.empty());
+                }
                 if (state == FIGHTING) {
                     if (positions[positions.size() - 1] !=
                         character.getPosition()) {
@@ -1063,6 +1068,7 @@ protected:
             if (selectedCell.x == -1) {
                 assert(0);
             }
+            //TODO
             switch (ability) {
                 case FIRE_BLAST:
                     for (int i = -1; i < 2; i++) {
@@ -1121,9 +1127,11 @@ protected:
                             map[bounds(selectedCell.x + i, 0, (int)map.size())]
                                [bounds(selectedCell.y + j, 0,
                                        (int)map[0].size())]
-                                   .setState(jam::EASRTHSHAKE, currentTime);
+                                   .setState(jam::EARTHSHAKE, currentTime);
                         }
                     }
+                    break;
+                case FROZEN_WALL:
                     break;
             }
         }

@@ -14,10 +14,16 @@ struct GameSession {
     void startGame(sf::RenderWindow &window) {
         std::vector<sf::Texture> objectTextures(NUMBER_OF_TEXTURES);
         texturePtrs.resize(NUMBER_OF_TEXTURES);
-
+        texturesNumberOfFrames.resize(NUMBER_OF_TEXTURES);
         for (int i = 0; i < NUMBER_OF_TEXTURES; i++) {
-            checkLoadTexture(objectTextures[i], std::get<1>(assetInfo[i]));
+            checkLoadTexture(objectTextures[i], std::get<2>(assetInfo[i]),
+                             std::get<1>(assetInfo[i]));
+            auto & j = std::get<0>(assetInfo[i]);
+            auto & k = std::get<1>(assetInfo[i]);
             texturePtrs[std::get<0>(assetInfo[i])] = &objectTextures[i];
+            texturesNumberOfFrames[std::get<0>(assetInfo[i])] = {
+                std::get<1>(assetInfo[i]).width / assetCellSize.x,
+                std::get<1>(assetInfo[i]).height / assetCellSize.y};
         }
 
         stateDurations.resize(NUMBER_OF_STATES, sf::seconds(2));
@@ -32,16 +38,16 @@ struct GameSession {
             {DEAD_GRASS, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS,
              LIGHT_GREEN_GRASS, LIGHT_GREEN_GRASS, DEAD_GRASS, FROZEN_GRASS,
              DEAD_GRASS, DEAD_GRASS},
-            {DEAD_GRASS, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS,
-             LIGHT_GREEN_GRASS, LIGHT_GREEN_GRASS, DEAD_GRASS, DEAD_GRASS,
+             {DEAD_GRASS, DEAD_GRASS, LIGHT_GREEN_GRASS, DEAD_GRASS, DEAD_GRASS,
+             LIGHT_GREEN_GRASS, LIGHT_GREEN_GRASS, LIGHT_GREEN_GRASS, DEAD_GRASS,
              DARK_GREEN_GRASS, DEAD_GRASS},
-            {DEAD_GRASS, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS,
+             {DEAD_GRASS, DEAD_GRASS, DEAD_GRASS, LIGHT_GREEN_GRASS, DEAD_GRASS,
              LIGHT_GREEN_GRASS, LIGHT_GREEN_GRASS, LIGHT_GREEN_GRASS,
-             DARK_GREEN_GRASS, DEAD_GRASS, DEAD_GRASS},
-            {DEAD_GRASS, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS,
+             DARK_GREEN_GRASS, LIGHT_GREEN_GRASS, DEAD_GRASS},
+             {LIGHT_GREEN_GRASS, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS,
              LIGHT_GREEN_GRASS, LIGHT_GREEN_GRASS, LIGHT_GREEN_GRASS,
-             DEAD_GRASS, DEAD_GRASS, DEAD_GRASS},
-            {DEAD_GRASS, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS,
+             DEAD_GRASS, LIGHT_GREEN_GRASS, DEAD_GRASS},
+             {DEAD_GRASS, LIGHT_GREEN_GRASS, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS,
              LIGHT_GREEN_GRASS, LIGHT_GREEN_GRASS, DEAD_GRASS, DEAD_GRASS,
              DEAD_GRASS, DEAD_GRASS},
         };

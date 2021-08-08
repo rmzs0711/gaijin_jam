@@ -28,7 +28,8 @@ struct Level {
         for (int i = 0; i < mapObjects.size(); i++) {
             map[i].resize(mapObjects[i].size());
             for (int j = 0; j < mapObjects[i].size(); j++) {
-                map[i][j].setPosInMap({i, j});
+                map[i][j].setPosInMap({j, i});
+                map[i][j].setBackgroundType(mapObjects[i][j]);
             }
         }
     }

@@ -18,22 +18,17 @@ enum CellState {
     BLAST,
     FROZEN_BLAST,
     CLOUD,
-    EASRTHSHAKE,
+    EARTHSHAKE,
     NUMBER_OF_STATES
 };
 
 enum Object {
     NONE = 0,
 
-    TREE_1,
-    TREE_2,
-    TREE_3,
+    TREE,
     DEAD_TREE,
-    FROZEN_TREE_1,
-    FROZEN_TREE_2,
-    FROZEN_TREE_3,
+    FROZEN_TREE,
     FROZEN_DEAD_TREE,
-    STUMP,
     BUILD_SIGN,
     FIRE,
     ROCK,
@@ -49,43 +44,62 @@ enum CellBackground {
     FROZEN_GRASS,
     NUMBER_OF_BACKGROUNDS
 };
-int NUMBER_OF_TEXTURES;
-sf::Texture fire[6];
+int NUMBER_OF_TEXTURES = NUMBER_OF_BACKGROUNDS;
 
 const sf::Vector2i assetCellSize = {16, 16};
 float fireDamage = 0.1;
-const std::vector<std::tuple<int, std::string>> assetInfo = {
+const std::vector<std::tuple<int, sf::IntRect, std::string>> assetInfo = {
     std::make_tuple(NONE,
+                    sf::IntRect(sf::Vector2i(0, 0), assetCellSize),
                     "data/images/black"
                     ".png"),
     std::make_tuple(LIGHT_GREEN_GRASS,
-
-                    "data/images/MiniWorldSprites/Ground/Grass.png"),
-    std::make_tuple(DARK_GREEN_GRASS,
-                    "data/images/MiniWorldSprites/Ground/Grass.png"),
-    std::make_tuple(DEAD_GRASS,
-                    "data/images/MiniWorldSprites/Ground/Grass.png"),
+                    sf::IntRect({0, 0}, {assetCellSize.x * 3, assetCellSize.y}),
+                    "data/images/MiniWorldSprites/Ground/TexturedGrass.png"),
+    std::make_tuple(
+        DARK_GREEN_GRASS,
+        sf::IntRect({0, 16}, {assetCellSize.x * 3, assetCellSize.y}),
+        "data/images/MiniWorldSprites/Ground/TexturedGrass.png"),
+    std::make_tuple(
+        DEAD_GRASS,
+        sf::IntRect({48, 0}, {assetCellSize.x * 2, assetCellSize.y}),
+        "data/images/MiniWorldSprites/Ground/Grass.png"),
+    std::make_tuple(LAVA_FLOOR,
+                    sf::IntRect({0, 0}, assetCellSize),
+                    "data/images/lava.png"),
+    std::make_tuple(TREE,
+                    sf::IntRect({0, 0}, {assetCellSize.x * 4, assetCellSize.y}),
+                    "data/images/MiniWorldSprites/Nature/Trees.png"),
     std::make_tuple(DEAD_TREE,
+                    sf::IntRect({0, 0}, {assetCellSize.x * 4, assetCellSize.y}),
                     "data/images/MiniWorldSprites/Nature/DeadTrees.png"),
-    std::make_tuple(FROZEN_TREE_1,
-                    "data/images/MiniWorldSprites/Nature/WinterTrees.png"),
-    std::make_tuple(FROZEN_TREE_2,
-                    "data/images/MiniWorldSprites/Nature/WinterTrees.png"),
-    std::make_tuple(FROZEN_TREE_3,
-                    "data/images/MiniWorldSprites/Nature/WinterTrees.png"),
+    std::make_tuple(
+        FROZEN_TREE,
+        sf::IntRect({0, 48}, {assetCellSize.x * 4, assetCellSize.y}),
+        "data/images/MiniWorldSprites/Nature/WinterTrees.png"),
     std::make_tuple(FROZEN_GRASS,
+                    sf::IntRect({0, 0}, assetCellSize),
                     "data/images/MiniWorldSprites/Ground/Grass.png"),
-    std::make_tuple(STUMP, "data/images/MiniWorldSprites/Nature/Trees.png"),
     std::make_tuple(BUILD_SIGN,
+                    sf::IntRect({0, 0}, assetCellSize),
                     "data/images/MiniWorldSprites/Miscellaneous/Signs.png"),
     std::make_tuple(FROZEN_DEAD_TREE,
+                    sf::IntRect({0, 0}, {assetCellSize.x * 4, assetCellSize.y}),
                     "data/images/MiniWorldSprites/Nature"
                     "/WinterDeadTrees.png"),
-    std::make_tuple(FIRE, "data/images/fire.png"),
-    std::make_tuple(ROCK, "data/images/MiniWorldSprites/Nature/Rocks.png"),
-    std::make_tuple(FROZEN_ROCK,
+    std::make_tuple(ROCK,
+                    sf::IntRect({0, 0}, {assetCellSize.x * 3, assetCellSize.y}),
                     "data/images/MiniWorldSprites/Nature/Rocks.png"),
+    std::make_tuple(
+        FROZEN_ROCK,
+        sf::IntRect({0, 48}, {assetCellSize.x * 3, assetCellSize.y}),
+        "data/images/MiniWorldSprites/Nature/Rocks.png"),
+    std::make_tuple(FIRE,
+                    sf::IntRect({0, 0}, assetCellSize * 4),
+                    "data/images/fire.png"),
 };
+
+std::vector<sf::Vector2i> texturesNumberOfFrames;
 
 const int cellSize = 128;
 std::vector<sf::Texture *> texturePtrs;
@@ -93,46 +107,64 @@ std::vector<sf::Time> stateDurations;
 
 struct Cell {
 public:
+    void setBackgroundType(int newBackgroundType) {
+        Cell::backgroundType = newBackgroundType;
+        prevBackground = backgroundType;
+        setState(NORMAL);
+    }
     void setState(const CellState &newState,
                   const sf::Time &newStateStartTime = sf::Time()) {
         stateStartTime = newStateStartTime;
-        background.setColor(sf::Color::White);
-        switch (stateType) {
+
+        switch (newState) {
             case NORMAL:
                 switch (stateType) {
-                    case LAVA:
-                    case BLAST:
-                        background.setTexture(*texturePtrs[DEAD_GRASS]);
-                        break;
-                    case EASRTHSHAKE:
+                    case EARTHSHAKE:
                     case NORMAL:
                     case FROZEN_BLAST:
-                    case CLOUD:
+                    case BLAST:
+                    case LAVA:
                         background.setTexture(*texturePtrs[prevBackground]);
+                        backgroundType = prevBackground;
+                        break;
+                    case CLOUD:
+                        background.setColor(sf::Color::White);
                         break;
                     case NUMBER_OF_STATES:
                         assert(0);
                         break;
                 }
+                break;
             case LAVA:
+                prevBackground = DEAD_GRASS;
                 background.setTexture(*texturePtrs[LAVA_FLOOR]);
+                backgroundType = LAVA_FLOOR;
                 break;
             case FROZEN_BLAST:
+                prevBackground = backgroundType;
                 background.setTexture(*texturePtrs[FROZEN_GRASS]);
+                backgroundType = FROZEN_GRASS;
                 break;
             case BLAST:
+                prevBackground = DEAD_GRASS;
                 background.setTexture(*texturePtrs[DEAD_GRASS]);
+                backgroundType = DEAD_GRASS;
                 break;
             case CLOUD:
+                background.setTexture(*texturePtrs[prevBackground]);
                 background.setColor(sf::Color(100, 100, 100, 100));
+                backgroundType = prevBackground;
                 break;
-            case EASRTHSHAKE:
+            case EARTHSHAKE:
                 break;
             case NUMBER_OF_STATES:
                 assert(0);
                 break;
         }
-        prevBackground = backgroundType;
+        background.setScale(sf::Vector2f(cellSize, cellSize) /
+                            (float)assetCellSize.x);
+        setNumberOfFrames(texturesNumberOfFrames[backgroundType]);
+        setCurrentFrame({rand() % numberOfFrames.x, rand() % numberOfFrames.y});
         stateType = newState;
     }
     sf::FloatRect getGlobalBounds() const {
@@ -161,7 +193,7 @@ public:
         switch (stateType) {
             case BLAST:
             case LAVA:
-            case EASRTHSHAKE:
+            case EARTHSHAKE:
             case FROZEN_BLAST:
                 background.setColor(
                     sf::Color(brightness, brightness, brightness));
@@ -188,11 +220,25 @@ public:
     const sf::Sprite &getBackground() const {
         return background;
     }
-    CellBackground getBackgroundType() const {
+    int getBackgroundType() const {
         return backgroundType;
     }
-    CellBackground getPrevBackground() const {
+    int getPrevBackground() const {
         return prevBackground;
+    }
+    sf::Vector2i getCurrentFrame() const {
+        return currentFrame;
+    }
+    void setCurrentFrame(sf::Vector2i newCurrentFrame) {
+        Cell::currentFrame = newCurrentFrame;
+        background.setTextureRect(
+            {newCurrentFrame * assetCellSize.x, assetCellSize});
+    }
+    const sf::Vector2i &getNumberOfFrames() const {
+        return numberOfFrames;
+    }
+    void setNumberOfFrames(const sf::Vector2i &newNumberOfFrames) {
+        Cell::numberOfFrames = newNumberOfFrames;
     }
 
 private:
@@ -200,9 +246,10 @@ private:
     CellState stateType = NORMAL;
 
     sf::Sprite background;
-    CellBackground backgroundType = LIGHT_GREEN_GRASS;
-    CellBackground prevBackground = LIGHT_GREEN_GRASS;
-
+    sf::Vector2i currentFrame;
+    sf::Vector2i numberOfFrames;
+    int backgroundType = LIGHT_GREEN_GRASS;
+    int prevBackground = LIGHT_GREEN_GRASS;
 };
 
 struct FreeObject {
@@ -211,14 +258,13 @@ struct FreeObject {
         *this = newObject;
         setPosition(pos);
     }
-    void setTextureRect(const sf::IntRect &newRect) {
-        object.setTextureRect(newRect);
-    }
     const Object &getObjectType() const {
         return objectType;
     }
     void setTexture(const sf::Texture &texture) {
         object.setTexture(texture);
+        setNumberOfFrames(texturesNumberOfFrames[objectType]);
+        setCurrentFrame({rand() % numberOfFrames.x, rand() % numberOfFrames.y});
     }
     void setPosition(const sf::Vector2f &newPos) {
         object.setPosition(newPos);
@@ -231,14 +277,7 @@ struct FreeObject {
     }
 
     void draw(sf::RenderWindow &window) {
-        if (!framesRects.empty()) {
-            object.setTextureRect(
-                framesRects[++currentFrame % framesRects.size()]);
-        }
         window.draw(object);
-    }
-    void setFramesRects(std::vector<sf::IntRect> newFramesRects) {
-        FreeObject::framesRects = std::move(newFramesRects);
     }
     const sf::FloatRect &getHitBox() const {
         return hitBox;
@@ -246,12 +285,25 @@ struct FreeObject {
     void setHitBox(const sf::FloatRect &newHitBox) {
         FreeObject::hitBox = newHitBox;
     }
+    const sf::Vector2i &getCurrentFrame() const {
+        return currentFrame;
+    }
+    void setCurrentFrame(const sf::Vector2i &newCurrentFrame) {
+        FreeObject::currentFrame = newCurrentFrame;
+        object.setTextureRect({{0, 0}, currentFrame * assetCellSize.x});
+    }
+    const sf::Vector2i &getNumberOfFrames() const {
+        return numberOfFrames;
+    }
+    void setNumberOfFrames(const sf::Vector2i &newNumberOfFrames) {
+        FreeObject::numberOfFrames = newNumberOfFrames;
+    }
 
 private:
     sf::Sprite object;
     Object objectType = NONE;
-    int currentFrame = 0;
-    std::vector<sf::IntRect> framesRects;
+    sf::Vector2i currentFrame;
+    sf::Vector2i numberOfFrames;
     sf::FloatRect hitBox = {0, 0, 0, 0};
 };
 }  // namespace jam
