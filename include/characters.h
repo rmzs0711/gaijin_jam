@@ -715,6 +715,9 @@ protected:
     }
 
 public:
+    std::list<jam::FreeObject> &getObjects() const {
+        return objects;
+    }
     sf::Sprite *getSprite() {
         return &character;
     }
@@ -945,7 +948,8 @@ public:
                         character.getPosition()) {
                         positions.push_back(character.getPosition());
                     }
-                } else if (positions[positions.size() - 1] ==
+                } else if (positions.empty() && positions[positions.size() -
+                                                          1] ==
                            character.getPosition()) {
                     positions.pop_back();
                 }
@@ -1240,7 +1244,7 @@ public:
          float health_,
          float damage_,
          std::vector<std::vector<jam::Cell>> &map_,
-         std::list<jam::FreeObject> objects_,
+         std::list<jam::FreeObject>& objects_,
          bool is_always_move_ = true,
          int quantity_frames_ = 4,
          sf::Vector2i size_frame_ = sf::Vector2i(16, 16))
