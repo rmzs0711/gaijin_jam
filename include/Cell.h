@@ -8,7 +8,7 @@
 #include <vector>
 #include "usefulFunctions.h"
 
-const double M_PI = 3.14;
+//const double M_PI = 3.14;
 
 
 namespace jam {
