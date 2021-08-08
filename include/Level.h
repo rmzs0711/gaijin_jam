@@ -10,8 +10,8 @@
 #include "Cell.h"
 #include "characters.h"
 #include "makeCharacters.h"
-#include "usefulFunctions.h"
 #include "makeFreeObjects.h"
+#include "usefulFunctions.h"
 struct TemplateCharacter;
 namespace jam {
 
@@ -71,13 +71,16 @@ struct Level {
         }
         for (auto i = freeObjects.begin(); i != freeObjects.end();) {
             i->draw(window);
-            if (i->getObjectType() == ROCK) {
-                auto cell = sf::Vector2i(i->getPosition() / (float)cellSize);
-                if (map[cell.y][cell.x].getState() != WALL) {
-                    i = freeObjects.erase(i);
-                    continue;
-                }
+            auto cell = sf::Vector2i(i->getPosition() / (float)cellSize);
+
+            if (i->getObjectType() == ROCK &&
+                    map[cell.y][cell.x].getState() != WALL ||
+                i->getObjectType() == FIRE &&
+                    map[cell.y][cell.x].getState() != BLAST) {
+                i = freeObjects.erase(i);
+                continue;
             }
+
             i++;
         }
         std::vector<TemplateCharacter *> monsters_;

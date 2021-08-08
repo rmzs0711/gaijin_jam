@@ -653,6 +653,7 @@ bool isCorrectMove(const sf::Sprite &character,
 
 struct TemplateCharacter {
 protected:
+    float speedCoef = 1;
     float speed;
     sf::Vector2f scale;
     int current_frame, quantity_frames;
@@ -793,7 +794,7 @@ protected:
         sf::Clock clock;
         if (state_ == NOT_FIGHTING) {
             character.setColor(sf::Color::White);
-        } else if (state_ == FIGHTING && state != FROZEN && state != STUNNED) {
+        } else if (state == FIGHTING && state != FROZEN && state != STUNNED) {
             character.setColor(sf::Color::White);
         } else if (state_ == FIGHTING && state != FROZEN && state != STUNNED) {
             state = FIGHTING;
@@ -805,6 +806,7 @@ protected:
         } else if (state == FIGHTING) {
             state = DOWN;
         } else if (state_ == FROZEN) {
+            speedCoef = 0;
             state = state_;
             health -= damage_;
             character.setColor(sf::Color::Blue);
@@ -814,25 +816,27 @@ protected:
             health -= jam::fireDamage;
             health -= damage_;
         } else if (state_ == SLOWED) {
+            speedCoef = 0.5;
             state = state_;
             health -= damage_;
             character.setColor(sf::Color(100, 100, 100));
             // TODO speed * slow_coef
         } else if (state_ == STUNNED) {
+            speedCoef = 0;
             state = state_;
             health -= damage_;
             health -= jam::earthShakeDamage;
         } else {
             float dx, dy;
             initializingCoordinates(dx, dy, state_);
-            character.move(dx, dy);
+            character.move(speedCoef * dx, speedCoef * dy);
             bool isRock = false;
             auto hitBox = character.getGlobalBounds();
             for (auto &i : objects) {
-                if (i.getObjectType() == jam::ROCK && i.getHitBox().intersects
-                ({hitBox.left,
-                  hitBox.top + hitBox.height / 2,
-                  hitBox.width, hitBox.height / 2})) {
+                if (i.getObjectType() == jam::ROCK &&
+                    i.getHitBox().intersects(
+                        {hitBox.left, hitBox.top + hitBox.height / 2,
+                         hitBox.width, hitBox.height / 2})) {
                     isRock = true;
                 }
             }
@@ -1096,6 +1100,14 @@ protected:
                                [bounds(selectedCell.y + j, 0,
                                        (int)map[0].size())]
                                    .setState(jam::BLAST, currentTime);
+                            objects.push_back(jam::makeFire(sf::Vector2f(
+                                bounds(selectedCell.y + j, 0,
+                                       (int)map[0].size()) *
+                                        jam::cellSize +
+                                    jam::cellSize / 2,
+                                bounds(selectedCell.x + i, 0, (int)map.size()) *
+                                        jam::cellSize +
+                                    jam::cellSize / 2)));
                         }
                     }
                     break;
@@ -1209,8 +1221,8 @@ protected:
         bool isRock = false;
         auto hitBox = character.getGlobalBounds();
         for (auto &i : objects) {
-            if (i.getObjectType() == jam::ROCK && i.getHitBox().intersects
-                                     ({hitBox.left,
+            if (i.getObjectType() == jam::ROCK &&
+                i.getHitBox().intersects({hitBox.left,
                                           hitBox.top + hitBox.height / 2,
                                           hitBox.width, hitBox.height / 2})) {
                 isRock = true;

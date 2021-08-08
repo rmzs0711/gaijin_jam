@@ -30,5 +30,17 @@ FreeObject makeRock(const sf::Vector2f &position) {
     return rock;
 }
 
+FreeObject makeFire(const sf::Vector2f &position) {
+    static FreeObject fire(FIRE);
+    fire.setPosition(position);
+
+    fire.setOrigin({(float)assetCellSize.x / 2, (float)assetCellSize.x / 2});
+
+    fire.setScale({(float)cellSize / (float)assetCellSize.x,
+                   (float)cellSize / (float)assetCellSize.y});
+    fire.setHitBox({0, 0, 0, 0});
+    fire.setAnimation(true);
+    return fire;
+}
 
 }  // namespace jam

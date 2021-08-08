@@ -99,7 +99,7 @@ const std::vector<std::tuple<int, sf::IntRect, std::string>> assetInfo = {
         sf::IntRect({0, 48}, {assetCellSize.x * 3, assetCellSize.y}),
         "data/images/MiniWorldSprites/Nature/Rocks.png"),
     std::make_tuple(FIRE,
-                    sf::IntRect({0, 0}, assetCellSize * 4),
+                    sf::IntRect({0, 0}, {assetCellSize.x * 4, assetCellSize.x}),
                     "data/images/fire.png"),
 };
 
@@ -211,7 +211,7 @@ public:
                 break;
             case CLOUD:
                 background.setColor(
-                    sf::Color(brightness, brightness, brightness, 80));
+                    sf::Color(100, 100, brightness, 80));
                 break;
             case NORMAL:
             case NUMBER_OF_STATES:
@@ -290,7 +290,11 @@ struct FreeObject {
     const sf::Sprite &getSprite() const {
         return object;
     }
-    void draw(sf::RenderWindow &window) const {
+    void draw(sf::RenderWindow &window) {
+        if (isAnime) {
+            setCurrentFrame({rand() % numberOfFrames.x, rand() %
+                                                            numberOfFrames.y});
+        }
         sf::RectangleShape rect;
         rect.setPosition(hitBox.left, hitBox.top);
         rect.setSize({hitBox.width, hitBox.height});
@@ -298,12 +302,12 @@ struct FreeObject {
         rect.setOutlineThickness(2);
         rect.setOutlineColor(sf::Color::Red);
         window.draw(object);
-        window.draw(rect);
+//        window.draw(rect);
         rect.setPosition(object.getGlobalBounds().left,
                          object.getGlobalBounds().top);
         rect.setSize(
             {object.getGlobalBounds().width, object.getGlobalBounds().height});
-        window.draw(rect);
+//        window.draw(rect);
     }
     const sf::FloatRect &getHitBox() const {
         return hitBox;
@@ -325,10 +329,13 @@ struct FreeObject {
     void setNumberOfFrames(const sf::Vector2i &newNumberOfFrames) {
         FreeObject::numberOfFrames = newNumberOfFrames;
     }
-
+    void setAnimation(bool condition) {
+        isAnime = condition;
+    }
 private:
     sf::Sprite object;
     Object objectType = NONE;
+    bool isAnime = false;
     sf::Vector2i currentFrame;
     sf::Vector2i numberOfFrames;
     sf::FloatRect hitBox = {0, 0, 0, 0};
