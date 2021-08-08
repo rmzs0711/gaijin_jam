@@ -7,13 +7,14 @@
 //#include "SFML/Graphics.hpp"
 //#include "usefulFunctions.h"
 //
-//int const UP = 1, DOWN = 0, LEFT = 3, RIGHT = 2, FIGHTING = 4,
+// int const UP = 1, DOWN = 0, LEFT = 3, RIGHT = 2, FIGHTING = 4,
 //          NOT_FIGHTING = -1;
-//int const BURNED = -2, FROZEN = -3, SLOWED = -4;
-//enum POWER_ELEMENT { FIRE, ICE, EARTH, NUMBER_OF_POWER_ELEMENTS };
-//enum ABILITY { FIRE_BLAST, CLOUD, LAVA, FROZEN_BLAST, FROZEN_WALL, BIG_WALL };
+// int const BURNED = -2, FROZEN = -3, SLOWED = -4;
+// enum POWER_ELEMENT { FIRE, ICE, EARTH, NUMBER_OF_POWER_ELEMENTS };
+// enum ABILITY { FIRE_BLAST, CLOUD, LAVA, FROZEN_BLAST, FROZEN_WALL, BIG_WALL
+// };
 //
-//bool isCorrectMove(const sf::Sprite &character,
+// bool isCorrectMove(const sf::Sprite &character,
 //                   const std::vector<std::vector<jam::Cell>> &map) {
 //    sf::Vector2i cell =
 //        sf::Vector2i(character.getPosition() / (float)jam::cellSize);
@@ -42,8 +43,8 @@
 //    return true;
 //}
 //
-//struct TemplateCharacter {
-//protected:
+// struct TemplateCharacter {
+// protected:
 //    std::vector<std::vector<jam::Cell>> &map;
 //    float speed;
 //    sf::Vector2f scale;
@@ -83,14 +84,14 @@
 //        icon.setTexture(icon_texture);
 //        icon.setOrigin(character.getOrigin());
 //
-//        character.setTextureRect(sf::IntRect(0, 0, size_frame.x, size_frame.y));
-//        icon.setTextureRect(sf::IntRect(
+//        character.setTextureRect(sf::IntRect(0, 0, size_frame.x,
+//        size_frame.y)); icon.setTextureRect(sf::IntRect(
 //            (static_cast<int>(clock.getElapsedTime().asMicroseconds()) % 4) *
 //                size_frame.x,
 //            0, size_frame.x, size_frame.y));
 //    }
 //
-//public:
+// public:
 //    sf::Sprite *getSprite() {
 //        return &character;
 //    }
@@ -141,7 +142,7 @@
 //    }
 //};
 //
-//TemplateCharacter *intersectionObjects(
+// TemplateCharacter *intersectionObjects(
 //    const sf::Sprite &character,
 //    std::vector<TemplateCharacter *> &objects) {
 //    for (auto &i : objects) {
@@ -155,8 +156,8 @@
 //    return nullptr;
 //}
 //
-//struct MonsterStanding : TemplateCharacter {
-//protected:
+// struct MonsterStanding : TemplateCharacter {
+// protected:
 //    int state;
 //
 //    void changeState(int state_, float damage_ = 0) {
@@ -166,8 +167,10 @@
 //        } else if (state_ == FIGHTING && state != FROZEN) {
 //            state = FIGHTING;
 //            character.setTextureRect(
-//                sf::IntRect((current_frame % (quantity_frames)) * size_frame.x,
-//                            state_ * size_frame.y, size_frame.x, size_frame.y));
+//                sf::IntRect((current_frame % (quantity_frames)) *
+//                size_frame.x,
+//                            state_ * size_frame.y, size_frame.x,
+//                            size_frame.y));
 //            health -= damage_;
 //            return;
 //        } else if (state == FIGHTING) {
@@ -238,7 +241,7 @@
 //        }
 //    }
 //
-//public:
+// public:
 //    MonsterStanding(const std::string &file_name,
 //                    float health_,
 //                    float damage_,
@@ -276,8 +279,8 @@
 //    }
 //};
 //
-//struct Hero : TemplateCharacter {
-//protected:
+// struct Hero : TemplateCharacter {
+// protected:
 //    std::vector<POWER_ELEMENT> elements;
 //    ABILITY ability;
 //    bool readyToCast = false;
@@ -387,7 +390,8 @@
 //                case FIRE_BLAST:
 //                    for (int i = -1; i < 2; i++) {
 //                        for (int j = -1; j < 2; j++) {
-//                            map[bounds(selectedCell.x + i, 0, (int)map.size())]
+//                            map[bounds(selectedCell.x + i, 0,
+//                            (int)map.size())]
 //                               [bounds(selectedCell.y + j, 0,
 //                                       (int)map[0].size())]
 //                                   .setState(jam::BLAST, currentTime);
@@ -397,7 +401,8 @@
 //                case CLOUD:
 //                    for (int i = -1; i < 2; i++) {
 //                        for (int j = -1; j < 2; j++) {
-//                            map[bounds(selectedCell.x + i, 0, (int)map.size())]
+//                            map[bounds(selectedCell.x + i, 0,
+//                            (int)map.size())]
 //                               [bounds(selectedCell.y + j, 0,
 //                                       (int)map[0].size())]
 //                                   .setState(jam::CLOUD, currentTime);
@@ -407,7 +412,8 @@
 //                case LAVA:
 //                    for (int i = 0; i < 2; i++) {
 //                        for (int j = 0; j < 2; j++) {
-//                            map[bounds(selectedCell.x + i, 0, (int)map.size())]
+//                            map[bounds(selectedCell.x + i, 0,
+//                            (int)map.size())]
 //                               [bounds(selectedCell.y + j, 0,
 //                                       (int)map[0].size())]
 //                                   .setState(jam::LAVA, currentTime);
@@ -420,7 +426,8 @@
 //                            if (std::abs(j) + std::abs(i) >= 3) {
 //                                continue;
 //                            }
-//                            map[bounds(selectedCell.x + i, 0, (int)map.size())]
+//                            map[bounds(selectedCell.x + i, 0,
+//                            (int)map.size())]
 //                               [bounds(selectedCell.y + j, 0,
 //                                       (int)map[0].size())]
 //                                   .setState(jam::FROZEN_BLAST, currentTime);
@@ -430,8 +437,10 @@
 //                case FROZEN_WALL:
 //                    for (int i = 0; i < 1; i++) {
 //                        for (int j = 0; j < 1; j++) {
-//                            map[bounds(selectedCell.x + i, 0, (int)map.size())]
-//                               [bounds(selectedCell.y + j, 0, (int)map.size())]
+//                            map[bounds(selectedCell.x + i, 0,
+//                            (int)map.size())]
+//                               [bounds(selectedCell.y + j, 0,
+//                               (int)map.size())]
 //                                   .setState(jam::FROZEN_WALL, currentTime);
 //                        }
 //                    }
@@ -439,8 +448,10 @@
 //                case BIG_WALL:
 //                    for (int i = 0; i < 2; i++) {
 //                        for (int j = 0; j < 2; j++) {
-//                            map[bounds(selectedCell.x + i, 0, (int)map.size())]
-//                               [bounds(selectedCell.y + j, 0, (int)map.size())]
+//                            map[bounds(selectedCell.x + i, 0,
+//                            (int)map.size())]
+//                               [bounds(selectedCell.y + j, 0,
+//                               (int)map.size())]
 //                                   .setState(jam::BIG_WALL, currentTime);
 //                        }
 //                    }
@@ -450,7 +461,8 @@
 //
 //        if (!is_always_move && event.mouseButton.button == sf::Mouse::Left) {
 //            if (isCorrectClick(window.mapPixelToCoords(
-//                    sf::Vector2i(event.mouseButton.x, event.mouseButton.y)))) {
+//                    sf::Vector2i(event.mouseButton.x, event.mouseButton.y))))
+//                    {
 //                is_move = true;
 //            } else {
 //                is_move = false;
@@ -546,7 +558,7 @@
 //        }
 //    }
 //
-//public:
+// public:
 //    Hero(const std::string &file_name,
 //         float health_,
 //         float damage_,
@@ -608,9 +620,6 @@
 //    }
 //};
 
-
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
@@ -618,7 +627,7 @@
 #include <cmath>
 #include <list>
 #include <vector>
-#include "Cell.h"
+#include "Level.h"
 #include "SFML/Graphics.hpp"
 #include "usefulFunctions.h"
 
@@ -629,38 +638,20 @@ enum POWER_ELEMENT { FIRE, ICE, EARTH, NUMBER_OF_POWER_ELEMENTS };
 enum ABILITY { FIRE_BLAST, CLOUD, LAVA, FROZEN_BLAST, FROZEN_WALL, BIG_WALL };
 
 bool isCorrectMove(const sf::Sprite &character,
-                   const std::vector<std::vector<jam::Cell>> &map) {
+                   const std::list<jam::FreeObject> &objects) {
     sf::Vector2i cell =
         sf::Vector2i(character.getPosition() / (float)jam::cellSize);
-    switch (map[cell.y][cell.x].getObject()) {
-        case jam::ROCK:
-        case jam::FROZEN_ROCK:
-        case jam::TREE_3:
-        case jam::TREE_2:
-        case jam::TREE_1:
-        case jam::STUMP:
-        case jam::FROZEN_TREE_1:
-        case jam::FROZEN_TREE_2:
-        case jam::FROZEN_TREE_3:
-        case jam::DEAD_TREE:
-        case jam::FROZEN_DEAD_TREE:
-        case jam::EMPTY:
-        case jam::BUILD_SIGN:
-            if (map[cell.y][cell.x].getGlobalBounds().contains(
-                    character.getPosition())) {
-                return false;
-            }
-            break;
-        default:
-            break;
+    // TODO
+    for (auto &i : objects) {
+        if (i.getHitBox().contains(character.getPosition())) {
+            return false;
+        }
     }
-
     return true;
 }
 
 struct TemplateCharacter {
 protected:
-    std::vector<std::vector<jam::Cell>> &map;
     float speed;
     sf::Vector2f scale;
     int current_frame, quantity_frames;
@@ -668,14 +659,18 @@ protected:
     float health, damage, current_health, current_damage;
     sf::Texture character_texture, icon_texture;
     sf::Sprite character, icon;
+    std::vector<std::vector<jam::Cell>> &map;
+    std::list<jam::FreeObject> &objects;
 
     TemplateCharacter(const std::string &file_name,
                       int quantity_frames_,
                       sf::Vector2i size_frame_,
                       float health_,
                       float damage_,
-                      std::vector<std::vector<jam::Cell>> &map_)
+                      std::vector<std::vector<jam::Cell>> &map_,
+                      std::list<jam::FreeObject> &objects_)
         : map(map_),
+          objects(objects_),
           current_frame(0),
           size_frame(size_frame_),
           quantity_frames(quantity_frames_),
@@ -702,21 +697,18 @@ protected:
         character.setTextureRect(sf::IntRect(0, 0, size_frame.x, size_frame.y));
         icon.setTextureRect(sf::IntRect(
             (static_cast<int>(clock.getElapsedTime().asMicroseconds()) % 4) *
-            size_frame.x,
+                size_frame.x,
             0, size_frame.x, size_frame.y));
     }
 
-    void initializingCoordinates(float& dx, float& dy, int direction) {
+    void initializingCoordinates(float &dx, float &dy, int direction) {
         if (direction == UP) {
             dx = 0, dy = -speed;
-        }
-        else if (direction == DOWN) {
+        } else if (direction == DOWN) {
             dx = 0, dy = speed;
-        }
-        else if (direction == LEFT) {
+        } else if (direction == LEFT) {
             dx = -speed, dy = 0;
-        }
-        else if (direction == RIGHT) {
+        } else if (direction == RIGHT) {
             dx = speed, dy = 0;
         }
     }
@@ -799,43 +791,37 @@ protected:
             character.setColor(sf::Color::White);
         } else if (state_ == FIGHTING && state != FROZEN) {
             character.setColor(sf::Color::White);
-        }
-        else if (state_ == FIGHTING && state != FROZEN) {
+        } else if (state_ == FIGHTING && state != FROZEN) {
             state = FIGHTING;
             character.setTextureRect(
                 sf::IntRect((current_frame % (quantity_frames)) * size_frame.x,
                             state_ * size_frame.y, size_frame.x, size_frame.y));
             health -= damage_;
             return;
-        }
-        else if (state == FIGHTING) {
+        } else if (state == FIGHTING) {
             state = DOWN;
-        }
-        else if (state_ == FROZEN) {
+        } else if (state_ == FROZEN) {
             state = state_;
             health -= damage_;
             character.setColor(sf::Color::Blue);
-        }
-        else if (state_ == BURNED) {
+        } else if (state_ == BURNED) {
             state = state_;
             character.setColor(sf::Color::Red);
             health -= jam::fireDamage;
             health -= damage_;
-        }
-        else if (state_ == SLOWED) {
+        } else if (state_ == SLOWED) {
             state = state_;
             health -= damage_;
             character.setColor(sf::Color(100, 100, 100));
             // TODO speed * slow_coef
-        }
-        else {
+        } else {
             float dx, dy;
             initializingCoordinates(dx, dy, state_);
             character.move(dx, dy);
             state = state_;
             character.setTextureRect(sf::IntRect(current_frame * size_frame.x,
-                state_ * size_frame.y,
-                size_frame.x, size_frame.y));
+                                                 state_ * size_frame.y,
+                                                 size_frame.x, size_frame.y));
         }
     }
 
@@ -848,8 +834,7 @@ protected:
                  static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
                 quantity_frames;
             changeState(FIGHTING, (*hero).getDamage());
-        }
-        else {
+        } else {
             changeState(NOT_FIGHTING);
         }
     }
@@ -857,85 +842,85 @@ protected:
     void death() {
         health = current_health * 4;
     }
-    void isEffected(std::vector<TemplateCharacter*>& heroes) {
-        TemplateCharacter* hero = intersectionObjects(character, heroes);
-        sf::Vector2i cell =
-            sf::Vector2i(character.getPosition() / (float)jam::cellSize);
+    void isEffected(std::vector<TemplateCharacter *> &heroes) {
+        TemplateCharacter *hero = intersectionObjects(character, heroes);
         float damage_ = 0;
         if (hero) {
             damage_ = hero->getDamage();
         }
-
+        sf::Vector2i cell =
+            sf::Vector2i(character.getPosition() / (float)jam::cellSize);
         switch (map[cell.y][cell.x].getState()) {
-        case jam::NORMAL:
-            changeState(NOT_FIGHTING);
-            break;
-        case jam::LAVA:
-        case jam::BLAST:
-            changeState(BURNED, damage_);
-            break;
-        case jam::FROZEN_BLAST:
-            changeState(FROZEN, damage_);
-            break;
-        case jam::CLOUD:
-            changeState(SLOWED, damage_);
-            break;
-        case jam::BIG_WALL:
-            break;
-        case jam::FROZEN_WALL:
-            break;
-        case jam::NUMBER_OF_STATES:
-            break;
+            case jam::NORMAL:
+                changeState(NOT_FIGHTING);
+                break;
+            case jam::LAVA:
+            case jam::BLAST:
+                changeState(BURNED, damage_);
+                break;
+            case jam::FROZEN_BLAST:
+                changeState(FROZEN, damage_);
+                break;
+            case jam::CLOUD:
+                changeState(SLOWED, damage_);
+                break;
+            case jam::EASRTHSHAKE:
+                break;
+            case jam::NUMBER_OF_STATES:
+                break;
         }
+        // TODO
     }
 
     void moveToPosition() {
         if (positions.size() != 0) {
             sf::Clock clock;
-            float dx = (positions[positions.size() - 1] - character.getPosition()).x;
-            float dy = (positions[positions.size() - 1] - character.getPosition()).y;
+            float dx =
+                (positions[positions.size() - 1] - character.getPosition()).x;
+            float dy =
+                (positions[positions.size() - 1] - character.getPosition()).y;
             if (abs(dx) >= speed || abs(dy) >= speed) {
-                current_frame =
-                    (current_frame +
-                        static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
-                    quantity_frames;
+                current_frame = (current_frame +
+                                 static_cast<int>(
+                                     clock.getElapsedTime().asMicroseconds())) %
+                                quantity_frames;
                 if (abs(dx) > abs(dy)) {
                     if (dx > 0) {
                         changeState(RIGHT);
-                    }
-                    else {
+                    } else {
                         changeState(LEFT);
                     }
-                }
-                else {
+                } else {
                     if (dy > 0) {
                         changeState(DOWN);
-                    }
-                    else {
+                    } else {
                         changeState(UP);
                     }
                 }
-            }
-            else {
+            } else {
                 positions.pop_back();
             }
         }
     }
 
 public:
-    MonsterStanding(const std::string& file_name,
-        float health_,
-        float damage_, std::vector<sf::Vector2f> &positions_,
-        std::vector<std::vector<jam::Cell>>& map_,
-        int quantity_frames_ = 4,
-        sf::Vector2i size_frame_ = sf::Vector2i(16, 16))
+    MonsterStanding(const std::string &file_name,
+                    float health_,
+                    float damage_,
+                    std::vector<sf::Vector2f> &positions_,
+                    std::vector<std::vector<jam::Cell>> &map_,
+                    std::list<jam::FreeObject> &objects_,
+                    int quantity_frames_ = 4,
+                    sf::Vector2i size_frame_ = sf::Vector2i(16, 16))
         : TemplateCharacter(file_name,
-            quantity_frames_,
-            size_frame_,
-            health_,
-            damage_,
-            map_),
-        state(DOWN), positions(positions_) {}
+                            quantity_frames_,
+                            size_frame_,
+                            health_,
+                            damage_,
+                            map_,
+                            objects_),
+          state(DOWN),
+          positions(positions_) {}
 
     int getState() const {
         return state;
@@ -945,17 +930,18 @@ public:
         health -= damage_;
     }
 
-    void drawCharacter(sf::RenderWindow& window,
-        std::vector<TemplateCharacter*>& heroes) {
+    void drawCharacter(sf::RenderWindow &window,
+                       std::vector<TemplateCharacter *> &heroes) {
         if (isDraw()) {
             if (isLive()) {
                 isFighting(heroes);
                 if (state == FIGHTING) {
-                    if (positions[positions.size() - 1] != character.getPosition()) {
+                    if (positions[positions.size() - 1] !=
+                        character.getPosition()) {
                         positions.push_back(character.getPosition());
                     }
-                }
-                else if (positions[positions.size() - 1] == character.getPosition()) {
+                } else if (positions[positions.size() - 1] ==
+                           character.getPosition()) {
                     positions.pop_back();
                 }
                 moveToPosition();
@@ -991,7 +977,7 @@ protected:
             position = character.getPosition();
             current_frame =
                 (current_frame +
-                    static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
+                 static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
                 quantity_frames;
             float damage_ = 0;
             sf::Vector2i cell = sf::Vector2i(
@@ -1000,8 +986,7 @@ protected:
                 damage_ = monster->getDamage();
             }
             changeState(FIGHTING, damage_);
-        }
-        else {
+        } else {
             changeState(NOT_FIGHTING);
         }
     }
@@ -1011,23 +996,17 @@ protected:
             int whatAbility = (1 << elements[0]) | (1 << elements[1]);
             if (whatAbility == 4) {  // 100
                 ability = BIG_WALL;
-            }
-            else if (whatAbility == 5) {  // 101
+            } else if (whatAbility == 5) {  // 101
                 ability = LAVA;
-            }
-            else if (whatAbility == 6) {  // 110
+            } else if (whatAbility == 6) {  // 110
                 ability = FROZEN_WALL;
-            }
-            else if (whatAbility == 2) {  // 010
+            } else if (whatAbility == 2) {  // 010
                 ability = FROZEN_BLAST;
-            }
-            else if (whatAbility == 3) {  // 011
+            } else if (whatAbility == 3) {  // 011
                 ability = CLOUD;
-            }
-            else if (whatAbility == 1) {  // 001
+            } else if (whatAbility == 1) {  // 001
                 ability = FIRE_BLAST;
-            }
-            else {
+            } else {
                 assert(0);
             }
             return;
@@ -1128,24 +1107,6 @@ protected:
                         }
                     }
                     break;
-                case FROZEN_WALL:
-                    for (int i = 0; i < 1; i++) {
-                        for (int j = 0; j < 1; j++) {
-                            if (map[bounds(selectedCell.x + i, 0,
-                                           (int)map.size())]
-                                   [bounds(selectedCell.y + j, 0,
-                                           (int)map[0].size())]
-                                       .getGlobalBounds()
-                                       .contains(character.getPosition())) {
-                                continue;
-                            }
-                            map[bounds(selectedCell.x + i, 0, (int)map.size())]
-                               [bounds(selectedCell.y + j, 0,
-                                       (int)map[0].size())]
-                                   .setState(jam::FROZEN_WALL, currentTime);
-                        }
-                    }
-                    break;
                 case BIG_WALL:
                     for (int i = 0; i < 2; i++) {
                         for (int j = 0; j < 2; j++) {
@@ -1160,7 +1121,7 @@ protected:
                             map[bounds(selectedCell.x + i, 0, (int)map.size())]
                                [bounds(selectedCell.y + j, 0,
                                        (int)map[0].size())]
-                                   .setState(jam::BIG_WALL, currentTime);
+                                   .setState(jam::EASRTHSHAKE, currentTime);
                         }
                     }
                     break;
@@ -1180,10 +1141,9 @@ protected:
             readyToCast = false;
             position = window.mapPixelToCoords(
                 sf::Vector2i(event.mouseButton.x, event.mouseButton.y));
-            auto bounds =
-                sf::IntRect(sf::Vector2i(0, 0),
-                    sf::Vector2i(map[0].size() * jam::cellSize,
-                        map.size() * jam::cellSize));
+            auto bounds = sf::IntRect(
+                sf::Vector2i(0, 0), sf::Vector2i(map[0].size() * jam::cellSize,
+                                                 map.size() * jam::cellSize));
             if (!bounds.contains(window.mapCoordsToPixel(position))) {
                 position = character.getPosition();
             }
@@ -1213,20 +1173,21 @@ protected:
         float dx, dy;
         initializingCoordinates(dx, dy, state_);
         character.move(dx, dy);
-        auto xMapPos = static_cast<int>(character.getGlobalBounds().left /
-                       jam::cellSize);
-        auto yMapPos = static_cast<int>(character.getGlobalBounds().top / jam::cellSize);
-
-        switch (map[yMapPos][xMapPos].getObject()) {
-            case jam::ROCK:
-            case jam::FROZEN_ROCK:
-                character.move(-dx, -dy);
-                state = state_;
-                return;
-            default:
-                break;
-        }
-        while (!isCorrectMove(character, map)) {
+        auto xMapPos =
+            static_cast<int>(character.getGlobalBounds().left / jam::cellSize);
+        auto yMapPos =
+            static_cast<int>(character.getGlobalBounds().top / jam::cellSize);
+        // TODO
+        //        switch (map[yMapPos][xMapPos].getObject()) {
+        //            case jam::ROCK:
+        //            case jam::FROZEN_ROCK:
+        //                character.move(-dx, -dy);
+        //                state = state_;
+        //                return;
+        //            default:
+        //                break;
+        //        }
+        while (!isCorrectMove(character, objects)) {
             character.move(-dx, -dy);
             state_ = (state_ + static_cast<int>(
                                    clock.getElapsedTime().asMicroseconds())) %
@@ -1271,6 +1232,7 @@ public:
          float health_,
          float damage_,
          std::vector<std::vector<jam::Cell>> &map_,
+         std::list<jam::FreeObject> objects_,
          bool is_always_move_ = true,
          int quantity_frames_ = 4,
          sf::Vector2i size_frame_ = sf::Vector2i(16, 16))
@@ -1279,7 +1241,8 @@ public:
                             size_frame_,
                             health_,
                             damage_,
-                            map_) ,
+                            map_,
+                            objects_),
 
           ability(CLOUD),
           elements(2, POWER_ELEMENT::FIRE),
@@ -1305,8 +1268,7 @@ public:
             if (event.type == sf::Event::MouseButtonPressed) {
                 clickMouse(event, window, currentTime);
                 return;
-            }
-            else if (event.type == sf::Event::KeyPressed) {
+            } else if (event.type == sf::Event::KeyPressed) {
                 keyPressed(event);
             }
         }
