@@ -5,22 +5,22 @@
 #include <vector>
 #include "Level.h"
 #include "building.h"
-#include "characters.h"
+#include "makeCharacters.h"
 #include "moving_object.h"
 #include "usefulFunctions.h"
 
 namespace jam {
-struct GameSession {
-    void startGame(sf::RenderWindow &window) {
-        std::vector<sf::Texture> objectTextures(NUMBER_OF_OBJECTS);
-        texturePtrs.resize(NUMBER_OF_OBJECTS);
+    struct GameSession {
+        void startGame(sf::RenderWindow& window) {
+            std::vector<sf::Texture> objectTextures(NUMBER_OF_OBJECTS);
+            texturePtrs.resize(NUMBER_OF_OBJECTS);
 
-        for (int i = 0; i < NUMBER_OF_OBJECTS; i++) {
-            checkLoadTexture(
-                objectTextures[i], std::get<2>(assetInfo[i]),
-                sf::IntRect(std::get<1>(assetInfo[i]), assetCellSize));
-            texturePtrs[std::get<0>(assetInfo[i])] = &objectTextures[i];
-        }
+            for (int i = 0; i < NUMBER_OF_OBJECTS; i++) {
+                checkLoadTexture(
+                    objectTextures[i], std::get<2>(assetInfo[i]),
+                    sf::IntRect(std::get<1>(assetInfo[i]), assetCellSize));
+                texturePtrs[std::get<0>(assetInfo[i])] = &objectTextures[i];
+            }
 
         stateDurations.resize(NUMBER_OF_STATES, sf::seconds(2));
         {
@@ -53,17 +53,14 @@ struct GameSession {
              LIGHT_GREEN_GRASS, LIGHT_GREEN_GRASS, EMPTY, EMPTY, EMPTY, EMPTY},
         };
 
-        levels.emplace_back(firstLevel);
+            levels.emplace_back(firstLevel);
 
-        levels[0].heroSetPosition({150, 150});
-        levels[0].heroSetScale({4, 4});
-        levels[0].monsterSetPosition({cellSize * 3, cellSize * 6});
-        levels[0].monsterSetScale({3, 3});
-        levels[0].monsterSetPosition({200, 290}, 1);
-        levels[0].monsterSetScale({3, 3}, 1);
+            levels[0].heroSetPosition({ 150, 150 });
+            levels[0].monsterSetPosition({ cellSize * 3, cellSize * 6 });
+            levels[0].monsterSetPosition({ 200, 290 }, 1);
 
-        sf::Clock clock1;
-        std::vector<FlyingObject> flyingFireObjects;
+            sf::Clock clock1;
+            std::vector<FlyingObject> flyingFireObjects;
         AttackBuilding archersTower(flyingFireObjects, clock1);
         sf::Texture archersTowerTexture;
         checkLoad(archersTowerTexture,
@@ -101,12 +98,12 @@ struct GameSession {
                         break;
                     default:
                         break;
+                    }
+                    levels[0].event(event, window, clock1.getElapsedTime());
                 }
-                levels[0].event(event, window, clock1.getElapsedTime());
-            }
-            levels.back().updateStates(clock1.getElapsedTime());
-            levels.back().draw(window);
-            secondTower.draw(window);
+                levels.back().updateStates(clock1.getElapsedTime());
+                levels.back().draw(window);
+                secondTower.draw(window);
             archersTower.draw(window);
             archersTower.attack(levels[0].getMonsters());
             for (auto i = 0; i < flyingFireObjects.size(); i++) {
@@ -120,9 +117,9 @@ struct GameSession {
         }
     }
 
-private:
-    std::size_t currentLevelNumber;
-    std::vector<Level> levels;
-};
+    private:
+        std::size_t currentLevelNumber;
+        std::vector<Level> levels;
+    };
 
 }  // namespace jam

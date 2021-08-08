@@ -1,5 +1,5 @@
-#ifndef JAM_USEFULFUNCTIONS_H
-#define JAM_USEFULFUNCTIONS_H
+#pragma once
+
 #include <cassert>
 #include <cstdlib>
 #include <string>
@@ -47,4 +47,4 @@ T sign(T x) {
     return x > 0 ? 1 : -1;
 }
 
-#endif  // JAM_USEFULFUNCTIONS_H
+

@@ -3,16 +3,14 @@
 #include "menu.h"
 #include "usefulFunctions.h"
 
-// Нажми на кнопку, запуститься игра и первый уровень
-
 int main() {
     sf::RenderWindow window(sf::VideoMode(1920, 1080), "SFML works!",
                             sf::Style::Default);
     jam::GameSession game;
     RectangleButton<void> startGameButton([&]() {
         game.startGame(window);
-    });
-    startGameButton.setSize({100.f, 50.f});
+        });
+    startGameButton.setSize({ 100.f, 50.f });
     startGameButton.setFillColor(sf::Color::Blue);
     startGameButton.setPosition(0, 100);
 

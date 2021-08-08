@@ -1,5 +1,5 @@
-#ifndef GAIJIN_JAM_BUTTON_H
-#define GAIJIN_JAM_BUTTON_H
+#pragma once
+
 #include <functional>
 #include <iostream>
 #include <utility>
@@ -127,5 +127,3 @@ struct RectangleButton : Button<T>, sf::RectangleShape {
 
 private:
 };
-
-#endif  // GAIJIN_JAM_BUTTON_H

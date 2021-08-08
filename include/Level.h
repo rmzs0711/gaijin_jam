@@ -1,3 +1,5 @@
+#pragma once
+
 #include <SFML/Graphics.hpp>
 #include <array>
 #include <tuple>
@@ -5,19 +7,20 @@
 #include <vector>
 #include <memory>
 #include "Cell.h"
-#include "characters.h"
+#include "makeCharacters.h"
 #include "usefulFunctions.h"
 
 namespace jam {
 
 struct Level {
     explicit Level(const std::vector<std::vector<int>> &mapObjects) {
-        heroes.push_back(std::make_shared<Hero>
-            ("data/images/MiniWorldSprites/Characters/Soldiers/Melee/PurpleMelee/AssasinPurple.png", 100, 0.1, map));
-        monsters.push_back(std::make_shared<MonsterStanding>
-            ("data/images/MiniWorldSprites/Characters/Monsters/Demons/ArmouredRedDemon.png", 50, 0.1, map));
-        monsters.push_back(std::make_shared<MonsterStanding>
-            ("data/images/MiniWorldSprites/Characters/Monsters/Demons/PurpleDemon.png", 200, 0.1, map));
+        heroes.push_back(makeAssasinLime(map));
+        std::vector<sf::Vector2f> monster_path;
+        monster_path.push_back(sf::Vector2f(200, 200));
+        monster_path.push_back(sf::Vector2f(220, 280));
+        monster_path.push_back(sf::Vector2f(260, 340));
+        monsters.push_back(makeYeti(map, monster_path));
+        monsters.push_back(makePirateGunnern(map, monster_path));
 
 
         map.resize(mapObjects.size());
@@ -69,7 +72,9 @@ struct Level {
         std::vector<TemplateCharacter*> monsters_;
         for (int i = 0; i < monsters.size(); i++) {
             if ((*monsters[i]).isDraw()) {
-                monsters_.push_back(monsters[i].get());
+                if ((*monsters[i]).isLive()) {
+                    monsters_.push_back(monsters[i].get());
+                }
             }
             else {
                 monsters.erase(monsters.begin() + i);
@@ -84,7 +89,9 @@ struct Level {
         std::vector<TemplateCharacter*> heroes_;
         for (int i = 0; i < heroes.size(); i++) {
             if ((*heroes[i]).isDraw()) {
-                heroes_.push_back(heroes[i].get());
+                if ((*heroes[i]).isLive()) {
+                    heroes_.push_back(heroes[i].get());
+                }
             }
             else {
                 heroes.erase(heroes.begin() + i);
