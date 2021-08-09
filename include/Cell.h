@@ -9,7 +9,6 @@
 #include "usefulFunctions.h"
 
 // const double M_PI = 3.14;
-
 namespace jam {
 struct Level;
 enum CellState {
@@ -213,7 +212,8 @@ public:
                     sf::Color(brightness, brightness, brightness));
                 break;
             case CLOUD:
-                background.setColor(sf::Color(100, 100, brightness, 80));
+                background.setColor(
+                    sf::Color(100, 100, brightness, 80));
                 break;
             case NORMAL:
             case NUMBER_OF_STATES:

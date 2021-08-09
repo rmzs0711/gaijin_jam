@@ -1,11 +1,10 @@
-#include "button.h"
-#include "gameSession.h"
-#include "menu.h"
-#include "usefulFunctions.h"
+#include "include/button.h"
+#include "include/gameSession.h"
+#include "include/menu.h"
+#include "include/usefulFunctions.h"
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(1920, 1080), "SFML works!",
-                            sf::Style::Default);
+    sf::RenderWindow window(sf::VideoMode(1920, 1080), "SFML works!");
     jam::GameSession game;
     RectangleButton<void> startGameButton([&]() {
         game.startGame(window);

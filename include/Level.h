@@ -35,6 +35,15 @@ struct Level {
             }
         }
     }
+
+    void addHero(std::shared_ptr<Hero> hero) {
+        heroes.push_back(hero);
+    }
+
+    void addMonster(std::shared_ptr<Monster> monster) {
+        monsters.push_back(monster);
+    }
+
     void heroSetPosition(const sf::Vector2f &newPos, std::size_t i = 0) {
         (*heroes[i]).setPosition(newPos);
     }
@@ -143,8 +152,12 @@ struct Level {
         //        }
     }
 
-    [[nodiscard]] const std::vector<std::vector<Cell>> &getMap() const {
+    [[nodiscard]] std::vector<std::vector<Cell>> &getMap() {
         return map;
+    }
+
+    [[nodiscard]] std::list<FreeObject>& getfreeObjects()  {
+        return freeObjects;
     }
 
     const std::vector<std::shared_ptr<TemplateCharacter>> &getHeroes() const {

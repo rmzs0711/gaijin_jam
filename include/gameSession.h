@@ -8,6 +8,7 @@
 #include "makeCharacters.h"
 #include "moving_object.h"
 #include "usefulFunctions.h"
+#include "store.h"
 
 namespace jam {
 struct GameSession {
@@ -87,6 +88,8 @@ struct GameSession {
 
         archersTower.setFlyingObject(arrow);
 
+        Store store(window);
+        sf::Vector2f mouse;
         while (window.isOpen()) {
             levels[0].updateStates(clock1.getElapsedTime());
             sf::Event event{};
@@ -96,9 +99,10 @@ struct GameSession {
                         window.close();
                         break;
                     default:
+
+                levels[0].event(event, window, clock1.getElapsedTime());store.event(event, window, mouse, levels[0]);
                         break;
                 }
-                levels[0].event(event, window, clock1.getElapsedTime());
             }
             levels.back().updateStates(clock1.getElapsedTime());
             levels.back().draw(window);
@@ -112,7 +116,7 @@ struct GameSession {
                     flyingFireObjects.erase(flyingFireObjects.begin() + i);
                 }
             }
-            window.display();
+            store.drawStore(window);window.display();
         }
     }
 
