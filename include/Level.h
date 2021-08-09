@@ -87,6 +87,7 @@ struct Level {
             float poses[3] = {objectPos, monsterPos, heroPos};
             std::sort(std::begin(poses), std::end(poses));
             if (poses[0] == objectPos) {
+                freeObject->draw(window);
                 auto cell =
                     sf::Vector2i(freeObject->getPosition() / (float)cellSize);
                 if (freeObject->getObjectType() == ROCK &&
