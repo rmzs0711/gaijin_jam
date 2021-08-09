@@ -33,18 +33,17 @@ public:
         object.setScale(getScale());
         auto &curPos = getPosition();
         targetPos = {targetPtr->getSprite()->getGlobalBounds().left +
-                         targetPtr->getSprite()->getGlobalBounds().width / 2,
+                     targetPtr->getSprite()->getGlobalBounds().width / 2,
                      targetPtr->getSprite()->getGlobalBounds().top +
-                         targetPtr->getSprite()->getGlobalBounds().height / 2};
-
+                     targetPtr->getSprite()->getGlobalBounds().height / 2};
         auto xDist = targetPos.x - curPos.x;
         auto yDist = targetPos.y - curPos.y;
         auto Dist = std::sqrt((xDist * xDist) + (yDist * yDist));
 
         move(speed * sf::Vector2f{xDist / Dist, yDist / Dist});
         object.setRotation((asin(yDist / Dist) < 0 ? -1 : 1) *
-                               std::acos(xDist / Dist) * 180 / M_PI -
-                           90);
+        std::acos(xDist / Dist) * 180 / M_PI -
+        90);
 
         object.setPosition(getPosition());
         window.draw(object);

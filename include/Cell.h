@@ -210,17 +210,13 @@ public:
                     sf::Color(brightness, brightness, brightness));
                 break;
             case CLOUD:
-                background.setColor(
-                    sf::Color(100, 100, brightness, 80));
+                background.setColor(sf::Color(100, 100, brightness, 80));
                 break;
             case NORMAL:
             case NUMBER_OF_STATES:
                 assert(0);
                 break;
         }
-    }
-    void draw(sf::RenderWindow &window) {
-        window.draw(background);
     }
     const sf::Time &getStateStartTime() const {
         return stateStartTime;
