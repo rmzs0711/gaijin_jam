@@ -4,46 +4,85 @@
 #include "button.h"
 #include <string>
 #include <vector>
-
-
+#include "Level.h"
 
     struct DragAndDropAndClick {
     public:
         virtual bool is_correct_click(const sf::Vector2f& mouse) = 0;
         virtual void click_mouse_left(const sf::Vector2f& mouse, sf::Vector2f& old_mouse) = 0;
-        virtual void click_mouse_right(const sf::Vector2f& mouse, sf::Vector2f& old_mouse) = 0;
         virtual bool condition_for_move() = 0;
-        virtual void change_position(const sf::Vector2f& position) = 0;
-        virtual void move_object(const sf::Vector2f& mouse, sf::Vector2f& old_mouse);
+        virtual void moveObject(const sf::Vector2f& position) = 0;
+        virtual void move_object(const sf::Vector2f& mouse, sf::Vector2f& old_mouse) {
+            if (is_correct_click(mouse) && condition_for_move()) {
+                moveObject(mouse - old_mouse);
+                old_mouse = mouse;
+
+             //   std::cout << "move\n";
+            }
+        }
     };
 
     struct Object : DragAndDropAndClick, sf::Sprite {
     private:
         sf::Texture object_texture;
-      //  sf::Sprite object;
+        bool is_valid;
+        std::string name_file;
 
     public:
-        Object() {}
+        Object() : is_valid(false), name_file("") {}
 
-        Object(const std::string& name_file, const sf::Vector2f& position = sf::Vector2f(0, 0)) {
-            sf::Image object_image;
-            object_image.loadFromFile(name_file);
-            object_texture.loadFromImage(object_image);
+        Object(const std::string& name_file_, const sf::Vector2f& position = sf::Vector2f(0, 0)) : is_valid(true), name_file(name_file_) {
+            object_texture.loadFromFile(name_file);
             setTexture(object_texture);
             setPosition(position);
         }
 
-        void draw(sf::RenderWindow& window);
+        void draw(sf::RenderWindow& window) {
+            if (is_valid) {
+               // std::cout << "draw\n";
+                window.draw(*this);
+            }
+        }
 
-        bool is_correct_click(const sf::Vector2f& mouse);
+        void loadFromFile(const std::string& name_file_, sf::Vector2i size_object = sf::Vector2i(0, 0)) {
+            name_file = name_file_;
+            if (name_file == "") {
+                is_valid = false;
+                return;
+            }
+            is_valid = true;
+            object_texture.loadFromFile(name_file);
+            setTextureRect(sf::IntRect(0, 0, size_object.x, size_object.y));
+            setTexture(object_texture);
+        }
 
-        void click_mouse_left(const sf::Vector2f& mouse, sf::Vector2f& old_mouse);
+        bool isValid() {
+            return is_valid;
+        }
 
-        void click_mouse_right(const sf::Vector2f& mouse, sf::Vector2f& old_mouse);
+        bool is_correct_click(const sf::Vector2f& mouse) {
+            if (is_valid) {
+                return getGlobalBounds().contains(mouse);
+            }
+        }
 
-        bool condition_for_move();
+        void click_mouse_left(const sf::Vector2f& mouse, sf::Vector2f& old_mouse) {
+            if (is_correct_click(mouse)) {
+                old_mouse = mouse;
+            }
+        }
 
-        void change_position(const sf::Vector2f& position);
+        bool condition_for_move() {
+            return sf::Mouse::isButtonPressed(sf::Mouse::Left);
+        }
+
+        void moveObject(const sf::Vector2f& position) {
+            sf::Sprite::move(position);
+        }
+
+        std::string getNameFile() {
+            return name_file;
+        }
     };
 
     template <typename T>
@@ -179,4 +218,3 @@
             window.draw(text);
         }
     };
-

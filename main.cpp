@@ -4,8 +4,7 @@
 #include "include/usefulFunctions.h"
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(1920, 1080), "SFML works!",
-        sf::Style::Default);
+    sf::RenderWindow window(sf::VideoMode(1920, 1080), "SFML works!");
     jam::GameSession game;
     RectangleButton<void> startGameButton([&]() {
         game.startGame(window);
@@ -27,23 +26,23 @@ int main() {
         sf::Event event{};
         while (window.pollEvent(event)) {
             switch (event.type) {
-            case sf::Event::Closed:
-                window.close();
-                break;
-            case sf::Event::MouseButtonPressed:
-                switch (event.mouseButton.button) {
-                case sf::Mouse::Left:
-                    for (auto& b : mainMenu.getButtons()) {
-                        if (b->isCorrectClick(sf::Vector2f(
-                            sf::Mouse::getPosition(window)))) {
-                            b->handleClick();
-                        }
+                case sf::Event::Closed:
+                    window.close();
+                    break;
+                case sf::Event::MouseButtonPressed:
+                    switch (event.mouseButton.button) {
+                        case sf::Mouse::Left:
+                            for (auto &b : mainMenu.getButtons()) {
+                                if (b->isCorrectClick(sf::Vector2f(
+                                        sf::Mouse::getPosition(window)))) {
+                                    b->handleClick();
+                                }
+                            }
+                        default:
+                            break;
                     }
                 default:
                     break;
-                }
-            default:
-                break;
             }
         }
         window.draw(mainMenu);

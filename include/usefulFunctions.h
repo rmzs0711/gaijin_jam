@@ -41,3 +41,10 @@ T quadraticDist(const sf::Vector2<T>& first, const sf::Vector2<T>& second) {
     T yDist = (first - second).y;
     return xDist * xDist + yDist * yDist;
 }
+
+template <typename T>
+T sign(T x) {
+    return x > 0 ? 1 : -1;
+}
+
+

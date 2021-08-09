@@ -3,48 +3,33 @@
 #include <cmath>
 #include <list>
 #include <vector>
-#include "Cell.h"
+#include "Level.h"
 #include "SFML/Graphics.hpp"
+#include "makeFreeObjects.h"
 #include "usefulFunctions.h"
 
 int const UP = 1, DOWN = 0, LEFT = 3, RIGHT = 2, FIGHTING = 4,
-NOT_FIGHTING = -1;
-int const BURNED = -2, FROZEN = -3, SLOWED = -4;
+          NOT_FIGHTING = -1;
+int const BURNED = -2, FROZEN = -3, SLOWED = -4, STUNNED = -5;
 enum POWER_ELEMENT { FIRE, ICE, EARTH, NUMBER_OF_POWER_ELEMENTS };
-enum ABILITY { FIRE_BLAST, CLOUD, LAVA, FROZEN_BLAST, FROZEN_WALL, BIG_WALL };
+enum ABILITY { FIRE_BLAST, CLOUD, LAVA, FROZEN_BLAST, WALL, EARTHSHAKE };
 
-bool isCorrectMove(const sf::Sprite& character,
-    const std::vector<std::vector<jam::Cell>>& map) {
-    sf::Vector2i cell =
-        sf::Vector2i(character.getPosition() / (float)jam::cellSize);
-    switch (map[cell.y][cell.x].getObject()) {
-    case jam::ROCK:
-    case jam::FROZEN_ROCK:
-    case jam::TREE_3:
-    case jam::TREE_2:
-    case jam::TREE_1:
-    case jam::STUMP:
-    case jam::FROZEN_TREE_1:
-    case jam::FROZEN_TREE_2:
-    case jam::FROZEN_TREE_3:
-    case jam::DEAD_TREE:
-    case jam::FROZEN_DEAD_TREE:
-    case jam::EMPTY:
-        if (map[cell.y][cell.x].getGlobalBounds().contains(
-            character.getPosition())) {
+bool isCorrectMove(const sf::Sprite &character,
+                   const std::list<jam::FreeObject> &objects) {
+    auto hitBox = character.getGlobalBounds();
+    for (auto &i : objects) {
+        if (i.getHitBox().intersects({hitBox.left,
+                                      hitBox.top + hitBox.height / 2,
+                                      hitBox.width, hitBox.height / 2})) {
             return false;
         }
-        break;
-    default:
-        break;
     }
-
     return true;
 }
 
 struct TemplateCharacter {
 protected:
-    std::vector<std::vector<jam::Cell>>& map;
+    float speedCoef = 1;
     float speed;
     sf::Vector2f scale;
     int current_frame, quantity_frames;
@@ -52,30 +37,34 @@ protected:
     float health, damage, current_health, current_damage;
     sf::Texture character_texture, icon_texture;
     sf::Sprite character, icon;
+    std::vector<std::vector<jam::Cell>> &map;
+    std::list<jam::FreeObject> &objects;
 
-    TemplateCharacter(const std::string& file_name,
-        int quantity_frames_,
-        sf::Vector2i size_frame_,
-        float health_,
-        float damage_,
-        std::vector<std::vector<jam::Cell>>& map_)
+    TemplateCharacter(const std::string &file_name,
+                      int quantity_frames_,
+                      sf::Vector2i size_frame_,
+                      float health_,
+                      float damage_,
+                      std::vector<std::vector<jam::Cell>> &map_,
+                      std::list<jam::FreeObject> &objects_)
         : map(map_),
-        current_frame(0),
-        size_frame(size_frame_),
-        quantity_frames(quantity_frames_),
-        speed(0.2),
-        current_health(health_),
-        current_damage(damage_),
-        health(health_),
-        damage(damage_),
-        scale(sf::Vector2f(0, 0)) {
+          objects(objects_),
+          current_frame(0),
+          size_frame(size_frame_),
+          quantity_frames(quantity_frames_),
+          speed(0.2),
+          current_health(health_),
+          current_damage(damage_),
+          health(health_),
+          damage(damage_),
+          scale(sf::Vector2f(0, 0)) {
         sf::Clock clock;
         sf::Image character_image;
         character_image.loadFromFile(file_name);
         character_texture.loadFromImage(character_image);
         character.setTexture(character_texture);
         character.setOrigin((float)size_frame.x / 2,
-            (float)size_frame.y * 0.9f);
+                            (float)size_frame.y * 0.9f);
         sf::Image icon_image;
         icon_image.loadFromFile(
             "data/images/MiniWorldSprites/Objects/FireballProjectile.png");
@@ -86,27 +75,27 @@ protected:
         character.setTextureRect(sf::IntRect(0, 0, size_frame.x, size_frame.y));
         icon.setTextureRect(sf::IntRect(
             (static_cast<int>(clock.getElapsedTime().asMicroseconds()) % 4) *
-            size_frame.x,
+                size_frame.x,
             0, size_frame.x, size_frame.y));
     }
 
-    void initializingCoordinates(float& dx, float& dy, int direction) {
+    void initializingCoordinates(float &dx, float &dy, int direction) {
         if (direction == UP) {
             dx = 0, dy = -speed;
-        }
-        else if (direction == DOWN) {
+        } else if (direction == DOWN) {
             dx = 0, dy = speed;
-        }
-        else if (direction == LEFT) {
+        } else if (direction == LEFT) {
             dx = -speed, dy = 0;
-        }
-        else if (direction == RIGHT) {
+        } else if (direction == RIGHT) {
             dx = speed, dy = 0;
         }
     }
 
 public:
-    sf::Sprite* getSprite() {
+    std::list<jam::FreeObject> &getObjects() const {
+        return objects;
+    }
+    sf::Sprite *getSprite() {
         return &character;
     }
 
@@ -158,13 +147,13 @@ public:
     //  virtual void drawCharacter(sf::RenderWindow& window) = 0;
 };
 
-TemplateCharacter* intersectionObjects(
-    const sf::Sprite& character,
-    std::vector<TemplateCharacter*>& objects) {
-    for (auto& i : objects) {
+TemplateCharacter *intersectionObjects(
+    const sf::Sprite &character,
+    std::vector<TemplateCharacter *> &objects) {
+    for (auto &i : objects) {
         if ((*(*i).getSprite())
-            .getGlobalBounds()
-            .intersects(character.getGlobalBounds()) &&
+                .getGlobalBounds()
+                .intersects(character.getGlobalBounds()) &&
             (*i).getSprite() != &character) {
             return i;
         }
@@ -181,57 +170,73 @@ protected:
         sf::Clock clock;
         if (state_ == NOT_FIGHTING) {
             character.setColor(sf::Color::White);
-        }
-        else if (state_ == FIGHTING && state != FROZEN) {
+        } else if (state == FIGHTING && state != FROZEN && state != STUNNED) {
+            character.setColor(sf::Color::White);
+        } else if (state_ == FIGHTING && state != FROZEN && state != STUNNED) {
             state = FIGHTING;
             character.setTextureRect(
                 sf::IntRect((current_frame % (quantity_frames)) * size_frame.x,
-                    state_ * size_frame.y, size_frame.x, size_frame.y));
+                            state_ * size_frame.y, size_frame.x, size_frame.y));
             health -= damage_;
             return;
-        }
-        else if (state == FIGHTING) {
+        } else if (state == FIGHTING) {
             state = DOWN;
-        }
-        else if (state_ == FROZEN) {
+        } else if (state_ == FROZEN) {
+            speedCoef = 0;
             state = state_;
             health -= damage_;
             character.setColor(sf::Color::Blue);
-        }
-        else if (state_ == BURNED) {
+        } else if (state_ == BURNED) {
             state = state_;
             character.setColor(sf::Color::Red);
             health -= jam::fireDamage;
             health -= damage_;
-        }
-        else if (state_ == SLOWED) {
+        } else if (state_ == SLOWED) {
+            speedCoef = 0.5;
             state = state_;
             health -= damage_;
             character.setColor(sf::Color(100, 100, 100));
             // TODO speed * slow_coef
-        }
-        else {
+        } else if (state_ == STUNNED) {
+            speedCoef = 0;
+            state = state_;
+            health -= damage_;
+            health -= jam::earthShakeDamage;
+        } else {
             float dx, dy;
             initializingCoordinates(dx, dy, state_);
-            character.move(dx, dy);
+            character.move(speedCoef * dx, speedCoef * dy);
+            bool isRock = false;
+            auto hitBox = character.getGlobalBounds();
+            for (auto &i : objects) {
+                if (i.getObjectType() == jam::ROCK &&
+                    i.getHitBox().intersects(
+                        {hitBox.left, hitBox.top + hitBox.height / 2,
+                         hitBox.width, hitBox.height / 2})) {
+                    isRock = true;
+                }
+            }
+            if (isRock) {
+                character.move(-dx, -dy);
+                return;
+            }
             state = state_;
             character.setTextureRect(sf::IntRect(current_frame * size_frame.x,
-                state_ * size_frame.y,
-                size_frame.x, size_frame.y));
+                                                 state_ * size_frame.y,
+                                                 size_frame.x, size_frame.y));
         }
     }
 
-    void isFighting(std::vector<TemplateCharacter*>& heroes) {
+    void isFighting(std::vector<TemplateCharacter *> &heroes) {
         sf::Clock clock;
-        TemplateCharacter* hero = intersectionObjects(character, heroes);
+        TemplateCharacter *hero = intersectionObjects(character, heroes);
         if (hero != nullptr) {
             current_frame =
                 (current_frame +
-                    static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
+                 static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
                 quantity_frames;
             changeState(FIGHTING, (*hero).getDamage());
-        }
-        else {
+        } else {
             changeState(NOT_FIGHTING);
         }
     }
@@ -239,85 +244,86 @@ protected:
     void death() {
         health = current_health * 4;
     }
-    void isEffected(std::vector<TemplateCharacter*>& heroes) {
-        TemplateCharacter* hero = intersectionObjects(character, heroes);
-        sf::Vector2i cell =
-            sf::Vector2i(character.getPosition() / (float)jam::cellSize);
+    void isEffected(std::vector<TemplateCharacter *> &heroes) {
+        TemplateCharacter *hero = intersectionObjects(character, heroes);
         float damage_ = 0;
         if (hero) {
             damage_ = hero->getDamage();
         }
-
+        sf::Vector2i cell =
+            sf::Vector2i(character.getPosition() / (float)jam::cellSize);
         switch (map[cell.y][cell.x].getState()) {
-        case jam::NORMAL:
-            changeState(NOT_FIGHTING);
-            break;
-        case jam::LAVA:
-        case jam::BLAST:
-            changeState(BURNED, damage_);
-            break;
-        case jam::FROZEN_BLAST:
-            changeState(FROZEN, damage_);
-            break;
-        case jam::CLOUD:
-            changeState(SLOWED, damage_);
-            break;
-        case jam::BIG_WALL:
-            break;
-        case jam::FROZEN_WALL:
-            break;
-        case jam::NUMBER_OF_STATES:
-            break;
+            case jam::NORMAL:
+                changeState(NOT_FIGHTING);
+                break;
+            case jam::LAVA:
+            case jam::BLAST:
+                changeState(BURNED, damage_);
+                break;
+            case jam::FROZEN_BLAST:
+                changeState(FROZEN, damage_);
+                break;
+            case jam::CLOUD:
+                changeState(SLOWED, damage_);
+                break;
+            case jam::EARTHSHAKE:
+                changeState(STUNNED, damage_);
+                break;
+            case jam::WALL:
+            case jam::NUMBER_OF_STATES:
+                break;
         }
     }
 
     void moveToPosition() {
         if (positions.size() != 0) {
             sf::Clock clock;
-            float dx = (positions[positions.size() - 1] - character.getPosition()).x;
-            float dy = (positions[positions.size() - 1] - character.getPosition()).y;
+            float dx =
+                (positions[positions.size() - 1] - character.getPosition()).x;
+            float dy =
+                (positions[positions.size() - 1] - character.getPosition()).y;
             if (abs(dx) >= speed || abs(dy) >= speed) {
-                current_frame =
-                    (current_frame +
-                        static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
-                    quantity_frames;
+                current_frame = (current_frame +
+                                 static_cast<int>(
+                                     clock.getElapsedTime().asMicroseconds())) %
+                                quantity_frames;
                 if (abs(dx) > abs(dy)) {
                     if (dx > 0) {
                         changeState(RIGHT);
-                    }
-                    else {
+                    } else {
                         changeState(LEFT);
                     }
-                }
-                else {
+                } else {
                     if (dy > 0) {
                         changeState(DOWN);
-                    }
-                    else {
+                    } else {
                         changeState(UP);
                     }
                 }
-            }
-            else {
+            } else {
                 positions.pop_back();
             }
         }
     }
 
 public:
-    Monster(const std::string& file_name,
-        float health_,
-        float damage_, std::vector<sf::Vector2f> &positions_,
-        std::vector<std::vector<jam::Cell>>& map_,
-        int quantity_frames_ = 4,
-        sf::Vector2i size_frame_ = sf::Vector2i(16, 16))
+    Monster(const std::string &file_name,
+                    float health_,
+                    float damage_,
+                    std::vector<sf::Vector2f> &positions_,
+                    std::vector<std::vector<jam::Cell>> &map_,
+                    std::list<jam::FreeObject> &objects_,
+                    int quantity_frames_ = 4,
+                    sf::Vector2i size_frame_ = sf::Vector2i(16, 16))
         : TemplateCharacter(file_name,
-            quantity_frames_,
-            size_frame_,
-            health_,
-            damage_,
-            map_),
-        state(DOWN), positions(positions_) {}
+                            quantity_frames_,
+                            size_frame_,
+                            health_,
+                            damage_,
+                            map_,
+                            objects_),
+          state(DOWN),
+          positions(positions_) {}
 
     int getState() const {
         return state;
@@ -327,28 +333,26 @@ public:
         health -= damage_;
     }
 
-    void drawCharacter(sf::RenderWindow& window,
-        std::vector<TemplateCharacter*>& heroes) {
+    void drawCharacter(sf::RenderWindow &window,
+                       std::vector<TemplateCharacter *> &heroes) {
         if (isDraw()) {
             if (isLive()) {
                 isFighting(heroes);
 
-                assert(!positions.empty());
-
                 if (state == FIGHTING) {
-                    if (positions[positions.size() - 1] != character.getPosition()) {
+                    if (positions[positions.size() - 1] !=
+                        character.getPosition()) {
                         positions.push_back(character.getPosition());
                     }
-                }
-                else if (positions.size() != 0 && positions[positions.size() - 1] == character.getPosition()) {
+                } else if (!positions.empty() &&
+                           positions[positions.size() - 1] ==
+                               character.getPosition()) {
                     positions.pop_back();
                 }
                 moveToPosition();
                 isEffected(heroes);
                 // moving
-
-            }
-            else {
+            } else {
                 death();
             }
             window.draw(character);
@@ -367,18 +371,18 @@ protected:
     bool is_move, is_always_move;
     sf::Vector2f position;
 
-    bool isCorrectClick(const sf::Vector2f& mouse) {
+    bool isCorrectClick(const sf::Vector2f &mouse) {
         return character.getGlobalBounds().contains(mouse);
     }
 
-    void isFighting(std::vector<TemplateCharacter*>& monsters) {
+    void isFighting(std::vector<TemplateCharacter *> &monsters) {
         sf::Clock clock;
-        TemplateCharacter* monster = intersectionObjects(character, monsters);
+        TemplateCharacter *monster = intersectionObjects(character, monsters);
         if (monster != nullptr) {
             position = character.getPosition();
             current_frame =
                 (current_frame +
-                    static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
+                 static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
                 quantity_frames;
             float damage_ = 0;
             sf::Vector2i cell = sf::Vector2i(
@@ -387,34 +391,27 @@ protected:
                 damage_ = monster->getDamage();
             }
             changeState(FIGHTING, damage_);
-        }
-        else {
+        } else {
             changeState(NOT_FIGHTING);
         }
     }
 
-    void keyPressed(const sf::Event& event) {
+    void keyPressed(const sf::Event &event) {
         if (event.key.code == sf::Keyboard::R) {
             int whatAbility = (1 << elements[0]) | (1 << elements[1]);
             if (whatAbility == 4) {  // 100
-                ability = BIG_WALL;
-            }
-            else if (whatAbility == 5) {  // 101
+                ability = EARTHSHAKE;
+            } else if (whatAbility == 5) {  // 101
                 ability = LAVA;
-            }
-            else if (whatAbility == 6) {  // 110
-                ability = FROZEN_WALL;
-            }
-            else if (whatAbility == 2) {  // 010
+            } else if (whatAbility == 6) {  // 110
+                ability = WALL;
+            } else if (whatAbility == 2) {  // 010
                 ability = FROZEN_BLAST;
-            }
-            else if (whatAbility == 3) {  // 011
+            } else if (whatAbility == 3) {  // 011
                 ability = CLOUD;
-            }
-            else if (whatAbility == 1) {  // 001
+            } else if (whatAbility == 1) {  // 001
                 ability = FIRE_BLAST;
-            }
-            else {
+            } else {
                 assert(0);
             }
             return;
@@ -448,23 +445,22 @@ protected:
                 static_cast<int>(clock.getElapsedTime().asMicroseconds()) % 4,
                 static_cast<int>(clock.getElapsedTime().asMicroseconds()) % 2,
                 size_frame.x, size_frame.y));
-        }
-        else if (health > current_health) {
+        } else if (health > current_health) {
             health++;
         }
     }
 
-    void clickMouse(const sf::Event& event,
-        sf::RenderWindow& window,
-        const sf::Time& currentTime) {
+    void clickMouse(const sf::Event &event,
+                    sf::RenderWindow &window,
+                    const sf::Time &currentTime) {
         if (readyToCast && event.mouseButton.button == sf::Mouse::Left) {
-            sf::Vector2i selectedCell = { -1, -1 };
+            sf::Vector2i selectedCell = {-1, -1};
             for (int i = 0; i < map.size() && selectedCell.x == -1; i++) {
                 for (int j = 0; j < map[i].size(); j++) {
                     if (map[i][j].getGlobalBounds().contains(
-                        window.mapPixelToCoords(
-                            sf::Mouse::getPosition(window)))) {
-                        selectedCell = { i, j };
+                            window.mapPixelToCoords(
+                                sf::Mouse::getPosition(window)))) {
+                        selectedCell = {i, j};
                         break;
                     }
                 }
@@ -473,76 +469,90 @@ protected:
                 assert(0);
             }
             switch (ability) {
-            case FIRE_BLAST:
-                for (int i = -1; i < 2; i++) {
-                    for (int j = -1; j < 2; j++) {
-                        map[bounds(selectedCell.x + i, 0, (int)map.size())]
-                            [bounds(selectedCell.y + j, 0,
-                                (int)map[0].size())]
-                        .setState(jam::BLAST, currentTime);
-                    }
-                }
-                break;
-            case CLOUD:
-                for (int i = -1; i < 2; i++) {
-                    for (int j = -1; j < 2; j++) {
-                        map[bounds(selectedCell.x + i, 0, (int)map.size())]
-                            [bounds(selectedCell.y + j, 0,
-                                (int)map[0].size())]
-                        .setState(jam::CLOUD, currentTime);
-                    }
-                }
-                break;
-            case LAVA:
-                for (int i = 0; i < 2; i++) {
-                    for (int j = 0; j < 2; j++) {
-                        map[bounds(selectedCell.x + i, 0, (int)map.size())]
-                            [bounds(selectedCell.y + j, 0,
-                                (int)map[0].size())]
-                        .setState(jam::LAVA, currentTime);
-                    }
-                }
-                break;
-            case FROZEN_BLAST:
-                for (int i = -2; i < 3; i++) {
-                    for (int j = -2; j < 3; j++) {
-                        if (std::abs(j) + std::abs(i) >= 3) {
-                            continue;
+                case FIRE_BLAST:
+                    for (int i = -1; i < 2; i++) {
+                        for (int j = -1; j < 2; j++) {
+                            map[bounds(selectedCell.x + i, 0, (int)map.size())]
+                               [bounds(selectedCell.y + j, 0,
+                                       (int)map[0].size())]
+                                   .setState(jam::BLAST, currentTime);
+                            objects.push_back(jam::makeFire(sf::Vector2f(
+                                bounds(selectedCell.y + j, 0,
+                                       (int)map[0].size()) *
+                                        jam::cellSize +
+                                    jam::cellSize / 2,
+                                bounds(selectedCell.x + i, 0, (int)map.size()) *
+                                        jam::cellSize +
+                                    jam::cellSize / 2)));
                         }
-                        map[bounds(selectedCell.x + i, 0, (int)map.size())]
-                            [bounds(selectedCell.y + j, 0,
-                                (int)map[0].size())]
-                        .setState(jam::FROZEN_BLAST, currentTime);
                     }
-                }
-                break;
-            case FROZEN_WALL:
-                for (int i = 0; i < 1; i++) {
-                    for (int j = 0; j < 1; j++) {
-                        map[bounds(selectedCell.x + i, 0, (int)map.size())]
-                            [bounds(selectedCell.y + j, 0, (int)map.size())]
-                        .setState(jam::FROZEN_WALL, currentTime);
+                    break;
+                case CLOUD:
+                    for (int i = -1; i < 2; i++) {
+                        for (int j = -1; j < 2; j++) {
+                            map[bounds(selectedCell.x + i, 0, (int)map.size())]
+                               [bounds(selectedCell.y + j, 0,
+                                       (int)map[0].size())]
+                                   .setState(jam::CLOUD, currentTime);
+                        }
                     }
-                }
-                break;
-            case BIG_WALL:
-                for (int i = 0; i < 2; i++) {
-                    for (int j = 0; j < 2; j++) {
-                        map[bounds(selectedCell.x + i, 0, (int)map.size())]
-                            [bounds(selectedCell.y + j, 0, (int)map.size())]
-                        .setState(jam::BIG_WALL, currentTime);
+                    break;
+                case LAVA:
+                    for (int i = 0; i < 2; i++) {
+                        for (int j = 0; j < 2; j++) {
+                            map[bounds(selectedCell.x + i, 0, (int)map.size())]
+                               [bounds(selectedCell.y + j, 0,
+                                       (int)map[0].size())]
+                                   .setState(jam::LAVA, currentTime);
+                        }
                     }
-                }
-                break;
+                    break;
+                case FROZEN_BLAST:
+                    for (int i = -2; i < 3; i++) {
+                        for (int j = -2; j < 3; j++) {
+                            if (std::abs(j) + std::abs(i) >= 3) {
+                                continue;
+                            }
+                            map[bounds(selectedCell.x + i, 0, (int)map.size())]
+                               [bounds(selectedCell.y + j, 0,
+                                       (int)map[0].size())]
+                                   .setState(jam::FROZEN_BLAST, currentTime);
+                        }
+                    }
+                    break;
+                case EARTHSHAKE:
+                    for (int i = 0; i < 2; i++) {
+                        for (int j = 0; j < 2; j++) {
+                            if (map[bounds(selectedCell.x + i, 0,
+                                           (int)map.size())]
+                                   [bounds(selectedCell.y + j, 0,
+                                           (int)map[0].size())]
+                                       .getGlobalBounds()
+                                       .contains(character.getPosition())) {
+                                continue;
+                            }
+                            map[bounds(selectedCell.x + i, 0, (int)map.size())]
+                               [bounds(selectedCell.y + j, 0,
+                                       (int)map[0].size())]
+                                   .setState(jam::EARTHSHAKE, currentTime);
+                        }
+                    }
+                    break;
+                case WALL:
+                    map[selectedCell.x][selectedCell.y].setState(jam::WALL,
+                                                                 currentTime);
+                    objects.push_back(jam::makeRock(sf::Vector2f(
+                        selectedCell.y * jam::cellSize + jam::cellSize / 2,
+                        selectedCell.x * jam::cellSize + jam::cellSize / 2)));
+                    break;
             }
         }
 
         if (!is_always_move && event.mouseButton.button == sf::Mouse::Left) {
             if (isCorrectClick(window.mapPixelToCoords(
-                sf::Vector2i(event.mouseButton.x, event.mouseButton.y)))) {
+                    sf::Vector2i(event.mouseButton.x, event.mouseButton.y)))) {
                 is_move = true;
-            }
-            else {
+            } else {
                 is_move = false;
             }
         }
@@ -551,10 +561,9 @@ protected:
             readyToCast = false;
             position = window.mapPixelToCoords(
                 sf::Vector2i(event.mouseButton.x, event.mouseButton.y));
-            auto bounds =
-                sf::IntRect(sf::Vector2i(0, 0),
-                    sf::Vector2i(map[0].size() * jam::cellSize,
-                        map.size() * jam::cellSize));
+            auto bounds = sf::IntRect(
+                sf::Vector2i(0, 0), sf::Vector2i(map[0].size() * jam::cellSize,
+                                                 map.size() * jam::cellSize));
             if (!bounds.contains(window.mapCoordsToPixel(position))) {
                 position = character.getPosition();
             }
@@ -568,35 +577,50 @@ protected:
             character.setTextureRect(sf::IntRect(
                 (current_frame % (quantity_frames - 1)) * size_frame.x,
                 (state_ +
-                    (static_cast<int>(clock.getElapsedTime().asMicroseconds()) %
-                        2)) *
-                size_frame.y,
+                 (static_cast<int>(clock.getElapsedTime().asMicroseconds()) %
+                  2)) *
+                    size_frame.y,
                 size_frame.x, size_frame.y));
             health -= damage_;
             return;
         }
         if (state_ == NOT_FIGHTING) {
             character.setTextureRect(sf::IntRect(current_frame * size_frame.x,
-                state * size_frame.y,
-                size_frame.x, size_frame.y));
+                                                 state * size_frame.y,
+                                                 size_frame.x, size_frame.y));
             return;
         }
         float dx, dy;
         initializingCoordinates(dx, dy, state_);
         character.move(dx, dy);
-        while (!isCorrectMove(character, map)) {
+        // TODO
+        bool isRock = false;
+        auto hitBox = character.getGlobalBounds();
+        for (auto &i : objects) {
+            if (i.getObjectType() == jam::ROCK &&
+                i.getHitBox().intersects({hitBox.left,
+                                          hitBox.top + hitBox.height / 2,
+                                          hitBox.width, hitBox.height / 2})) {
+                isRock = true;
+            }
+        }
+        if (isRock) {
+            character.move(-dx, -dy);
+            return;
+        }
+        while (!isCorrectMove(character, objects)) {
             character.move(-dx, -dy);
             state_ = (state_ + static_cast<int>(
-                clock.getElapsedTime().asMicroseconds())) %
-                4;
+                                   clock.getElapsedTime().asMicroseconds())) %
+                     4;
             initializingCoordinates(dx, dy, state_);
             dx *= 2.5, dy *= 2.5;
             character.move(dx, dy);
         }
         state = state_;
         character.setTextureRect(sf::IntRect(current_frame * size_frame.x,
-            state_ * size_frame.y,
-            size_frame.x, size_frame.y));
+                                             state_ * size_frame.y,
+                                             size_frame.x, size_frame.y));
     }
 
     void moveToPosition() {
@@ -606,21 +630,18 @@ protected:
         if (abs(dx) >= speed || abs(dy) >= speed) {
             current_frame =
                 (current_frame +
-                    static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
+                 static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
                 quantity_frames;
             if (abs(dx) > abs(dy)) {
                 if (dx > 0) {
                     changeState(RIGHT);
-                }
-                else {
+                } else {
                     changeState(LEFT);
                 }
-            }
-            else {
+            } else {
                 if (dy > 0) {
                     changeState(DOWN);
-                }
-                else {
+                } else {
                     changeState(UP);
                 }
             }
@@ -628,52 +649,54 @@ protected:
     }
 
 public:
-    Hero(const std::string& file_name,
-        float health_,
-        float damage_,
-        std::vector<std::vector<jam::Cell>>& map_,
-        bool is_always_move_ = true,
-        int quantity_frames_ = 4,
-        sf::Vector2i size_frame_ = sf::Vector2i(16, 16))
+    Hero(const std::string &file_name,
+         float health_,
+         float damage_,
+         std::vector<std::vector<jam::Cell>> &map_,
+         std::list<jam::FreeObject> &objects_,
+         bool is_always_move_ = true,
+         int quantity_frames_ = 4,
+         sf::Vector2i size_frame_ = sf::Vector2i(16, 16))
         : TemplateCharacter(file_name,
-            quantity_frames_,
-            size_frame_,
-            health_,
-            damage_,
-            map_),
-        ability(CLOUD),
-        elements(2, POWER_ELEMENT::FIRE),
-        state(DOWN),
-        is_always_move(is_always_move_),
-        is_move(is_always_move_),
-        position(sf::Vector2f(0, 0)) {}
+                            quantity_frames_,
+                            size_frame_,
+                            health_,
+                            damage_,
+                            map_,
+                            objects_),
+
+          ability(CLOUD),
+          elements(2, POWER_ELEMENT::FIRE),
+          state(DOWN),
+          is_always_move(is_always_move_),
+          is_move(is_always_move_),
+          position(sf::Vector2f(0, 0)) {}
 
     void setPosition(float x, float y) {
         character.setPosition(x, y);
         position = sf::Vector2f(x, y);
     }
-
+   
     void setPosition(sf::Vector2f position_) {
         character.setPosition(position_);
         position = position_;
     }
 
-    void event(const sf::Event& event,
-        sf::RenderWindow& window,
-        const sf::Time& currentTime) {
+    void event(const sf::Event &event,
+               sf::RenderWindow &window,
+               const sf::Time &currentTime) {
         if (isLive()) {
             if (event.type == sf::Event::MouseButtonPressed) {
                 clickMouse(event, window, currentTime);
                 return;
-            }
-            else if (event.type == sf::Event::KeyPressed) {
+            } else if (event.type == sf::Event::KeyPressed) {
                 keyPressed(event);
             }
         }
     }
 
-    void drawCharacter(sf::RenderWindow& window,
-        std::vector<TemplateCharacter*>& monsters) {
+    void drawCharacter(sf::RenderWindow &window,
+                       std::vector<TemplateCharacter *> &monsters) {
         if (isDraw()) {
             if (isLive()) {
                 moveToPosition();
@@ -683,7 +706,7 @@ public:
             window.draw(character);
             if (isLive() && is_move) {
                 icon.setPosition(character.getPosition() -
-                    sf::Vector2f(0, size_frame.y * scale.y));
+                                 sf::Vector2f(0, size_frame.y * scale.y));
                 window.draw(icon);
             }
         }
