@@ -549,6 +549,8 @@ protected:
                         selectedCell.x * jam::cellSize + jam::cellSize / 2)));
                     break;
             }
+            readyToCast = false;
+            return;
         }
 
         if (!is_always_move && event.mouseButton.button == sf::Mouse::Left) {

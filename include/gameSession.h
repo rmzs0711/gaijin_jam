@@ -100,7 +100,8 @@ struct GameSession {
                         break;
                     default:
 
-                levels[0].event(event, window, clock1.getElapsedTime());store.event(event, window, mouse, levels[0]);
+                levels[0].event(event, window, clock1.getElapsedTime());
+                store.event(event, window, mouse, levels[0]);
                         break;
                 }
             }
