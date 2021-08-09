@@ -180,6 +180,9 @@ public:
     sf::FloatRect getGlobalBounds() const {
         return background.getGlobalBounds();
     }
+    void draw(sf::RenderWindow& window) {
+        window.draw(background);
+    }
 
     void setPosInMap(const sf::Vector2i &position) {
         background.setPosition(sf::Vector2f(position * cellSize));

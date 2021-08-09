@@ -104,7 +104,7 @@ struct GameSession {
             levels.back().draw(window);
             secondTower.draw(window);
             archersTower.draw(window);
-            archersTower.attack(levels[0].getMonsters());
+//            archersTower.attack(levels[0].getMonsters());
             for (auto i = 0; i < flyingFireObjects.size(); i++) {
                 flyingFireObjects[i].draw(window);
 

@@ -768,12 +768,13 @@ public:
         return true;
     }
 
-    //  virtual void drawCharacter(sf::RenderWindow& window) = 0;
+      virtual void drawCharacter(sf::RenderWindow& window,
+                               std::vector<std::shared_ptr<TemplateCharacter>>&) = 0;
 };
 
-TemplateCharacter *intersectionObjects(
+std::shared_ptr<TemplateCharacter> intersectionObjects(
     const sf::Sprite &character,
-    std::vector<TemplateCharacter *> &objects) {
+    std::vector<std::shared_ptr<TemplateCharacter>> &objects) {
     for (auto &i : objects) {
         if ((*(*i).getSprite())
                 .getGlobalBounds()
@@ -796,15 +797,12 @@ protected:
             character.setColor(sf::Color::White);
         } else if (state == FIGHTING && state != FROZEN && state != STUNNED) {
             character.setColor(sf::Color::White);
-        } else if (state_ == FIGHTING && state != FROZEN && state != STUNNED) {
             state = FIGHTING;
             character.setTextureRect(
                 sf::IntRect((current_frame % (quantity_frames)) * size_frame.x,
                             state_ * size_frame.y, size_frame.x, size_frame.y));
             health -= damage_;
             return;
-        } else if (state == FIGHTING) {
-            state = DOWN;
         } else if (state_ == FROZEN) {
             speedCoef = 0;
             state = state_;
@@ -851,9 +849,10 @@ protected:
         }
     }
 
-    void isFighting(std::vector<TemplateCharacter *> &heroes) {
+    void isFighting(std::vector<std::shared_ptr<TemplateCharacter>> &heroes) {
         sf::Clock clock;
-        TemplateCharacter *hero = intersectionObjects(character, heroes);
+        std::shared_ptr<TemplateCharacter> hero = intersectionObjects
+            (character, heroes);
         if (hero != nullptr) {
             current_frame =
                 (current_frame +
@@ -868,8 +867,9 @@ protected:
     void death() {
         health = current_health * 4;
     }
-    void isEffected(std::vector<TemplateCharacter *> &heroes) {
-        TemplateCharacter *hero = intersectionObjects(character, heroes);
+    void isEffected(std::vector<std::shared_ptr<TemplateCharacter>> &heroes) {
+        std::shared_ptr<TemplateCharacter> hero = intersectionObjects
+            (character, heroes);
         float damage_ = 0;
         if (hero) {
             damage_ = hero->getDamage();
@@ -958,7 +958,8 @@ public:
     }
 
     void drawCharacter(sf::RenderWindow &window,
-                       std::vector<TemplateCharacter *> &heroes) {
+                       std::vector<std::shared_ptr<TemplateCharacter>>
+                           &heroes) override {
         if (isDraw()) {
             if (isLive()) {
                 isFighting(heroes);
@@ -999,9 +1000,9 @@ protected:
         return character.getGlobalBounds().contains(mouse);
     }
 
-    void isFighting(std::vector<TemplateCharacter *> &monsters) {
+    void isFighting(std::vector<std::shared_ptr<TemplateCharacter>> &monsters) {
         sf::Clock clock;
-        TemplateCharacter *monster = intersectionObjects(character, monsters);
+        std::shared_ptr<TemplateCharacter>monster = intersectionObjects(character, monsters);
         if (monster != nullptr) {
             position = character.getPosition();
             current_frame =
@@ -1320,7 +1321,8 @@ public:
     }
 
     void drawCharacter(sf::RenderWindow &window,
-                       std::vector<TemplateCharacter *> &monsters) {
+                       std::vector<std::shared_ptr<TemplateCharacter>>
+                           &monsters) override {
         if (isDraw()) {
             if (isLive()) {
                 moveToPosition();

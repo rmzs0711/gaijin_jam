@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <array>
+#include <limits>
 #include <memory>
 #include <set>
 #include <tuple>
@@ -51,7 +52,7 @@ struct Level {
                sf::RenderWindow &window,
                const sf::Time &currentTime) {
         for (auto &i : heroes) {
-            (*i).event(newEvent, window, currentTime);
+            dynamic_cast<Hero &>(*i).event(newEvent, window, currentTime);
         }
     }
 
@@ -69,68 +70,94 @@ struct Level {
                 j.draw(window);
             }
         }
-        for (auto i = freeObjects.begin(); i != freeObjects.end();) {
-            i->draw(window);
-            auto cell = sf::Vector2i(i->getPosition() / (float)cellSize);
-
-            if (i->getObjectType() == ROCK &&
-                    map[cell.y][cell.x].getState() != WALL ||
-                i->getObjectType() == FIRE &&
-                    map[cell.y][cell.x].getState() != BLAST) {
-                i = freeObjects.erase(i);
-                continue;
-            }
-
-            i++;
-        }
-        std::vector<TemplateCharacter *> monsters_;
-        for (int i = 0; i < monsters.size(); i++) {
-            if ((*monsters[i]).isDraw()) {
-                if ((*monsters[i]).isLive()) {
-                    monsters_.push_back(monsters[i].get());
+        auto freeObject = freeObjects.begin();
+        auto monster = monsters.begin();
+        auto hero = heroes.begin();
+        for (; freeObject != freeObjects.end() || monster != monsters.end() ||
+               hero != heroes.end();) {
+            auto objectPos = freeObject != freeObjects.end()
+                                 ? freeObject->getPosition().y
+                                 : std::numeric_limits<float>::max();
+            auto monsterPos = monster != monsters.end()
+                                  ? (*monster)->getSprite()->getPosition().y
+                                  : std::numeric_limits<float>::max();
+            auto heroPos = hero != heroes.end()
+                               ? (*hero)->getSprite()->getPosition().y
+                               : std::numeric_limits<float>::max();
+            float poses[3] = {objectPos, monsterPos, heroPos};
+            std::sort(std::begin(poses), std::end(poses));
+            if (poses[0] == objectPos) {
+                auto cell =
+                    sf::Vector2i(freeObject->getPosition() / (float)cellSize);
+                if (freeObject->getObjectType() == ROCK &&
+                        map[cell.y][cell.x].getState() != WALL ||
+                    freeObject->getObjectType() == FIRE &&
+                        map[cell.y][cell.x].getState() != BLAST) {
+                    freeObject = freeObjects.erase(freeObject);
+                } else {
+                    freeObject++;
+                }
+            } else if (poses[0] == monsterPos) {
+                (*monster)->drawCharacter(window, heroes);
+                if (!(*monster)->isDraw()) {
+                    monster = monsters.erase(monster);
+                } else {
+                    monster++;
                 }
             } else {
-                monsters.erase(monsters.begin() + i);
-                i--;
-            }
-        }
-
-        for (auto &i : heroes) {
-            (*i).drawCharacter(window, monsters_);
-        }
-
-        std::vector<TemplateCharacter *> heroes_;
-        for (int i = 0; i < heroes.size(); i++) {
-            if ((*heroes[i]).isDraw()) {
-                if ((*heroes[i]).isLive()) {
-                    heroes_.push_back(heroes[i].get());
+                (*hero)->drawCharacter(window, monsters);
+                if (!(*hero)->isDraw()) {
+                    hero = heroes.erase(hero);
+                } else {
+                    hero++;
                 }
-            } else {
-                heroes.erase(heroes.begin() + i);
-                i--;
             }
         }
-        for (auto &i : monsters) {
-            (*i).drawCharacter(window, heroes_);
-        }
+
+        //        for (auto i = freeObjects.begin(); i != freeObjects.end();) {
+        //            i->draw(window);
+        //            auto cell = sf::Vector2i(i->getPosition() /
+        //            (float)cellSize);
+        //
+        //            if (i->getObjectType() == ROCK &&
+        //                    map[cell.y][cell.x].getState() != WALL ||
+        //                i->getObjectType() == FIRE &&
+        //                    map[cell.y][cell.x].getState() != BLAST) {
+        //                i = freeObjects.erase(i);
+        //                continue;
+        //            }
+        //            i++;
+        //        }
+        //
+        //        for (int i = 0; i < monsters.size(); i++) {
+        //
+        //        }
+
+        //        for (int i = 0; i < heroes.size(); i++) {
+        //            heroes[i]->drawCharacter(window, monsters);
+        //            if (!(*heroes[i]).isDraw()) {
+        //                heroes.erase(heroes.begin() + i);
+        //                i--;
+        //            }
+        //        }
     }
 
     [[nodiscard]] const std::vector<std::vector<Cell>> &getMap() const {
         return map;
     }
 
-    const std::vector<std::shared_ptr<Hero>> &getHeroes() const {
+    const std::vector<std::shared_ptr<TemplateCharacter>> &getHeroes() const {
         return heroes;
     }
-    const std::vector<std::shared_ptr<MonsterStanding>> &getMonsters() const {
+    const std::vector<std::shared_ptr<TemplateCharacter>> &getMonsters() const {
         return monsters;
     }
 
 private:
     std::vector<std::vector<Cell>> map;
 
-    std::vector<std::shared_ptr<Hero>> heroes;
-    std::vector<std::shared_ptr<MonsterStanding>> monsters;
+    std::vector<std::shared_ptr<TemplateCharacter>> heroes;
+    std::vector<std::shared_ptr<TemplateCharacter>> monsters;
     std::list<FreeObject> freeObjects;
 };
 }  // namespace jam
