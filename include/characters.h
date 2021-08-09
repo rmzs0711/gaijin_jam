@@ -172,7 +172,9 @@ protected:
         sf::Clock clock;
         if (state_ == NOT_FIGHTING) {
             character.setColor(sf::Color::White);
-        } else if (state == FIGHTING && state != FROZEN && state != STUNNED) {
+            state = state_;
+            speedCoef = 1;
+        } else if (state_ == FIGHTING && state != FROZEN && state != STUNNED) {
             character.setColor(sf::Color::White);
             state = FIGHTING;
             character.setTextureRect(
@@ -245,12 +247,8 @@ protected:
         health = current_health * 4;
     }
     void isEffected(std::vector<std::shared_ptr<TemplateCharacter>> &heroes) {
-        std::shared_ptr<TemplateCharacter> hero =
-            intersectionObjects(character, heroes);
         float damage_ = 0;
-        if (hero) {
-            damage_ = hero->getDamage();
-        }
+
         sf::Vector2i cell =
             sf::Vector2i(character.getPosition() / (float)jam::cellSize);
         switch (map[cell.y][cell.x].getState()) {
