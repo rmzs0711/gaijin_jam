@@ -339,7 +339,9 @@ public:
         std::vector<std::shared_ptr<TemplateCharacter>> &heroes) override {
         if (isDraw()) {
             if (isLive()) {
-                isFighting(heroes);
+                if (state != STUNNED && state != FROZEN) {
+                    isFighting(heroes);
+                }
 
                 if (state == FIGHTING) {
                     if (positions[positions.size() - 1] !=
@@ -351,7 +353,9 @@ public:
                                character.getPosition()) {
                     positions.pop_back();
                 }
-                moveToPosition();
+                if (state != STUNNED && state != FROZEN) {
+                    moveToPosition();
+                }
                 isEffected(heroes);
                 // moving
             } else {
