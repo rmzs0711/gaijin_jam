@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 include_directories(include)
 
-add_executable(jam src/Ramazan.cpp)
+add_executable(jam main.cpp)
 
 find_package(SFML REQUIRED system window graphics network audio)
 
