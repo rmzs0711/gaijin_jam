@@ -91,6 +91,7 @@ struct GameSession {
         Store store(window);
         sf::Vector2f mouse;
         while (window.isOpen()) {
+            window.clear();
             levels[0].updateStates(clock1.getElapsedTime());
             sf::Event event{};
             while (window.pollEvent(event)) {
