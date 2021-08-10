@@ -33,17 +33,17 @@ public:
         object.setScale(getScale());
         auto &curPos = getPosition();
         targetPos = {targetPtr->getSprite()->getGlobalBounds().left +
-                     targetPtr->getSprite()->getGlobalBounds().width / 2,
+                         targetPtr->getSprite()->getGlobalBounds().width / 2,
                      targetPtr->getSprite()->getGlobalBounds().top +
-                     targetPtr->getSprite()->getGlobalBounds().height / 2};
+                         targetPtr->getSprite()->getGlobalBounds().height / 2};
         auto xDist = targetPos.x - curPos.x;
         auto yDist = targetPos.y - curPos.y;
         auto Dist = std::sqrt((xDist * xDist) + (yDist * yDist));
 
         move(speed * sf::Vector2f{xDist / Dist, yDist / Dist});
         object.setRotation((asin(yDist / Dist) < 0 ? -1 : 1) *
-        std::acos(xDist / Dist) * 180 / M_PI -
-        90);
+                               std::acos(xDist / Dist) * 180 / M_PI -
+                           90);
 
         object.setPosition(getPosition());
         window.draw(object);
@@ -73,8 +73,17 @@ protected:
     sf::Vector2i sizeOnMap;
     sf::Vector2i posInMap;
     sf::Sprite building;
+    sf::FloatRect hitBox;
 
 public:
+    const sf::FloatRect &getHitBox() const {
+        return hitBox;
+    }
+
+    void setHitBox(const sf::FloatRect &newHitBox) {
+        Building::hitBox = newHitBox;
+    }
+
     const sf::Vector2i &getSizeInMap() const {
         return sizeOnMap;
     }
@@ -86,11 +95,10 @@ public:
     }
     void setPosInMap(
         const sf::Vector2i &newPosInMap
-        //                     ,   std::vector<std::vector<Cell>>& map
     ) {
         Building::posInMap = newPosInMap;
-        //        map[newPosInMap.y][newPosInMap.x].setObject(BUILD_SIGN);
         building.setPosition(sf::Vector2f(newPosInMap * (int)cellSize));
+        hitBox = {building.getPosition(), {cellSize, cellSize}};
         building.move({0.5 * cellSize, cellSize});
     }
     void setTexture(const sf::Texture &newTexture) {
@@ -103,6 +111,12 @@ public:
     }
     void draw(sf::RenderWindow &window) {
         window.draw(building);
+        sf::RectangleShape rect({hitBox.width, hitBox.height});
+        rect.setPosition(hitBox.left, hitBox.left);
+        rect.setFillColor(sf::Color::Transparent);
+        rect.setOutlineThickness(5);
+        rect.setOutlineColor(sf::Color::Red);
+        window.draw(rect);
     }
 
 private:

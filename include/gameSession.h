@@ -1,3 +1,5 @@
+#pragma once
+
 #include <SFML/Graphics.hpp>
 #include <array>
 #include <tuple>
@@ -5,7 +7,6 @@
 #include <vector>
 #include "Level.h"
 #include "building.h"
-#include "makeCharacters.h"
 #include "moving_object.h"
 #include "usefulFunctions.h"
 #include "store.h"

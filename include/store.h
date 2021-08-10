@@ -133,16 +133,20 @@ public:
 		else if (event.type == sf::Event::MouseButtonReleased) {
 			std::string file = move_product.getNameFile();
 			if (file == "data/images/MiniWorldSprites/Characters/Soldiers/Melee/PurpleMelee/AssasinPurple.png") {
-				level.addHero(makeAssasinPurple(level.getMap(), level.getfreeObjects(), move_product.getPosition()));
+				level.addHero(Hero::makeAssasinPurple(level,
+                                                                  move_product.getPosition()));
 			}
 			else if (file == "data/images/MiniWorldSprites/Characters/Soldiers/Melee/LimeMelee/AssasinLime.png") {
-				level.addHero(makeAssasinLime(level.getMap(), level.getfreeObjects(), move_product.getPosition()));
+				level.addHero(Hero::makeAssasinLime(level,
+                                                                move_product.getPosition()));
 			}
 			else if (file == "data/images/MiniWorldSprites/Characters/Soldiers/Melee/CyanMelee/AssasinCyan.png") {
-				level.addHero(makeAssasinCyan(level.getMap(), level.getfreeObjects(), move_product.getPosition()));
+				level.addHero(Hero::makeAssasinCyan(level,
+                                                                move_product.getPosition()));
 			}
 			else if (file == "data/images/MiniWorldSprites/Characters/Soldiers/Melee/RedMelee/AssasinRed.png") {
-				level.addHero(makeAssasinRed(level.getMap(), level.getfreeObjects(), move_product.getPosition()));
+				level.addHero(Hero::makeAssasinRed(level,
+                                                               move_product.getPosition()));
 			}
 			move_product.loadFromFile("");
 		}

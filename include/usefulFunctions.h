@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <string>
+#include <iostream>
 
 int bounds(const int& x, const int& down, const int& up) {
     return std::min(std::max(x, down), up - 1);
