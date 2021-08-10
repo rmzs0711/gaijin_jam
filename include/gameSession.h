@@ -89,7 +89,6 @@ struct GameSession {
 
 //        archersTower.setFlyingObject(arrow);
 
-        Store store(window);
         sf::Vector2f mouse;
         while (window.isOpen()) {
             window.clear();
@@ -105,7 +104,6 @@ struct GameSession {
                 }
             }
             levels[0].draw(window);
-            store.drawStore(window);
             window.display();
         }
     }
