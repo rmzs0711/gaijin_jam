@@ -62,22 +62,22 @@ struct GameSession {
 
         sf::Clock clock1;
         std::vector<FlyingObject> flyingFireObjects;
-        AttackBuilding archersTower(flyingFireObjects, clock1);
-        sf::Texture archersTowerTexture;
-        checkLoad(archersTowerTexture,
-                  "data/images/MiniWorldSprites/Buildings/Lime/LimeTower"
-                  ".png");
-        archersTower.setAttackCooldown(sf::seconds(1));
-        archersTower.setAttackRange(1000);
-        archersTower.setTexture(archersTowerTexture);
-        archersTower.setTextureRect({16, 16, 16, 32});
-        archersTower.setPosInMap({3, 3});
-        archersTower.setSizeInMap({1, 2});
-        archersTower.setScale({(float)cellSize / 16, (float)cellSize / 16});
-        archersTower.loadFlyingObjectTextureFromFile(
-            "data/images/MiniWorldSprites/Objects/ArrowLong.png");
-        archersTower.setAttackPosition({cellSize / 2, cellSize / 2});
-        auto secondTower = archersTower;
+//        AttackBuilding archersTower(flyingFireObjects, clock1);
+//        sf::Texture archersTowerTexture;
+//        checkLoad(archersTowerTexture,
+//                  "data/images/MiniWorldSprites/Buildings/Lime/LimeTower"
+//                  ".png");
+//        archersTower.setAttackCooldown(sf::seconds(1));
+//        archersTower.setAttackRange(1000);
+//        archersTower.setTexture(archersTowerTexture);
+//        archersTower.setTextureRect({16, 16, 16, 32});
+//        archersTower.setPosInMap({3, 3});
+//        archersTower.setSizeInMap({1, 2});
+//        archersTower.setScale({(float)cellSize / 16, (float)cellSize / 16});
+//        archersTower.loadFlyingObjectTextureFromFile(
+//            "data/images/MiniWorldSprites/Objects/ArrowLong.png");
+//        archersTower.setAttackPosition({cellSize / 2, cellSize / 2});
+//        auto secondTower = archersTower;
         //        secondTower.setPosInMap({3, 2});
 
         FlyingObject arrow;
@@ -87,13 +87,12 @@ struct GameSession {
         arrow.setSpeed(1);
         arrow.setDamage(0);
 
-        archersTower.setFlyingObject(arrow);
+//        archersTower.setFlyingObject(arrow);
 
         Store store(window);
         sf::Vector2f mouse;
         while (window.isOpen()) {
             window.clear();
-            levels[0].updateStates(clock1.getElapsedTime());
             sf::Event event{};
             while (window.pollEvent(event)) {
                 switch (event.type) {
@@ -102,24 +101,12 @@ struct GameSession {
                         break;
                     default:
 
-                levels[0].event(event, window, clock1.getElapsedTime());
-                store.event(event, window, mouse, levels[0]);
                         break;
                 }
             }
-            levels.back().updateStates(clock1.getElapsedTime());
-            levels.back().draw(window);
-            secondTower.draw(window);
-            archersTower.draw(window);
-//            archersTower.attack(levels[0].getMonsters());
-            for (auto i = 0; i < flyingFireObjects.size(); i++) {
-                flyingFireObjects[i].draw(window);
-
-                if (flyingFireObjects[i].isFinished()) {
-                    flyingFireObjects.erase(flyingFireObjects.begin() + i);
-                }
-            }
-            store.drawStore(window);window.display();
+            levels[0].draw(window);
+            store.drawStore(window);
+            window.display();
         }
     }
 

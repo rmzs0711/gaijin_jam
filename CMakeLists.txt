@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 include_directories(include)
 
-add_executable(jam main.cpp src/characters.cpp src/Level.cpp)
+add_executable(jam main.cpp src/characters.cpp src/Level.cpp src/building.cpp)
 
 find_package(SFML REQUIRED system window graphics network audio)
 

@@ -1,5 +1,4 @@
 #pragma once
-
 #include <SFML/Graphics.hpp>
 #include <array>
 #include <limits>
@@ -9,6 +8,7 @@
 #include <variant>
 #include <vector>
 #include "Cell.h"
+#include "building.h"
 #include "characters.h"
 #include "makeFreeObjects.h"
 #include "usefulFunctions.h"
@@ -16,43 +16,51 @@ struct TemplateCharacter;
 struct Monster;
 struct Hero;
 namespace jam {
+struct Building;
+struct AttackBuilding;
+struct FlyingObject;
+struct SupportBuilding;
 
 struct Level {
     friend TemplateCharacter;
     friend Monster;
     friend Hero;
 
-    explicit Level(const std::vector<std::vector<int>> &mapObjects) ;
+    friend Building;
+    friend AttackBuilding;
+    friend SupportBuilding;
 
-    void addHero(std::shared_ptr<Hero> hero);
 
-    void addMonster(std::shared_ptr<Monster> monster) ;
+    explicit Level(const std::vector<std::vector<int>> &mapObjects);
 
-    void heroSetPosition(const sf::Vector2f &newPos, std::size_t i = 0) ;
-    void monsterSetScale(const sf::Vector2f &newScale, std::size_t i = 0) ;
-    void monsterSetPosition(const sf::Vector2f &newPos, std::size_t i = 0) ;
-    void heroSetScale(const sf::Vector2f &newScale, std::size_t i = 0) ;
+    void addHero(const std::shared_ptr<Hero> &hero);
 
-    void event(sf::Event &newEvent,
-               sf::RenderWindow &window,
-               const sf::Time &currentTime) ;
+    void addMonster(const std::shared_ptr<Monster>& monster);
 
-    void updateStates(const sf::Time &currentTime) ;
+    void heroSetPosition(const sf::Vector2f &newPos, std::size_t i = 0);
+    void monsterSetScale(const sf::Vector2f &newScale, std::size_t i = 0);
+    void monsterSetPosition(const sf::Vector2f &newPos, std::size_t i = 0);
+    void heroSetScale(const sf::Vector2f &newScale, std::size_t i = 0);
 
-    void draw(sf::RenderWindow &window) ;
 
-    [[nodiscard]] std::vector<std::vector<Cell>> &getMap() ;
+    void updateStates(const sf::Time &currentTime);
 
-    const std::list<FreeObject>& getfreeObjects() const ;
+    void draw(sf::RenderWindow &window);
 
-    const std::vector<std::shared_ptr<TemplateCharacter>> &getHeroes() const ;
-    const std::vector<std::shared_ptr<TemplateCharacter>> &getMonsters() const ;
+    [[nodiscard]] std::vector<std::vector<Cell>> &getMap();
+
+    const std::list<FreeObject> &getfreeObjects() const;
+
+    const std::vector<std::shared_ptr<TemplateCharacter>> &getHeroes() const;
+    const std::vector<std::shared_ptr<TemplateCharacter>> &getMonsters() const;
 
 private:
     std::vector<std::vector<Cell>> map;
-
+    std::vector<AttackBuilding> attackBuildings;
     std::vector<std::shared_ptr<TemplateCharacter>> heroes;
     std::vector<std::shared_ptr<TemplateCharacter>> monsters;
     std::list<FreeObject> freeObjects;
+    std::list<FlyingObject> flyingObjects;
+    sf::Clock clock1;
 };
 }  // namespace jam
