@@ -127,11 +127,12 @@ void Monster::drawCharacter(sf::RenderWindow &window) {
             }
 
             if (state == FIGHTING) {
+                assert(positions.size() != 0);
                 if (positions[positions.size() - 1] !=
                     character.getPosition()) {
                     positions.push_back(character.getPosition());
                 }
-            } else if (!positions.empty() && positions[positions.size() - 1] ==
+            } else if (positions.size() > 1 && positions[positions.size() - 1] ==
                                                  character.getPosition()) {
                 positions.pop_back();
             }
@@ -178,7 +179,9 @@ void Monster::moveToPosition() {
                 }
             }
         } else {
-            positions.pop_back();
+            if (positions.size() > 1) {
+                positions.pop_back();
+            }
         }
     }
 }

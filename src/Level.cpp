@@ -130,21 +130,27 @@ void jam::Level::draw(sf::RenderWindow &window) {
                         map[cell.y][cell.x].getState() != BLAST) {
                     freeObject = freeObjects.erase(freeObject);
                 } else {
-                    freeObject++;
+                    if (freeObject != freeObjects.end()) {
+                        freeObject++;
+                    }
                 }
             } else if (poses[0] == monsterPos) {
                 (*monster)->drawCharacter(window);
                 if (!(*monster)->isDraw()) {
                     monster = monsters.erase(monster);
                 } else {
-                    monster++;
+                    if (monster != monsters.end()) {
+                        monster++;
+                    }
                 }
             } else {
                 (*hero)->drawCharacter(window);
                 if (!(*hero)->isDraw()) {
                     hero = heroes.erase(hero);
                 } else {
-                    hero++;
+                    if (hero != heroes.end()) {
+                        hero++;
+                    }
                 }
             }
         }
