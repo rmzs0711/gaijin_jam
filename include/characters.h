@@ -93,7 +93,7 @@ public:
     virtual void drawCharacter(sf::RenderWindow &window) = 0;
 };
 
-std::shared_ptr<TemplateCharacter> intersectionObjects(
+inline std::shared_ptr<TemplateCharacter> intersectionObjects(
     const sf::Sprite &character,
     const std::vector<std::shared_ptr<TemplateCharacter>> &objects) {
     for (auto &i : objects) {

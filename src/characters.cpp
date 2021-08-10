@@ -1,7 +1,18 @@
-
-
 #include "characters.h"
 #include "Level.h"
+
+bool TemplateCharacter::isCorrectMove() {
+    auto hitBox = character.getGlobalBounds();
+    for (auto &i : curLevel.freeObjects) {
+        if (i.getHitBox().intersects({hitBox.left,
+                                      hitBox.top + hitBox.height / 2,
+                                      hitBox.width, hitBox.height / 2})) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 void Monster::isFighting() {
     sf::Clock clock;
@@ -46,7 +57,6 @@ void Monster::changeState(int state_, float damage_) {
         state = state_;
         health -= damage_;
         character.setColor(sf::Color(100, 100, 100));
-        // TODO speed * slow_coef
     } else if (state_ == STUNNED) {
         speedCoef = 0;
         state = state_;
@@ -304,6 +314,27 @@ void Hero::clickMouse(const sf::Event &event,
         readyToCast = false;
         return;
     }
+    if (!is_always_move && event.mouseButton.button == sf::Mouse::Left) {
+        if (isCorrectClick(window.mapPixelToCoords(
+                sf::Vector2i(event.mouseButton.x, event.mouseButton.y)))) {
+            is_move = true;
+        } else {
+            is_move = false;
+        }
+    }
+
+    if (is_move && event.mouseButton.button == sf::Mouse::Right) {
+        readyToCast = false;
+        position = window.mapPixelToCoords(
+            sf::Vector2i(event.mouseButton.x, event.mouseButton.y));
+        auto bounds =
+            sf::IntRect(sf::Vector2i(0, 0),
+                        sf::Vector2i(curLevel.map[0].size() * jam::cellSize,
+                                     curLevel.map.size() * jam::cellSize));
+        if (!bounds.contains(window.mapCoordsToPixel(position))) {
+            position = character.getPosition();
+        }
+    }
 }
 void Hero::changeState(int state_, float damage_) {
     sf::Clock clock;
@@ -522,18 +553,6 @@ void TemplateCharacter::initializingCoordinates(float &dx,
         dx = speed, dy = 0;
     }
 }
-bool TemplateCharacter::isCorrectMove() {
-    auto hitBox = character.getGlobalBounds();
-    for (auto &i : curLevel.freeObjects) {
-        if (i.getHitBox().intersects({hitBox.left,
-                                      hitBox.top + hitBox.height / 2,
-                                      hitBox.width, hitBox.height / 2})) {
-            return false;
-        }
-    }
-    return true;
-}
-
 std::shared_ptr<Monster> Monster::makeArmouredRedDemon(
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
@@ -737,7 +756,7 @@ std::shared_ptr<Monster> Monster::makeSkeletonSoldier(
 // makeHero
 
 std::shared_ptr<Hero> Hero::makeAssasinPurple(jam::Level &level,
-                                        sf::Vector2f position) {
+                                              sf::Vector2f position) {
     std::shared_ptr<Hero> monster = std::make_shared<Hero>(
         "data/images/MiniWorldSprites/Characters/Soldiers/Melee/PurpleMelee/"
         "AssasinPurple.png",
@@ -749,7 +768,7 @@ std::shared_ptr<Hero> Hero::makeAssasinPurple(jam::Level &level,
 }
 
 std::shared_ptr<Hero> Hero::makeAssasinLime(jam::Level &level,
-                                      sf::Vector2f position) {
+                                            sf::Vector2f position) {
     std::shared_ptr<Hero> monster = std::make_shared<Hero>(
         "data/images/MiniWorldSprites/Characters/Soldiers/Melee/LimeMelee/"
         "AssasinLime.png",
@@ -761,7 +780,7 @@ std::shared_ptr<Hero> Hero::makeAssasinLime(jam::Level &level,
 }
 
 std::shared_ptr<Hero> Hero::makeAssasinCyan(jam::Level &level,
-                                      sf::Vector2f position) {
+                                            sf::Vector2f position) {
     std::shared_ptr<Hero> monster = std::make_shared<Hero>(
         "data/images/MiniWorldSprites/Characters/Soldiers/Melee/CyanMelee/"
         "AssasinCyan.png",
@@ -772,8 +791,8 @@ std::shared_ptr<Hero> Hero::makeAssasinCyan(jam::Level &level,
     return monster;
 }
 
-std::shared_ptr<Hero> Hero::makeAssasinRed(jam::Level &level, sf::Vector2f
-                                                                  position) {
+std::shared_ptr<Hero> Hero::makeAssasinRed(jam::Level &level,
+                                           sf::Vector2f position) {
     std::shared_ptr<Hero> monster = std::make_shared<Hero>(
         "data/images/MiniWorldSprites/Characters/Soldiers/Melee/RedMelee/"
         "AssasinRed.png",

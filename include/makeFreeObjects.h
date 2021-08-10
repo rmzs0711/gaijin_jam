@@ -2,7 +2,7 @@
 
 #include "Cell.h"
 namespace jam {
-FreeObject makeTree(const sf::Vector2f &position) {
+inline FreeObject makeTree(const sf::Vector2f &position) {
     static FreeObject tree(TREE);
     tree.setPosition(position);
 
@@ -16,7 +16,7 @@ FreeObject makeTree(const sf::Vector2f &position) {
     return tree;
 }
 
-FreeObject makeRock(const sf::Vector2f &position) {
+inline FreeObject makeRock(const sf::Vector2f &position) {
     static FreeObject rock(ROCK);
     rock.setPosition(position);
 
@@ -30,7 +30,7 @@ FreeObject makeRock(const sf::Vector2f &position) {
     return rock;
 }
 
-FreeObject makeFire(const sf::Vector2f &position) {
+inline FreeObject makeFire(const sf::Vector2f &position) {
     static FreeObject fire(FIRE);
     fire.setPosition(position);
 
