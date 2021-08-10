@@ -8,7 +8,7 @@
 #include <vector>
 #include "usefulFunctions.h"
 
-const double M_PI = 3.14;
+const double M_PI = std::acos(-1.0); // в vs нет такой константы (ее нет в стандартном c++), гуглила, не получилось как-то иначе
 
 namespace jam {
 struct Level;
@@ -45,12 +45,13 @@ enum CellBackground {
     FROZEN_GRASS,
     NUMBER_OF_BACKGROUNDS
 };
-int NUMBER_OF_TEXTURES = NUMBER_OF_BACKGROUNDS;
+inline int NUMBER_OF_TEXTURES = NUMBER_OF_BACKGROUNDS;
 
-const sf::Vector2i assetCellSize = {16, 16};
-float fireDamage = 0.1;
-float earthShakeDamage = 0.05;
-const std::vector<std::tuple<int, sf::IntRect, std::string>> assetInfo = {
+inline const sf::Vector2i assetCellSize = {16, 16};
+inline float fireDamage = 0.1;
+inline float earthShakeDamage = 0.05;
+inline const std::vector<std::tuple<int, sf::IntRect, std::string>> assetInfo
+    = {
     std::make_tuple(NONE,
                     sf::IntRect(sf::Vector2i(0, 0), assetCellSize),
                     "data/images/black"
@@ -103,11 +104,11 @@ const std::vector<std::tuple<int, sf::IntRect, std::string>> assetInfo = {
                     "data/images/fire.png"),
 };
 
-std::vector<sf::Vector2i> texturesNumberOfFrames;
+inline std::vector<sf::Vector2i> texturesNumberOfFrames;
 
-const int cellSize = 128;
-std::vector<sf::Texture *> texturePtrs;
-std::vector<sf::Time> stateDurations;
+inline const int cellSize = 128;
+inline std::vector<sf::Texture *> texturePtrs;
+inline std::vector<sf::Time> stateDurations;
 
 struct Cell {
 public:
@@ -180,6 +181,9 @@ public:
     sf::FloatRect getGlobalBounds() const {
         return background.getGlobalBounds();
     }
+    void draw(sf::RenderWindow& window) {
+        window.draw(background);
+    }
 
     void setPosInMap(const sf::Vector2i &position) {
         background.setPosition(sf::Vector2f(position * cellSize));
@@ -218,9 +222,6 @@ public:
                 assert(0);
                 break;
         }
-    }
-    void draw(sf::RenderWindow &window) {
-        window.draw(background);
     }
     const sf::Time &getStateStartTime() const {
         return stateStartTime;
@@ -302,12 +303,12 @@ struct FreeObject {
         rect.setOutlineThickness(2);
         rect.setOutlineColor(sf::Color::Red);
         window.draw(object);
-//        window.draw(rect);
+        window.draw(rect);
         rect.setPosition(object.getGlobalBounds().left,
                          object.getGlobalBounds().top);
         rect.setSize(
             {object.getGlobalBounds().width, object.getGlobalBounds().height});
-//        window.draw(rect);
+        window.draw(rect);
     }
     const sf::FloatRect &getHitBox() const {
         return hitBox;
