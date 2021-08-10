@@ -21,13 +21,6 @@ void jam::Level::heroSetScale(const sf::Vector2f &newScale, std::size_t i) {
     (*heroes[i]).setScale(newScale);
 }
 jam::Level::Level(const std::vector<std::vector<int>> &mapObjects) {
-    heroes.push_back(Hero::makeAssasinLime(*this));
-    std::vector<sf::Vector2f> monster_path;
-    monster_path.emplace_back(200, 200);
-    monster_path.emplace_back(220, 280);
-    monster_path.emplace_back(260, 340);
-    monsters.push_back(Monster::makeYeti(*this, monster_path));
-    monsters.push_back(Monster::makePirateGunnern(*this, monster_path));
     freeObjects.push_back(makeTree({200, 300}));
     map.resize(mapObjects.size());
     for (int i = 0; i < mapObjects.size(); i++) {

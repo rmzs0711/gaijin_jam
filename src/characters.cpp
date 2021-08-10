@@ -142,6 +142,9 @@ void Monster::drawCharacter(sf::RenderWindow &window, jam::Level &level) {
             isEffected();
 
             window.draw(character);
+            life_bar.draw(window, health, character.getPosition() - 
+                sf::Vector2f(character.getScale().x * window.mapPixelToCoords(size_frame).x / 2, 
+                    character.getScale().y * window.mapPixelToCoords(size_frame).y));
         } else {
             level.addMoney(Money::makeMoney(money, character.getPosition()));
             death();
@@ -448,9 +451,15 @@ void Hero::drawCharacter(sf::RenderWindow& window, jam::Level& level) {
         }
         death();
         window.draw(character);
+        if (isLive()) {
+            //life_bar.draw(window, current_health, character.getPosition());
+            life_bar.draw(window, health, character.getPosition() -
+                sf::Vector2f(character.getScale().x * window.mapPixelToCoords(size_frame).x / 2,
+                    character.getScale().y * window.mapPixelToCoords(size_frame).y));
+        }
         if (isLive() && is_move) {
             icon.setPosition(character.getPosition() -
-                             sf::Vector2f(0, size_frame.y * scale.y));
+                             sf::Vector2f(0, size_frame.y * scale.y + 4));
             window.draw(icon);
         }
     }
@@ -532,11 +541,13 @@ void TemplateCharacter::setScale(sf::Vector2f scale_) {
     character.scale(scale_);
     icon.scale(scale_);
     scale = scale_;
+    life_bar.setScale(scale_.x);
 }
 void TemplateCharacter::setScale(float x, float y) {
     character.scale(x, y);
     icon.scale(x, y);
     scale = sf::Vector2f(x, y);
+    life_bar.setScale(x);
 }
 void TemplateCharacter::setSpeed(float speed_) {
     speed = speed_;
@@ -563,10 +574,10 @@ void TemplateCharacter::initializingCoordinates(float &dx,
         dx = speed, dy = 0;
     }
 }
-std::shared_ptr<Monster> Monster::makeArmouredRedDemon(
+std::shared_ptr<Monster> Monster::makeArmouredRedDemon(sf::RenderWindow& window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
         "data/images/MiniWorldSprites/Characters/Monsters/Demons/"
         "ArmouredRedDemon.png",
         50, 0.1, monster_path, level, 2, 5);
@@ -574,20 +585,20 @@ std::shared_ptr<Monster> Monster::makeArmouredRedDemon(
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makeRedDemon(
+std::shared_ptr<Monster> Monster::makeRedDemon(sf::RenderWindow& window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
         "data/images/MiniWorldSprites/Characters/Monsters/Demons/RedDemon.png",
         50, 0.1, monster_path, level, 2, 5);
     (*monster).setScale(3, 3);
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makePurpleDemon(
+std::shared_ptr<Monster> Monster::makePurpleDemon(sf::RenderWindow& window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
         "data/images/MiniWorldSprites/Characters/Monsters/Demons/"
         "PurpleDemon.png",
         50, 0.1, monster_path, level, 2, 5);
@@ -597,10 +608,10 @@ std::shared_ptr<Monster> Monster::makePurpleDemon(
 
 // makeFrostborn
 
-std::shared_ptr<Monster> Monster::makeMammoth(
+std::shared_ptr<Monster> Monster::makeMammoth(sf::RenderWindow& window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
         "data/images/MiniWorldSprites/Characters/Monsters/Frostborn/"
         "Mammoth.png",
         70, 0.07, monster_path, level, 2, 4);
@@ -608,10 +619,10 @@ std::shared_ptr<Monster> Monster::makeMammoth(
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makeWendigo(
+std::shared_ptr<Monster> Monster::makeWendigo(sf::RenderWindow& window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
         "data/images/MiniWorldSprites/Characters/Monsters/Frostborn/"
         "Wendigo.png",
         70, 0.07, monster_path, level, 2, 4);
@@ -619,10 +630,10 @@ std::shared_ptr<Monster> Monster::makeWendigo(
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makeYeti(
+std::shared_ptr<Monster> Monster::makeYeti(sf::RenderWindow& window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
         "data/images/MiniWorldSprites/Characters/Monsters/Frostborn/Yeti.png",
         70, 0.07, monster_path, level, 2, 5);
     (*monster).setScale(4.3, 4.3);
@@ -631,10 +642,10 @@ std::shared_ptr<Monster> Monster::makeYeti(
 
 // makeOrcs
 
-std::shared_ptr<Monster> Monster::makeArcherGoblin(
+std::shared_ptr<Monster> Monster::makeArcherGoblin(sf::RenderWindow& window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
         "data/images/MiniWorldSprites/Characters/Monsters/Orcs/"
         "ArcherGoblin.png",
         40, 0.13, monster_path, level, 2, 4);
@@ -642,20 +653,20 @@ std::shared_ptr<Monster> Monster::makeArcherGoblin(
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makeClubGoblin(
+std::shared_ptr<Monster> Monster::makeClubGoblin(sf::RenderWindow& window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
         "data/images/MiniWorldSprites/Characters/Monsters/Orcs/ClubGoblin.png",
         40, 0.13, monster_path, level, 2, 4);
     (*monster).setScale(2.5, 2.5);
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makeFarmerGoblin(
+std::shared_ptr<Monster> Monster::makeFarmerGoblin(sf::RenderWindow& window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
         "data/images/MiniWorldSprites/Characters/Monsters/Orcs/"
         "FarmerGoblin.png",
         40, 0.13, monster_path, level, 2, 4);
@@ -663,10 +674,10 @@ std::shared_ptr<Monster> Monster::makeFarmerGoblin(
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makeKamikazeGoblin(
+std::shared_ptr<Monster> Monster::makeKamikazeGoblin(sf::RenderWindow& window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
         "data/images/MiniWorldSprites/Characters/Monsters/Orcs/"
         "KamikazeGoblin.png",
         40, 0.13, monster_path, level, 2, 5);
@@ -674,30 +685,30 @@ std::shared_ptr<Monster> Monster::makeKamikazeGoblin(
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makeOrc(
+std::shared_ptr<Monster> Monster::makeOrc(sf::RenderWindow& window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
         "data/images/MiniWorldSprites/Characters/Monsters/Orcs/Orc.png", 40,
         0.13, monster_path, level, 2, 5);
     (*monster).setScale(2.5, 2.5);
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makeOrcMage(
+std::shared_ptr<Monster> Monster::makeOrcMage(sf::RenderWindow& window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
         "data/images/MiniWorldSprites/Characters/Monsters/Orcs/OrcMage.png", 40,
         0.13, monster_path, level, 2, 5);
     (*monster).setScale(2.5, 2.5);
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makeOrcShaman(
+std::shared_ptr<Monster> Monster::makeOrcShaman(sf::RenderWindow& window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
         "data/images/MiniWorldSprites/Characters/Monsters/Orcs/OrcShaman.png",
         40, 0.13, monster_path, level, 2, 5);
     (*monster).setScale(2.5, 2.5);
@@ -706,10 +717,10 @@ std::shared_ptr<Monster> Monster::makeOrcShaman(
 
 // makePirates
 
-std::shared_ptr<Monster> Monster::makePirateCaptain(
+std::shared_ptr<Monster> Monster::makePirateCaptain(sf::RenderWindow& window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
         "data/images/MiniWorldSprites/Characters/Monsters/Pirates/"
         "PirateCaptain.png",
         80, 0.15, monster_path, level, 2, 5);
@@ -717,10 +728,10 @@ std::shared_ptr<Monster> Monster::makePirateCaptain(
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makePirateGrunt(
+std::shared_ptr<Monster> Monster::makePirateGrunt(sf::RenderWindow& window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
         "data/images/MiniWorldSprites/Characters/Monsters/Pirates/"
         "PirateGrunt.png",
         80, 0.15, monster_path, level, 2, 5);
@@ -728,10 +739,10 @@ std::shared_ptr<Monster> Monster::makePirateGrunt(
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makePirateGunnern(
+std::shared_ptr<Monster> Monster::makePirateGunnern(sf::RenderWindow& window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
         "data/images/MiniWorldSprites/Characters/Monsters/Pirates/"
         "PirateGunner.png",
         80, 0.15, monster_path, level, 2, 5);
@@ -741,10 +752,10 @@ std::shared_ptr<Monster> Monster::makePirateGunnern(
 
 // makeUndead
 
-std::shared_ptr<Monster> Monster::makeNecromancer(
+std::shared_ptr<Monster> Monster::makeNecromancer(sf::RenderWindow& window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
         "data/images/MiniWorldSprites/Characters/Monsters/Undead/"
         "Necromancer.png",
         35, 0.15, monster_path, level, 2, 5);
@@ -752,10 +763,10 @@ std::shared_ptr<Monster> Monster::makeNecromancer(
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makeSkeletonSoldier(
+std::shared_ptr<Monster> Monster::makeSkeletonSoldier(sf::RenderWindow& window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
         "data/images/MiniWorldSprites/Characters/Monsters/Undead/"
         "Skeleton-Soldier.png",
         35, 0.15, monster_path, level, 2, 5);
@@ -765,9 +776,9 @@ std::shared_ptr<Monster> Monster::makeSkeletonSoldier(
 
 // makeHero
 
-std::shared_ptr<Hero> Hero::makeAssasinPurple(jam::Level &level,
+std::shared_ptr<Hero> Hero::makeAssasinPurple(sf::RenderWindow& window, jam::Level &level,
                                               sf::Vector2f position) {
-    std::shared_ptr<Hero> monster = std::make_shared<Hero>(
+    std::shared_ptr<Hero> monster = std::make_shared<Hero>(window,
         "data/images/MiniWorldSprites/Characters/Soldiers/Melee/PurpleMelee/"
         "AssasinPurple.png",
         100, 0.1, level, false, 5);
@@ -777,9 +788,9 @@ std::shared_ptr<Hero> Hero::makeAssasinPurple(jam::Level &level,
     return monster;
 }
 
-std::shared_ptr<Hero> Hero::makeAssasinLime(jam::Level &level,
+std::shared_ptr<Hero> Hero::makeAssasinLime(sf::RenderWindow& window, jam::Level &level,
                                             sf::Vector2f position) {
-    std::shared_ptr<Hero> monster = std::make_shared<Hero>(
+    std::shared_ptr<Hero> monster = std::make_shared<Hero>(window,
         "data/images/MiniWorldSprites/Characters/Soldiers/Melee/LimeMelee/"
         "AssasinLime.png",
         120, 0.12, level, false, 5);
@@ -789,9 +800,9 @@ std::shared_ptr<Hero> Hero::makeAssasinLime(jam::Level &level,
     return monster;
 }
 
-std::shared_ptr<Hero> Hero::makeAssasinCyan(jam::Level &level,
+std::shared_ptr<Hero> Hero::makeAssasinCyan(sf::RenderWindow& window, jam::Level &level,
                                             sf::Vector2f position) {
-    std::shared_ptr<Hero> monster = std::make_shared<Hero>(
+    std::shared_ptr<Hero> monster = std::make_shared<Hero>(window,
         "data/images/MiniWorldSprites/Characters/Soldiers/Melee/CyanMelee/"
         "AssasinCyan.png",
         110, 0.8, level, false, 5);
@@ -801,9 +812,9 @@ std::shared_ptr<Hero> Hero::makeAssasinCyan(jam::Level &level,
     return monster;
 }
 
-std::shared_ptr<Hero> Hero::makeAssasinRed(jam::Level &level,
+std::shared_ptr<Hero> Hero::makeAssasinRed(sf::RenderWindow& window, jam::Level &level,
                                            sf::Vector2f position) {
-    std::shared_ptr<Hero> monster = std::make_shared<Hero>(
+    std::shared_ptr<Hero> monster = std::make_shared<Hero>(window,
         "data/images/MiniWorldSprites/Characters/Soldiers/Melee/RedMelee/"
         "AssasinRed.png",
         90, 0.14, level, false, 5);

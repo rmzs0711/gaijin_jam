@@ -13,7 +13,7 @@ private:
 	int money;
 	CentralisedText drawing_money;
 public:
-	AmountMoney(sf::RenderWindow& window) : money(0) {
+	AmountMoney(sf::RenderWindow& window) : money(100) {
 		texture_icon.loadFromFile("data/images/MiniWorldSprites/Miscellaneous/Chests.png");
 		icon.setTexture(texture_icon);
 		icon.setTextureRect(sf::IntRect(16, 0, 16, 16));
@@ -183,19 +183,19 @@ public:
 		else if (event.type == sf::Event::MouseButtonReleased) {
 			std::string file = move_product.getNameFile();
 			if (file == "data/images/MiniWorldSprites/Characters/Soldiers/Melee/PurpleMelee/AssasinPurple.png") {
-				level.addHero(Hero::makeAssasinPurple(level,
+				level.addHero(Hero::makeAssasinPurple(window, level,
                                                                   move_product.getPosition()));
 			}
 			else if (file == "data/images/MiniWorldSprites/Characters/Soldiers/Melee/LimeMelee/AssasinLime.png") {
-				level.addHero(Hero::makeAssasinLime(level,
+				level.addHero(Hero::makeAssasinLime(window, level,
                                                                 move_product.getPosition()));
 			}
 			else if (file == "data/images/MiniWorldSprites/Characters/Soldiers/Melee/CyanMelee/AssasinCyan.png") {
-				level.addHero(Hero::makeAssasinCyan(level,
+				level.addHero(Hero::makeAssasinCyan(window, level,
                                                                 move_product.getPosition()));
 			}
 			else if (file == "data/images/MiniWorldSprites/Characters/Soldiers/Melee/RedMelee/AssasinRed.png") {
-				level.addHero(Hero::makeAssasinRed(level,
+				level.addHero(Hero::makeAssasinRed(window, level,
                                                                move_product.getPosition()));
 			}
 			move_product.loadFromFile("");
