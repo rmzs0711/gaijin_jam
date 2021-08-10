@@ -89,7 +89,7 @@ struct GameSession {
 
 //        archersTower.setFlyingObject(arrow);
 
-        Store store(window);
+      //  Store store(window);
         sf::Vector2f mouse;
         while (window.isOpen()) {
             window.clear();
@@ -100,12 +100,11 @@ struct GameSession {
                         window.close();
                         break;
                     default:
-
                         break;
                 }
             }
             levels[0].draw(window);
-            store.drawStore(window);
+           // store.drawStore(window);
             window.display();
         }
     }

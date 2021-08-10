@@ -16,8 +16,6 @@
             if (is_correct_click(mouse) && condition_for_move()) {
                 moveObject(mouse - old_mouse);
                 old_mouse = mouse;
-
-             //   std::cout << "move\n";
             }
         }
     };
@@ -39,7 +37,6 @@
 
         void draw(sf::RenderWindow& window) {
             if (is_valid) {
-               // std::cout << "draw\n";
                 window.draw(*this);
             }
         }

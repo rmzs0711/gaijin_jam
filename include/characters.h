@@ -90,7 +90,7 @@ public:
 
     bool isDraw();
 
-    virtual void drawCharacter(sf::RenderWindow &window) = 0;
+    virtual void drawCharacter(sf::RenderWindow &window, jam::Level& level) = 0;
 };
 
 inline std::shared_ptr<TemplateCharacter> intersectionObjects(
@@ -111,6 +111,7 @@ struct Monster : TemplateCharacter {
 protected:
     int state;
     std::vector<sf::Vector2f> positions;
+    int money;
 
     void changeState(int state_, float damage_ = 0);
 
@@ -126,7 +127,7 @@ public:
             float health_,
             float damage_,
             std::vector<sf::Vector2f> &positions_,
-            jam::Level &curLevel_,
+            jam::Level &curLevel_, int money_ = 0,
             int quantity_frames_ = 4,
             sf::Vector2i size_frame_ = sf::Vector2i(16, 16))
         : TemplateCharacter(file_name,
@@ -136,13 +137,13 @@ public:
                             damage_,
                             curLevel_),
           state(DOWN),
-          positions(positions_) {}
+          positions(positions_), money(money_) {}
 
     int getState() const;
 
     void takeDamage(float damage_);
 
-    void drawCharacter(sf::RenderWindow &window) override;
+    void drawCharacter(sf::RenderWindow &window, jam::Level& level) override;
 
     static std::shared_ptr<Monster> makeArmouredRedDemon(
         jam::Level &level,
@@ -276,7 +277,7 @@ public:
                sf::RenderWindow &window,
                const sf::Time &currentTime);
 
-    void drawCharacter(sf::RenderWindow &window) override;
+    void drawCharacter(sf::RenderWindow& window, jam::Level& level) override;
     static std::shared_ptr<Hero> makeAssasinPurple(
         jam::Level &level,
         sf::Vector2f position = sf::Vector2f(0, 0));

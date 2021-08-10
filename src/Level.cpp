@@ -67,6 +67,10 @@ jam::Level::Level(const std::vector<std::vector<int>> &mapObjects) {
     attackBuildings.push_back(archersTower);
 }
 
+void jam::Level::addMoney(const std::shared_ptr<Money>& money_) {
+    money.push_back(money_);
+}
+
 void jam::Level::updateStates() {
     for (auto &i : map) {
         for (auto &j : i) {
@@ -95,6 +99,9 @@ void jam::Level::draw(sf::RenderWindow &window) {
                         dynamic_cast<Hero &>(*i).event(event, window,
                                                        clock1.getElapsedTime());
                     }
+                    for (auto& i : money) {
+                        store.addMoney((*i).event(event, window));
+                    }
                     store.event(event, window, mouse, *this);
                     break;
             }
@@ -104,6 +111,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
                 j.draw(window);
             }
         }
+
         auto freeObject = freeObjects.begin();
         auto monster = monsters.begin();
         auto hero = heroes.begin();
@@ -118,7 +126,8 @@ void jam::Level::draw(sf::RenderWindow &window) {
             auto heroPos = hero != heroes.end()
                                ? (*hero)->getSprite()->getPosition().y
                                : std::numeric_limits<float>::max();
-            float poses[3] = {objectPos, monsterPos, heroPos};
+
+            float poses[3] = { objectPos, monsterPos, heroPos };
             std::sort(std::begin(poses), std::end(poses));
             if (poses[0] == objectPos) {
                 freeObject->draw(window);
@@ -135,7 +144,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
                     }
                 }
             } else if (poses[0] == monsterPos) {
-                (*monster)->drawCharacter(window);
+                (*monster)->drawCharacter(window, *this);
                 if (!(*monster)->isDraw()) {
                     monster = monsters.erase(monster);
                 } else {
@@ -143,8 +152,8 @@ void jam::Level::draw(sf::RenderWindow &window) {
                         monster++;
                     }
                 }
-            } else {
-                (*hero)->drawCharacter(window);
+            } else if((poses[0] == heroPos)) {
+                (*hero)->drawCharacter(window, *this);
                 if (!(*hero)->isDraw()) {
                     hero = heroes.erase(hero);
                 } else {
@@ -164,10 +173,14 @@ void jam::Level::draw(sf::RenderWindow &window) {
                 i++;
             }
         }
-        store.drawStore(window);
         for (auto &i : attackBuildings) {
             i.draw(window);
         }
+
+        for (auto& i : money) {
+            (*i).draw(window);
+        }
+        store.drawStore(window);
         window.display();
     }
 }

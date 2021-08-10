@@ -4,6 +4,7 @@
 #include "moving_object.h"
 #include <memory>
 #include "button.h"
+#include "Level.h"
 
 struct AmountMoney {
 private:
@@ -98,6 +99,33 @@ public:
 	}
 };
 
+struct Message {
+private:
+	std::string message;
+	CentralisedText drawing_message;
+	int count;
+public:
+	Message(sf::RenderWindow& window) : message("") {
+		drawing_message.setFillColor(sf::Color(176, 0, 0));
+		drawing_message.move(sf::Vector2f(window.mapPixelToCoords(sf::Vector2i(window.getSize())).x / 2, 
+			window.mapPixelToCoords(sf::Vector2i(window.getSize())).y * 5.4 / 7.4));
+	}
+
+	void setMessage(std::string message_) {
+		count = 800;
+		message = message_;
+	}
+
+	void draw(sf::RenderWindow& window) {
+		if (count > 0) {
+			drawing_message.setString(message);
+			drawing_message.centralise();
+			window.draw(drawing_message);
+			count--;
+		}
+	}
+};
+
 struct Store {
 private:
 	sf::Texture texture_base;
@@ -105,9 +133,10 @@ private:
 	Object move_product;
 	std::vector<std::unique_ptr<Product>> products;
 	AmountMoney money;
+	Message message;
 public:
 
-	Store(sf::RenderWindow& window) : money(window) {
+	Store(sf::RenderWindow& window) : money(window), message(window) {
 		texture_base.loadFromFile("data/images/textureBase.png");
 		base.setTexture(&texture_base);
 		base.setSize(sf::Vector2f(window.mapPixelToCoords(sf::Vector2i(window.getSize())).x, window.mapPixelToCoords(sf::Vector2i(window.getSize())).y / 7.4));
@@ -130,11 +159,16 @@ public:
 			if (!move_product.isValid()) {
 				for (int i = 0; i < products.size(); i++) {
 					if ((*products[i]).isCorrectClick(window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y)))) {
-						move_product.loadFromFile((*products[i]).getFile(), (*products[i]).getSizeProduct());
-						move_product.setPosition((*products[i]).getPosition() - sf::Vector2f(16 * 4.5, 0));
-						move_product.setScale(4.5, 4.5);
-						move_product.click_mouse_left(window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y)), mouse);
-						money.changeMoney(-(*products[i]).getCost());
+						if (money.getMoney() >= (*products[i]).getCost()) {
+							move_product.loadFromFile((*products[i]).getFile(), (*products[i]).getSizeProduct());
+							move_product.setPosition((*products[i]).getPosition() - sf::Vector2f(16 * 4.5, 0));
+							move_product.setScale(4.5, 4.5);
+							move_product.click_mouse_left(window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y)), mouse);
+							money.changeMoney(-(*products[i]).getCost());
+						}
+						else {
+							message.setMessage("Insufficient funds for the purchase");
+						}
 						break;
 					}
 				}
@@ -168,6 +202,10 @@ public:
 		}
 	}
 
+	void addMoney(int money_) {
+		money.changeMoney(money_);
+	}
+
 	void drawStore(sf::RenderWindow& window) {
 		window.draw(base);
 		for (auto &i : products) {
@@ -175,5 +213,6 @@ public:
 		}
 		move_product.draw(window);
 		money.draw(window);
+		message.draw(window);
 	}
 };
