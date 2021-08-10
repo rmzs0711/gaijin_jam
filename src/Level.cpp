@@ -2,10 +2,10 @@
 #include <Level.h>
 #include <store.h>
 
-void jam::Level::addHero(const std::shared_ptr<Hero>& hero) {
+void jam::Level::addHero(const std::shared_ptr<Hero> &hero) {
     heroes.push_back(hero);
 }
-void jam::Level::addMonster(const std::shared_ptr<Monster>& monster) {
+void jam::Level::addMonster(const std::shared_ptr<Monster> &monster) {
     monsters.push_back(monster);
 }
 void jam::Level::heroSetPosition(const sf::Vector2f &newPos, std::size_t i) {
@@ -30,8 +30,6 @@ jam::Level::Level(const std::vector<std::vector<int>> &mapObjects) {
     monsters.push_back(Monster::makePirateGunnern(*this, monster_path));
     freeObjects.push_back(makeTree({200, 300}));
     map.resize(mapObjects.size());
-    sf::Clock clocky;
-
     for (int i = 0; i < mapObjects.size(); i++) {
         map[i].resize(mapObjects[i].size());
         for (int j = 0; j < mapObjects[i].size(); j++) {
@@ -39,12 +37,40 @@ jam::Level::Level(const std::vector<std::vector<int>> &mapObjects) {
             map[i][j].setBackgroundType(mapObjects[i][j]);
         }
     }
+
+    AttackBuilding archersTower(*this, clock1);
+    sf::Texture archersTowerTexture;
+    checkLoad(archersTowerTexture,
+              "data/images/MiniWorldSprites/Buildings/Lime/LimeTower"
+              ".png");
+    archersTower.setAttackCooldown(sf::seconds(1));
+    archersTower.setAttackRange(1000);
+    archersTower.loadBuildingTexture(
+        "data/images/MiniWorldSprites/Buildings/Lime/LimeTower.png");
+    archersTower.setTextureRect({{16, 16}, {16, 32}});
+    archersTower.setPosInMap({3, 3});
+    archersTower.setSizeInMap({1, 2});
+    archersTower.setScale({(float)cellSize / 16, (float)cellSize / 16});
+    archersTower.loadFlyingObjectTextureFromFile(
+        "data/images/MiniWorldSprites/Objects/ArrowLong.png");
+    archersTower.setAttackPosition({cellSize / 2, cellSize / 2});
+    //    auto secondTower = archersTower;
+    //    secondTower.setPosInMap({3, 2});
+    FlyingObject arrow;
+    arrow.setTextureRect({{5, 3}, {5, 11}});
+    arrow.setOrigin(sf::Vector2f(2.5, 0));
+    arrow.setScale(5, 5);
+    arrow.setSpeed(1);
+    arrow.setDamage(0);
+
+    archersTower.setFlyingObject(arrow);
+    attackBuildings.push_back(archersTower);
 }
 
-void jam::Level::updateStates(const sf::Time &currentTime) {
+void jam::Level::updateStates() {
     for (auto &i : map) {
         for (auto &j : i) {
-            j.updateState(currentTime);
+            j.updateState(clock1.getElapsedTime());
         }
     }
     for (auto &i : attackBuildings) {
@@ -57,7 +83,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
     sf::Vector2f mouse;
     while (window.isOpen()) {
         window.clear();
-        updateStates(clock1.getElapsedTime());
+        updateStates();
         sf::Event event{};
         while (window.pollEvent(event)) {
             switch (event.type) {
@@ -122,6 +148,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
                 }
             }
         }
+
         for (auto i = flyingObjects.begin(); i != flyingObjects.end();) {
             i->draw(window);
 
@@ -132,6 +159,9 @@ void jam::Level::draw(sf::RenderWindow &window) {
             }
         }
         store.drawStore(window);
+        for (auto &i : attackBuildings) {
+            i.draw(window);
+        }
         window.display();
     }
 }

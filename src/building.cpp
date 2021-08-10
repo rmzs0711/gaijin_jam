@@ -75,15 +75,13 @@ void jam::Building::setPosInMap(const sf::Vector2i &newPosInMap) {
     hitBox = {building.getPosition(), {cellSize, cellSize}};
     building.move({0.5 * cellSize, cellSize});
 }
-void jam::Building::setTexture(const sf::Texture &newTexture) {
-    building.setTexture(newTexture);
-}
 void jam::Building::setTextureRect(const sf::IntRect &newRect) {
     building.setTextureRect(newRect);
     building.setOrigin(building.getGlobalBounds().width / 2,
                        building.getGlobalBounds().height);
 }
 void jam::Building::draw(sf::RenderWindow &window) {
+    building.setTexture(buildingTexture);
     window.draw(building);
     sf::RectangleShape rect({hitBox.width, hitBox.height});
     rect.setPosition(hitBox.left, hitBox.left);
@@ -98,7 +96,7 @@ const sf::Texture &jam::Building::getBuildingTexture() const {
     return buildingTexture;
 }
 void jam::Building::loadBuildingTexture(const std::string &path) {
-    Building::buildingTexture.loadFromFile(path);
+    checkLoad(buildingTexture, path);
 }
 void jam::AttackBuilding::attack() {
     if (clock.getElapsedTime() - lastAttackTime < attackCooldown) {

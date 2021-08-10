@@ -51,9 +51,9 @@ public:
     void setSizeInMap(const sf::Vector2i &newSize);
     const sf::Vector2i &getPosInMap() const;
     void setPosInMap(const sf::Vector2i &newPosInMap);
-    void setTexture(const sf::Texture &newTexture);
     void setTextureRect(const sf::IntRect &newRect);
     void draw(sf::RenderWindow &window);
+    virtual ~Building() {}
 
 private:
 };

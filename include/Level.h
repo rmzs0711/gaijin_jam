@@ -43,7 +43,7 @@ struct Level {
     void heroSetScale(const sf::Vector2f &newScale, std::size_t i = 0);
 
 
-    void updateStates(const sf::Time &currentTime);
+    void updateStates();
 
     void draw(sf::RenderWindow &window);
 

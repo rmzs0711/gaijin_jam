@@ -10,7 +10,13 @@ bool TemplateCharacter::isCorrectMove() {
             return false;
         }
     }
-
+    for (auto & i : curLevel.attackBuildings) {
+        if (i.getHitBox().intersects({hitBox.left,
+                                       hitBox.top + hitBox.height / 2,
+                                       hitBox.width, hitBox.height / 2})) {
+            return false;
+        }
+    }
     return true;
 }
 
