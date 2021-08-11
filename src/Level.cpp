@@ -74,8 +74,8 @@ void jam::Level::draw(sf::RenderWindow &window) {
         sf::Event event{};
         while (window.pollEvent(event)) {
             for (auto &i : heroes) {
-                dynamic_cast<Hero &>(*i).event(
-                    event, window, clock1.getElapsedTime());
+                dynamic_cast<Hero &>(*i).event(event, window,
+                                               clock1.getElapsedTime());
             }
             for (auto &i : money) {
                 store.addMoney((*i).event(event, window));
@@ -189,7 +189,8 @@ void jam::Level::draw(sf::RenderWindow &window) {
                     break;
                 case sf::Event::KeyPressed:
                     if (event.key.code == sf::Keyboard::R) {
-                        int whatAbility = (1 << elements[0]) | (1 << elements[1]);
+                        int whatAbility =
+                            (1 << elements[0]) | (1 << elements[1]);
                         if (whatAbility == 4) {  // 100
                             ability = ABILITY::EARTHSHAKE;
                         } else if (whatAbility == 5) {  // 101
@@ -220,7 +221,8 @@ void jam::Level::draw(sf::RenderWindow &window) {
                     }
                     if (event.key.code == sf::Keyboard::C) {
                         elements[1] = POWER_ELEMENT::EARTH;
-                    }break;
+                    }
+                    break;
                 default:
                     break;
             }
@@ -266,11 +268,57 @@ void jam::Level::draw(sf::RenderWindow &window) {
                 if (freeObject->getObjectType() == ROCK &&
                         map[cell.y][cell.x].getState() != WALL ||
                     freeObject->getObjectType() == FIRE &&
-                        map[cell.y][cell.x].getState() != BLAST) {
+                        map[cell.y][cell.x].getState() != BLAST ||
+                    freeObject->getObjectType() != ROCK &&
+                        map[cell.y][cell.x].getState() == WALL ||
+                    freeObject->getObjectType() != FIRE &&
+                        map[cell.y][cell.x].getState() == BLAST ||
+                    map[cell.y][cell.x].getState() == EARTHSHAKE ||
+                    map[cell.y][cell.x].getState() == LAVA) {
                     freeObject = freeObjects.erase(freeObject);
-                } else {
-                    freeObject++;
+                    continue;
+                } else if (map[cell.y][cell.x].getState() == FROZEN_BLAST) {
+                    switch (freeObject->getObjectType()) {
+                        case TREE:
+                            freeObject->changeObjectType(FROZEN_TREE);
+                            break;
+                        case DEAD_TREE:
+                            freeObject->changeObjectType(FROZEN_DEAD_TREE);
+                            break;
+                        case ROCK:
+                            freeObject->changeObjectType(FROZEN_ROCK);
+                            break;
+                        case BUILD_SIGN:
+                        case FIRE:
+                        case NONE:
+                        case FROZEN_TREE:
+                        case FROZEN_DEAD_TREE:
+                        case FROZEN_ROCK:
+                        case NUMBER_OF_OBJECTS:
+                            break;
+                    }
+                } else if (map[cell.y][cell.x].getState() == NORMAL) {
+                    switch (freeObject->getObjectType()) {
+                        case TREE:
+                        case DEAD_TREE:
+                        case ROCK:
+                        case BUILD_SIGN:
+                        case FIRE:
+                        case NONE:
+                        case NUMBER_OF_OBJECTS:
+                            break;
+                        case FROZEN_TREE:
+                            freeObject->changeObjectType(TREE);
+                            break;
+                        case FROZEN_DEAD_TREE:
+                            freeObject->changeObjectType(DEAD_TREE);
+                            break;
+                        case FROZEN_ROCK:
+                            freeObject->changeObjectType(ROCK);
+                            break;
+                    }
                 }
+                freeObject++;
             } else if (poses[0] == monsterPos) {
                 (*monster)->drawCharacter(window);
                 if (!(*monster)->isDraw()) {
