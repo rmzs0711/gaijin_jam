@@ -65,6 +65,11 @@ void Monster::changeState(int state_, float damage_) {
         health -= damage_;
         return;
     } else if (state_ == FROZEN) {
+        std::shared_ptr<TemplateCharacter> hero =
+            intersectionObjects(character, curLevel.heroes);
+        if (hero) {
+            damage_ = hero->getDamage();
+        }
         speedCoef = 0;
         state = state_;
         health -= damage_;
