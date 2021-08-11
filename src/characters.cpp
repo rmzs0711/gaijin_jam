@@ -81,11 +81,21 @@ void Monster::changeState(int state_, float damage_) {
         health -= damage_;
     } else if (state_ == SLOWED) {
         speedCoef = 0.5;
+        std::shared_ptr<TemplateCharacter> hero =
+            intersectionObjects(character, curLevel.heroes);
+        if (hero) {
+            damage_ = hero->getDamage();
+        }
         state = state_;
         health -= damage_;
         character.setColor(sf::Color(100, 100, 100));
     } else if (state_ == STUNNED) {
         speedCoef = 0;
+        std::shared_ptr<TemplateCharacter> hero =
+            intersectionObjects(character, curLevel.heroes);
+        if (hero) {
+            damage_ = hero->getDamage();
+        }
         state = state_;
         health -= damage_;
         health -= jam::earthShakeDamage;
