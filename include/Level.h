@@ -96,7 +96,7 @@ struct Level {
 
     [[nodiscard]] std::vector<std::vector<Cell>> &getMap();
 
-    const std::list<FreeObject> &getfreeObjects() const;
+    const std::set<FreeObject> &getFreeObjects() const;
 
     const std::vector<std::shared_ptr<TemplateCharacter>> &getHeroes() const;
     const std::vector<std::shared_ptr<TemplateCharacter>> &getMonsters() const;
@@ -107,6 +107,7 @@ private:
     std::vector<std::shared_ptr<TemplateCharacter>> heroes;
     std::vector<std::shared_ptr<TemplateCharacter>> monsters;
     std::set<FreeObject> freeObjects;
+    std::vector<std::shared_ptr<Money>> money;
     std::list<FlyingObject> flyingObjects;
     sf::Clock clock1;
 };

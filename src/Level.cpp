@@ -24,17 +24,17 @@ void jam::Level::heroSetScale(const sf::Vector2f &newScale, std::size_t i) {
 }
 
 jam::Level::Level(const std::vector<std::vector<int>> &mapObjects) {
-    heroes.emplace_back(Hero::makeAssasinLime(*this, {100, 50}));
-    std::vector<sf::Vector2f> monster_path;
-    monster_path.emplace_back(200, 200);
-    monster_path.emplace_back(220, 280);
-    monster_path.emplace_back(260, 340);
-    auto weirdo = Monster::makeYeti(*this, monster_path);
-    weirdo->setPosition(340, 300);
-    monsters.emplace_back(weirdo);
-    weirdo = Monster::makePirateGunnern(*this, monster_path);
-    weirdo->setPosition(500, 500);
-    monsters.emplace_back(weirdo);
+//    heroes.emplace_back(Hero::makeAssasinLime(*this, {100, 50}));
+//    std::vector<sf::Vector2f> monster_path;
+//    monster_path.emplace_back(200, 200);
+//    monster_path.emplace_back(220, 280);
+//    monster_path.emplace_back(260, 340);
+//    auto weirdo = Monster::makeYeti(*this, monster_path);
+//    weirdo->setPosition(340, 300);
+//    monsters.emplace_back(weirdo);
+//    weirdo = Monster::makePirateGunnern(*this, monster_path);
+//    weirdo->setPosition(500, 500);
+//    monsters.emplace_back(weirdo);
 
     freeObjects.insert(makeTree({200, 300}));
     map.resize(mapObjects.size());
@@ -178,4 +178,7 @@ const std::vector<std::shared_ptr<TemplateCharacter>>
 const std::vector<std::shared_ptr<TemplateCharacter>>
     &jam::Level::getMonsters() const {
     return monsters;
+}
+void jam::Level::addMoney(const std::shared_ptr<Money>& money_) {
+    money.push_back(money_);
 }
