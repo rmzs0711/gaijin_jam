@@ -2,6 +2,11 @@
 
 #include "Cell.h"
 namespace jam {
+inline FreeObject makeEmptyObject(sf::Vector2f & pos) {
+    FreeObject object(NONE);
+    object.setPosition(pos);
+    return object;
+}
 inline FreeObject makeTree(const sf::Vector2f &position) {
     static FreeObject tree(TREE);
     tree.setPosition(position);

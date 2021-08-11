@@ -1,23 +1,56 @@
 #include "characters.h"
 #include "Level.h"
+#include "makeAttackBuilding.h"
 
 bool TemplateCharacter::isCorrectMove() {
     auto hitBox = character.getGlobalBounds();
-    for (auto &i : curLevel.freeObjects) {
-        if (i.getHitBox().intersects({hitBox.left,
-                                      hitBox.top + hitBox.height / 2,
-                                      hitBox.width, hitBox.height / 2})) {
-            return false;
+    {
+        auto start = curLevel.freeObjects.lower_bound(
+            jam::makeTree({hitBox.left, hitBox.top - jam::cellSize}));
+        auto end = curLevel.freeObjects.upper_bound(
+            jam::makeTree({hitBox.left, hitBox.top + jam::cellSize}));
+        for (auto &i = start; i != end; i++) {
+            if (i->getHitBox().intersects({hitBox.left,
+                                           hitBox.top + hitBox.height / 2,
+                                           hitBox.width, hitBox.height / 2})) {
+                return false;
+            }
         }
     }
-    for (auto & i : curLevel.attackBuildings) {
-        if (i.getHitBox().intersects({hitBox.left,
-                                       hitBox.top + hitBox.height / 2,
-                                       hitBox.width, hitBox.height / 2})) {
-            return false;
+    {
+        //        auto start = curLevel.attackBuildings.begin();
+        //        auto end = curLevel.attackBuildings.end();
+        auto start =
+            curLevel.attackBuildings.lower_bound(jam::makeEmptyBuilding(
+                curLevel, sf::Vector2i{(int)hitBox.left / jam::cellSize - 1,
+                                       (int)hitBox.top / jam::cellSize - 1}));
+        auto end = curLevel.attackBuildings.lower_bound(jam::makeEmptyBuilding(
+            curLevel, sf::Vector2i((int)hitBox.left / jam::cellSize + 1,
+                                   (int)hitBox.top / jam::cellSize + 1)));
+        for (auto &i = start; i != end; i++) {
+            if (i->getHitBox().intersects({hitBox.left,
+                                           hitBox.top + hitBox.height / 2,
+                                           hitBox.width, hitBox.height / 2})) {
+                return false;
+            }
         }
     }
     return true;
+}
+
+bool CharactersCompare::operator()(
+    const std::shared_ptr<TemplateCharacter> &first,
+    const std::shared_ptr<TemplateCharacter> &second) {
+    if (first->getSprite()->getPosition().y <
+        second->getSprite()->getPosition().y) {
+        return true;
+    }
+    if (first->getSprite()->getPosition().y ==
+        second->getSprite()->getPosition().y) {
+        return first->getSprite()->getPosition().x <
+               second->getSprite()->getPosition().x;
+    }
+    return false;
 }
 
 void Monster::isFighting() {
@@ -74,7 +107,7 @@ void Monster::changeState(int state_, float damage_) {
         character.move(speedCoef * dx, speedCoef * dy);
         bool isRock = false;
         auto hitBox = character.getGlobalBounds();
-        for (auto &i : curLevel.getfreeObjects()) {
+        for (auto &i : curLevel.getFreeObjects()) {
             if (i.getObjectType() == jam::ROCK &&
                 i.getHitBox().intersects({hitBox.left,
                                           hitBox.top + hitBox.height / 2,
@@ -236,16 +269,15 @@ void Hero::clickMouse(const sf::Event &event,
                                      [bounds(selectedCell.y + j, 0,
                                              (int)curLevel.getMap()[0].size())]
                             .setState(jam::BLAST, currentTime);
-                        curLevel.freeObjects.push_back(jam::makeFire(
-                            sf::Vector2f((float)bounds(
-                                             selectedCell.y + j, 0,
-                                             (int)curLevel.getMap()[0].size()) *
-                                                 jam::cellSize +
-                                             jam::cellSize / 2,
-                                         bounds(selectedCell.x + i, 0,
-                                                (int)curLevel.getMap().size()) *
-                                                 jam::cellSize +
-                                             jam::cellSize / 2)));
+                        curLevel.freeObjects.insert(jam::makeFire(sf::Vector2f(
+                            (float)bounds(selectedCell.y + j, 0,
+                                          (int)curLevel.getMap()[0].size()) *
+                                    jam::cellSize +
+                                jam::cellSize / 2,
+                            bounds(selectedCell.x + i, 0,
+                                   (int)curLevel.getMap().size()) *
+                                    jam::cellSize +
+                                jam::cellSize / 2)));
                     }
                 }
                 break;
@@ -312,7 +344,7 @@ void Hero::clickMouse(const sf::Event &event,
             case WALL:
                 curLevel.map[selectedCell.x][selectedCell.y].setState(
                     jam::WALL, currentTime);
-                curLevel.freeObjects.push_back(jam::makeRock(sf::Vector2f(
+                curLevel.freeObjects.insert(jam::makeRock(sf::Vector2f(
                     selectedCell.y * jam::cellSize + jam::cellSize / 2,
                     selectedCell.x * jam::cellSize + jam::cellSize / 2)));
                 break;
@@ -366,7 +398,7 @@ void Hero::changeState(int state_, float damage_) {
     character.move(dx, dy);
     bool isRock = false;
     auto hitBox = character.getGlobalBounds();
-    for (auto &i : curLevel.getfreeObjects()) {
+    for (auto &i : curLevel.getFreeObjects()) {
         if (i.getObjectType() == jam::ROCK &&
             i.getHitBox().intersects({hitBox.left,
                                       hitBox.top + hitBox.height / 2,
@@ -807,4 +839,19 @@ std::shared_ptr<Hero> Hero::makeAssasinRed(jam::Level &level,
     (*monster).setSpeed(0.35);
     (*monster).setPosition(position);
     return monster;
+}
+
+std::shared_ptr<TemplateCharacter> intersectionObjects(
+    const sf::Sprite &character,
+    const std::set<std::shared_ptr<TemplateCharacter>, CharactersCompare>
+        &objects) {
+    for (auto &i : objects) {
+        if (((*i).getSprite())
+                ->getGlobalBounds()
+                .intersects(character.getGlobalBounds()) &&
+            (*i).getSprite() != &character) {
+            return i;
+        }
+    }
+    return nullptr;
 }

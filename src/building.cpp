@@ -1,5 +1,6 @@
 
 #include <building.h>
+#include "Level.h"
 
 float jam::FlyingObject::getDamage() const {
     return damage;
@@ -41,8 +42,7 @@ void jam::FlyingObject::draw(sf::RenderWindow &window) {
 }
 bool jam::FlyingObject::isFinished() {
     if (object.getGlobalBounds().contains(targetPos)) {
-        //        targetPtr;
-        // todo damage
+        targetPtr->health -= damage;
         return true;
     }
     return false;
@@ -53,6 +53,15 @@ void jam::FlyingObject::setTargetPtr(
 }
 void jam::FlyingObject::setDamage(float newDamage) {
     damage = newDamage;
+}
+bool jam::FlyingObject::operator<(const jam::FlyingObject &rhs) const {
+    if (getPosition().y < rhs.getPosition().y) {
+        return true;
+    }
+    if (getPosition().y == rhs.getPosition().y) {
+        return getPosition().x < rhs.getPosition().x;
+    }
+    return false;
 }
 const sf::FloatRect &jam::Building::getHitBox() const {
     return hitBox;
@@ -80,7 +89,7 @@ void jam::Building::setTextureRect(const sf::IntRect &newRect) {
     building.setOrigin(building.getGlobalBounds().width / 2,
                        building.getGlobalBounds().height);
 }
-void jam::Building::draw(sf::RenderWindow &window) {
+void jam::Building::draw(sf::RenderWindow &window) const {
     building.setTexture(buildingTexture);
     window.draw(building);
     sf::RectangleShape rect({hitBox.width, hitBox.height});
@@ -98,8 +107,17 @@ const sf::Texture &jam::Building::getBuildingTexture() const {
 void jam::Building::loadBuildingTexture(const std::string &path) {
     checkLoad(buildingTexture, path);
 }
-void jam::AttackBuilding::attack() {
-    if (clock.getElapsedTime() - lastAttackTime < attackCooldown) {
+bool jam::Building::operator<(const jam::Building &rhs) const {
+    if (posInMap.y < (rhs).getPosInMap().y) {
+        return true;
+    }
+    if (posInMap.y == rhs.getPosInMap().y) {
+        return posInMap.x < rhs.getPosInMap().x;
+    }
+    return false;
+}
+void jam::AttackBuilding::attack(const sf::Time &currentTime) const {
+    if (currentTime - lastAttackTime < attackCooldown) {
         return;
     }
     for (auto &i : level.monsters) {
@@ -115,7 +133,7 @@ void jam::AttackBuilding::attack() {
             break;
         }
     }
-    lastAttackTime = clock.getElapsedTime();
+    lastAttackTime = currentTime;
 }
 const sf::Time &jam::AttackBuilding::getAttackCooldown() const {
     return attackCooldown;
@@ -132,8 +150,7 @@ float jam::AttackBuilding::getAttackRange() const {
 void jam::AttackBuilding::setAttackRange(float newAttackRange) {
     AttackBuilding::attackRange = newAttackRange;
 }
-void jam::AttackBuilding::loadFlyingObjectTextureFromFile(
-    const std::string &path) {
+void jam::AttackBuilding::loadFlyingObjectTexture(const std::string &path) {
     checkLoad(flyingObjectTexture, path);
 }
 void jam::AttackBuilding::setAttackPosition(const sf::Vector2f &newPos) {

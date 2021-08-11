@@ -2,8 +2,10 @@
 
 #include <cmath>
 #include <list>
+#include <memory>
+#include <set>
 #include <vector>
-#include "Level.h"
+#include "building.h"
 #include "SFML/Graphics.hpp"
 #include "makeFreeObjects.h"
 #include "usefulFunctions.h"
@@ -14,13 +16,13 @@ int const BURNED = -2, FROZEN = -3, SLOWED = -4, STUNNED = -5;
 enum POWER_ELEMENT { FIRE, ICE, EARTH, NUMBER_OF_POWER_ELEMENTS };
 enum ABILITY { FIRE_BLAST, CLOUD, LAVA, FROZEN_BLAST, WALL, EARTHSHAKE };
 
-
-
 namespace jam {
+struct FlyingObject;
 struct Level;
 };
 
 struct TemplateCharacter {
+    friend jam::FlyingObject;
 protected:
     bool isCorrectMove();
     float speedCoef = 1;
@@ -71,6 +73,7 @@ protected:
     }
 
     void initializingCoordinates(float &dx, float &dy, int direction) const;
+
 public:
     sf::Sprite *getSprite();
 
@@ -92,20 +95,14 @@ public:
 
     virtual void drawCharacter(sf::RenderWindow &window) = 0;
 };
-
-inline std::shared_ptr<TemplateCharacter> intersectionObjects(
+struct CharactersCompare {
+    bool operator()(const std::shared_ptr<TemplateCharacter> &,
+                    const std::shared_ptr<TemplateCharacter> &);
+};
+std::shared_ptr<TemplateCharacter> intersectionObjects(
     const sf::Sprite &character,
-    const std::vector<std::shared_ptr<TemplateCharacter>> &objects) {
-    for (auto &i : objects) {
-        if (((*i).getSprite())
-                ->getGlobalBounds()
-                .intersects(character.getGlobalBounds()) &&
-            (*i).getSprite() != &character) {
-            return i;
-        }
-    }
-    return nullptr;
-}
+    const std::set<std::shared_ptr<TemplateCharacter>, CharactersCompare>
+    &objects);
 
 struct Monster : TemplateCharacter {
 protected:
@@ -148,8 +145,9 @@ public:
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
-    static std::shared_ptr<Monster> makeRedDemon(jam::Level &level,
-                                          std::vector<sf::Vector2f> &monster_path);
+    static std::shared_ptr<Monster> makeRedDemon(
+        jam::Level &level,
+        std::vector<sf::Vector2f> &monster_path);
 
     static std::shared_ptr<Monster> makePurpleDemon(
         jam::Level &level,
@@ -157,14 +155,17 @@ public:
 
     // makeFrostborn
 
-    static std::shared_ptr<Monster> makeMammoth(jam::Level &level,
-                                         std::vector<sf::Vector2f> &monster_path);
+    static std::shared_ptr<Monster> makeMammoth(
+        jam::Level &level,
+        std::vector<sf::Vector2f> &monster_path);
 
-    static std::shared_ptr<Monster> makeWendigo(jam::Level &level,
-                                         std::vector<sf::Vector2f> &monster_path);
+    static std::shared_ptr<Monster> makeWendigo(
+        jam::Level &level,
+        std::vector<sf::Vector2f> &monster_path);
 
-    static std::shared_ptr<Monster> makeYeti(jam::Level& level,
-                                      std::vector<sf::Vector2f> &monster_path);
+    static std::shared_ptr<Monster> makeYeti(
+        jam::Level &level,
+        std::vector<sf::Vector2f> &monster_path);
 
     // makeOrcs
 
@@ -184,14 +185,17 @@ public:
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
-    static std::shared_ptr<Monster> makeOrc(jam::Level& level,
-                                     std::vector<sf::Vector2f> &monster_path);
+    static std::shared_ptr<Monster> makeOrc(
+        jam::Level &level,
+        std::vector<sf::Vector2f> &monster_path);
 
-    static std::shared_ptr<Monster> makeOrcMage(jam::Level &level,
-                                         std::vector<sf::Vector2f> &monster_path);
+    static std::shared_ptr<Monster> makeOrcMage(
+        jam::Level &level,
+        std::vector<sf::Vector2f> &monster_path);
 
-    static std::shared_ptr<Monster> makeOrcShaman(jam::Level &level,
-                                           std::vector<sf::Vector2f> &monster_path);
+    static std::shared_ptr<Monster> makeOrcShaman(
+        jam::Level &level,
+        std::vector<sf::Vector2f> &monster_path);
 
     // makePirates
 
@@ -216,8 +220,6 @@ public:
     static std::shared_ptr<Monster> makeSkeletonSoldier(
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
-
-
 };
 
 struct Hero : TemplateCharacter {
@@ -281,19 +283,16 @@ public:
         jam::Level &level,
         sf::Vector2f position = sf::Vector2f(0, 0));
 
-    static std::shared_ptr<Hero> makeAssasinLime(jam::Level &level,
-                                          sf::Vector2f position = sf::Vector2f(0,
-                                                                               0));
+    static std::shared_ptr<Hero> makeAssasinLime(
+        jam::Level &level,
+        sf::Vector2f position = sf::Vector2f(0, 0));
 
-    static std::shared_ptr<Hero> makeAssasinCyan(jam::Level &level,
-                                          sf::Vector2f newPosition = sf::Vector2f(0,
-                                                                               0));
+    static std::shared_ptr<Hero> makeAssasinCyan(
+        jam::Level &level,
+        sf::Vector2f newPosition = sf::Vector2f(0, 0));
 
-    static std::shared_ptr<Hero> makeAssasinRed(jam::Level &level,
-                                         sf::Vector2f position = sf::Vector2f(0,
-                                                                              0));
-
+    static std::shared_ptr<Hero> makeAssasinRed(
+        jam::Level &level,
+        sf::Vector2f position = sf::Vector2f(0, 0));
 };
 // makeHero
-
-

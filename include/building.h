@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Level.h"
 #include "SFML/Graphics.hpp"
 #include "characters.h"
 
@@ -21,27 +20,28 @@ public:
     bool isFinished();
 
     void setTargetPtr(const std::shared_ptr<TemplateCharacter> &targetPtr_);
+    bool operator<(const FlyingObject &rhs) const;
 
 protected:
     std::shared_ptr<TemplateCharacter> targetPtr{};
-    sf::Sprite object;
+    mutable sf::Sprite object;
     float speed = 0;
     float damage = 0;
-    sf::Vector2f targetPos;
+    mutable sf::Vector2f targetPos;
 };
 
 struct Building {
 protected:
     sf::Vector2i sizeOnMap;
     sf::Vector2i posInMap;
-    sf::Sprite building;
+    mutable sf::Sprite building;
     sf::FloatRect hitBox;
     Level &level;
 
     sf::Texture buildingTexture;
 
 public:
-    Building(Level &level_);
+    explicit Building(Level &level_);
     const sf::FloatRect &getHitBox() const;
     const sf::Texture &getBuildingTexture() const;
     void loadBuildingTexture(const std::string &path);
@@ -52,8 +52,9 @@ public:
     const sf::Vector2i &getPosInMap() const;
     void setPosInMap(const sf::Vector2i &newPosInMap);
     void setTextureRect(const sf::IntRect &newRect);
-    void draw(sf::RenderWindow &window);
-    virtual ~Building() {}
+    void draw(sf::RenderWindow &window) const;
+    virtual ~Building() = default;
+    bool operator<(const jam::Building &rhs) const;
 
 private:
 };
@@ -61,28 +62,27 @@ private:
 struct AttackBuilding : Building {
 protected:
 public:
-    explicit AttackBuilding(Level &level_, sf::Clock &clock_)
-        : Building(level_), clock(clock_) {}
+    explicit AttackBuilding(Level &level_)
+        : Building(level_) {}
     const sf::Time &getAttackCooldown() const;
     void setAttackCooldown(const sf::Time &newAttackCooldown);
     void setScale(sf::Vector2f newScale);
     float getAttackRange() const;
     void setAttackRange(float newAttackRange);
 
-    void loadFlyingObjectTextureFromFile(const std::string &path);
+    void loadFlyingObjectTexture(const std::string &path);
     void setAttackPosition(const sf::Vector2f &newPos);
     const sf::Vector2f &getFirePosition() const;
 
     void setFlyingObject(const FlyingObject &flyingObject_);
-    void attack();
+    void attack(const sf::Time&) const;
 
 protected:
-    sf::Clock &clock;
     sf::Texture flyingObjectTexture;
-    sf::Time lastAttackTime;
+    mutable sf::Time lastAttackTime;
     sf::Time attackCooldown;
     float attackRange = 0;
-    FlyingObject flyingObject;
+    mutable FlyingObject flyingObject;
     sf::Vector2f firePosition;
 };
 

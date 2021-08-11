@@ -49,58 +49,62 @@ inline int NUMBER_OF_TEXTURES = NUMBER_OF_BACKGROUNDS;
 inline const sf::Vector2i assetCellSize = {16, 16};
 inline float fireDamage = 0.1;
 inline float earthShakeDamage = 0.05;
-inline const std::vector<std::tuple<int, sf::IntRect, std::string>> assetInfo
-    = {
-    std::make_tuple(NONE,
-                    sf::IntRect(sf::Vector2i(0, 0), assetCellSize),
-                    "data/images/black"
-                    ".png"),
-    std::make_tuple(LIGHT_GREEN_GRASS,
-                    sf::IntRect({0, 0}, {assetCellSize.x * 3, assetCellSize.y}),
-                    "data/images/MiniWorldSprites/Ground/TexturedGrass.png"),
-    std::make_tuple(
-        DARK_GREEN_GRASS,
-        sf::IntRect({0, 16}, {assetCellSize.x * 3, assetCellSize.y}),
-        "data/images/MiniWorldSprites/Ground/TexturedGrass.png"),
-    std::make_tuple(
-        DEAD_GRASS,
-        sf::IntRect({48, 0}, {assetCellSize.x * 2, assetCellSize.y}),
-        "data/images/MiniWorldSprites/Ground/Grass.png"),
-    std::make_tuple(LAVA_FLOOR,
-                    sf::IntRect({0, 0}, assetCellSize),
-                    "data/images/lava.png"),
-    std::make_tuple(
-        TREE,
-        sf::IntRect({16, 0}, {assetCellSize.x * 3, assetCellSize.y}),
-        "data/images/MiniWorldSprites/Nature/Trees.png"),
-    std::make_tuple(
-        DEAD_TREE,
-        sf::IntRect({32, 0}, {assetCellSize.x * 2, assetCellSize.y}),
-        "data/images/MiniWorldSprites/Nature/DeadTrees.png"),
-    std::make_tuple(
-        FROZEN_TREE,
-        sf::IntRect({16, 48}, {assetCellSize.x * 3, assetCellSize.y}),
-        "data/images/MiniWorldSprites/Nature/WinterTrees.png"),
-    std::make_tuple(FROZEN_GRASS,
-                    sf::IntRect({0, 0}, assetCellSize),
-                    "data/images/MiniWorldSprites/Ground/Grass.png"),
-    std::make_tuple(BUILD_SIGN,
-                    sf::IntRect({0, 0}, assetCellSize),
-                    "data/images/MiniWorldSprites/Miscellaneous/Signs.png"),
-    std::make_tuple(FROZEN_DEAD_TREE,
-                    sf::IntRect({0, 0}, {assetCellSize.x * 4, assetCellSize.y}),
-                    "data/images/MiniWorldSprites/Nature"
-                    "/WinterDeadTrees.png"),
-    std::make_tuple(ROCK,
-                    sf::IntRect({0, 0}, {assetCellSize.x * 3, assetCellSize.y}),
-                    "data/images/MiniWorldSprites/Nature/Rocks.png"),
-    std::make_tuple(
-        FROZEN_ROCK,
-        sf::IntRect({0, 48}, {assetCellSize.x * 3, assetCellSize.y}),
-        "data/images/MiniWorldSprites/Nature/Rocks.png"),
-    std::make_tuple(FIRE,
-                    sf::IntRect({0, 0}, {assetCellSize.x * 4, assetCellSize.x}),
-                    "data/images/fire.png"),
+inline const std::vector<std::tuple<int, sf::IntRect, std::string>> assetInfo =
+    {
+        std::make_tuple(NONE,
+                        sf::IntRect(sf::Vector2i(0, 0), assetCellSize),
+                        "data/images/black"
+                        ".png"),
+        std::make_tuple(
+            LIGHT_GREEN_GRASS,
+            sf::IntRect({0, 0}, {assetCellSize.x * 3, assetCellSize.y}),
+            "data/images/MiniWorldSprites/Ground/TexturedGrass.png"),
+        std::make_tuple(
+            DARK_GREEN_GRASS,
+            sf::IntRect({0, 16}, {assetCellSize.x * 3, assetCellSize.y}),
+            "data/images/MiniWorldSprites/Ground/TexturedGrass.png"),
+        std::make_tuple(
+            DEAD_GRASS,
+            sf::IntRect({48, 0}, {assetCellSize.x * 2, assetCellSize.y}),
+            "data/images/MiniWorldSprites/Ground/Grass.png"),
+        std::make_tuple(LAVA_FLOOR,
+                        sf::IntRect({0, 0}, assetCellSize),
+                        "data/images/lava.png"),
+        std::make_tuple(
+            TREE,
+            sf::IntRect({16, 0}, {assetCellSize.x * 3, assetCellSize.y}),
+            "data/images/MiniWorldSprites/Nature/Trees.png"),
+        std::make_tuple(
+            DEAD_TREE,
+            sf::IntRect({32, 0}, {assetCellSize.x * 2, assetCellSize.y}),
+            "data/images/MiniWorldSprites/Nature/DeadTrees.png"),
+        std::make_tuple(
+            FROZEN_TREE,
+            sf::IntRect({16, 48}, {assetCellSize.x * 3, assetCellSize.y}),
+            "data/images/MiniWorldSprites/Nature/WinterTrees.png"),
+        std::make_tuple(FROZEN_GRASS,
+                        sf::IntRect({0, 0}, assetCellSize),
+                        "data/images/MiniWorldSprites/Ground/Grass.png"),
+        std::make_tuple(BUILD_SIGN,
+                        sf::IntRect({0, 0}, assetCellSize),
+                        "data/images/MiniWorldSprites/Miscellaneous/Signs.png"),
+        std::make_tuple(
+            FROZEN_DEAD_TREE,
+            sf::IntRect({0, 0}, {assetCellSize.x * 4, assetCellSize.y}),
+            "data/images/MiniWorldSprites/Nature"
+            "/WinterDeadTrees.png"),
+        std::make_tuple(
+            ROCK,
+            sf::IntRect({0, 0}, {assetCellSize.x * 3, assetCellSize.y}),
+            "data/images/MiniWorldSprites/Nature/Rocks.png"),
+        std::make_tuple(
+            FROZEN_ROCK,
+            sf::IntRect({0, 48}, {assetCellSize.x * 3, assetCellSize.y}),
+            "data/images/MiniWorldSprites/Nature/Rocks.png"),
+        std::make_tuple(
+            FIRE,
+            sf::IntRect({0, 0}, {assetCellSize.x * 4, assetCellSize.x}),
+            "data/images/fire.png"),
 };
 
 inline std::vector<sf::Vector2i> texturesNumberOfFrames;
@@ -180,7 +184,7 @@ public:
     sf::FloatRect getGlobalBounds() const {
         return background.getGlobalBounds();
     }
-    void draw(sf::RenderWindow& window) {
+    void draw(sf::RenderWindow &window) {
         window.draw(background);
     }
 
@@ -213,8 +217,7 @@ public:
                     sf::Color(brightness, brightness, brightness));
                 break;
             case CLOUD:
-                background.setColor(
-                    sf::Color(100, 100, brightness, 80));
+                background.setColor(sf::Color(100, 100, brightness, 80));
                 break;
             case NORMAL:
             case NUMBER_OF_STATES:
@@ -264,6 +267,7 @@ private:
 };
 
 struct FreeObject {
+    bool operator<(const FreeObject &rhs) const;
     const Object &getObjectType() const {
         return objectType;
     }
@@ -281,7 +285,7 @@ struct FreeObject {
     void setPosition(const sf::Vector2f &newPos) {
         object.setPosition(newPos);
     }
-    const sf::Vector2f &getPosition() {
+    const sf::Vector2f &getPosition() const {
         return object.getPosition();
     }
     void setOrigin(const sf::Vector2f &newOrigin) {
@@ -290,11 +294,13 @@ struct FreeObject {
     const sf::Sprite &getSprite() const {
         return object;
     }
-    void draw(sf::RenderWindow &window) {
+    void updateAnimation() const {
         if (isAnime) {
-            setCurrentFrame({rand() % numberOfFrames.x, rand() %
-                                                            numberOfFrames.y});
+            setCurrentFrame(
+                {rand() % numberOfFrames.x, rand() % numberOfFrames.y});
         }
+    }
+    void draw(sf::RenderWindow &window) const {
         sf::RectangleShape rect;
         rect.setPosition(hitBox.left, hitBox.top);
         rect.setSize({hitBox.width, hitBox.height});
@@ -318,7 +324,7 @@ struct FreeObject {
     const sf::Vector2i &getCurrentFrame() const {
         return currentFrame;
     }
-    void setCurrentFrame(const sf::Vector2i &newCurrentFrame) {
+    void setCurrentFrame(const sf::Vector2i &newCurrentFrame) const {
         FreeObject::currentFrame = newCurrentFrame;
         object.setTextureRect(
             {{currentFrame * assetCellSize.x}, assetCellSize});
@@ -332,12 +338,23 @@ struct FreeObject {
     void setAnimation(bool condition) {
         isAnime = condition;
     }
+
 private:
-    sf::Sprite object;
+    mutable sf::Sprite object;
     Object objectType = NONE;
     bool isAnime = false;
-    sf::Vector2i currentFrame;
-    sf::Vector2i numberOfFrames;
+    mutable sf::Vector2i currentFrame;
+    mutable sf::Vector2i numberOfFrames;
     sf::FloatRect hitBox = {0, 0, 0, 0};
 };
+
+inline bool FreeObject::operator<(const FreeObject &rhs) const {
+    if (object.getPosition().y < rhs.object.getPosition().y) {
+        return true;
+    }
+    if (object.getPosition().y == rhs.object.getPosition().y) {
+        return object.getPosition().x < rhs.object.getPosition().x;
+    }
+    return false;
+}
 }  // namespace jam

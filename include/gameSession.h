@@ -56,9 +56,9 @@ struct GameSession {
 
         levels.emplace_back(firstLevel);
 
-        levels[0].heroSetPosition({150, 150});
-        levels[0].monsterSetPosition({cellSize * 3, cellSize * 6});
-        levels[0].monsterSetPosition({200, 290}, 1);
+//        levels[0].heroSetPosition({150, 150});
+//        levels[0].monsterSetPosition({cellSize * 3, cellSize * 6});
+//        levels[0].monsterSetPosition({200, 290}, 1);
 
         sf::Clock clock1;
         std::vector<FlyingObject> flyingFireObjects;

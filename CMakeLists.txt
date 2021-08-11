@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.17)
 project(jam)
-project(rama2)
 
 set(CMAKE_CXX_STANDARD 20)
 
 include_directories(include)
 
 add_executable(jam main.cpp src/characters.cpp src/Level.cpp src/building.cpp)
+add_executable(test Ramazan.cpp)
 
 find_package(SFML REQUIRED system window graphics network audio)
 
