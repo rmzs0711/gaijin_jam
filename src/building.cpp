@@ -93,7 +93,7 @@ void jam::Building::draw(sf::RenderWindow &window) const {
     building.setTexture(buildingTexture);
     window.draw(building);
     sf::RectangleShape rect({hitBox.width, hitBox.height});
-    rect.setPosition(hitBox.left, hitBox.left);
+    rect.setPosition(hitBox.left, hitBox.top);
     rect.setFillColor(sf::Color::Transparent);
     rect.setOutlineThickness(5);
     rect.setOutlineColor(sf::Color::Red);
@@ -123,7 +123,7 @@ void jam::AttackBuilding::attack(const sf::Time &currentTime) const {
     for (auto &i : level.monsters) {
         if (quadraticDist(building.getPosition(),
                           i->getSprite()->getPosition()) <
-            getAttackRange() * getAttackRange()) {
+            getAttackRange() * getAttackRange() && i->isLive()) {
             flyingObject.setTexture(flyingObjectTexture);
             flyingObject.setPosition(
                 building.getGlobalBounds().left + firePosition.x,

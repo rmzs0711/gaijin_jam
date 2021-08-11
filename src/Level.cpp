@@ -4,23 +4,37 @@
 #include "makeAttackBuilding.h"
 namespace {}
 void jam::Level::addHero(const std::shared_ptr<Hero> &hero) {
-    heroes.insert(hero);
+    heroes.emplace_back(hero);
 }
 void jam::Level::addMonster(const std::shared_ptr<Monster> &monster) {
-    monsters.insert(monster);
+    monsters.emplace_back(monster);
 }
+
+void jam::Level::heroSetPosition(const sf::Vector2f &newPos, std::size_t i) {
+    heroes[i]->setPosition(newPos);
+}
+void jam::Level::monsterSetScale(const sf::Vector2f &newScale, std::size_t i) {
+    (*monsters[i]).setScale(newScale);
+}
+void jam::Level::monsterSetPosition(const sf::Vector2f &newPos, std::size_t i) {
+    (*monsters[i]).setPosition(newPos);
+}
+void jam::Level::heroSetScale(const sf::Vector2f &newScale, std::size_t i) {
+    (*heroes[i]).setScale(newScale);
+}
+
 jam::Level::Level(const std::vector<std::vector<int>> &mapObjects) {
-    heroes.insert(Hero::makeAssasinLime(*this, {100, 50}));
+    heroes.emplace_back(Hero::makeAssasinLime(*this, {100, 50}));
     std::vector<sf::Vector2f> monster_path;
     monster_path.emplace_back(200, 200);
     monster_path.emplace_back(220, 280);
     monster_path.emplace_back(260, 340);
     auto weirdo = Monster::makeYeti(*this, monster_path);
     weirdo->setPosition(340, 300);
-    monsters.insert(weirdo);
+    monsters.emplace_back(weirdo);
     weirdo = Monster::makePirateGunnern(*this, monster_path);
     weirdo->setPosition(500, 500);
-    monsters.insert(weirdo);
+    monsters.emplace_back(weirdo);
 
     freeObjects.insert(makeTree({200, 300}));
     map.resize(mapObjects.size());
@@ -32,7 +46,8 @@ jam::Level::Level(const std::vector<std::vector<int>> &mapObjects) {
         }
     }
 
-    attackBuildings.insert(makeArcherBuilding(*this, {4, 4}));
+//    attackBuildings.insert(makeArcherBuilding(*this, {4, 4}));
+    attackBuildings.insert(makeArcherBuilding(*this, {4, 5}));
 }
 
 void jam::Level::updateStates() {
@@ -75,6 +90,8 @@ void jam::Level::draw(sf::RenderWindow &window) {
                 j.draw(window);
             }
         }
+        std::sort(monsters.begin(),  monsters.end(), charactersCompare);
+        std::sort(heroes.begin(),  heroes.end(), charactersCompare);
         auto freeObject = freeObjects.begin();
         auto monster = monsters.begin();
         auto hero = heroes.begin();
@@ -151,11 +168,11 @@ std::vector<std::vector<jam::Cell>> &jam::Level::getMap() {
 const std::set<jam::FreeObject> &jam::Level::getFreeObjects() const {
     return freeObjects;
 }
-const std::set<std::shared_ptr<TemplateCharacter>, CharactersCompare>
+const std::vector<std::shared_ptr<TemplateCharacter>>
     &jam::Level::getHeroes() const {
     return heroes;
 }
-const std::set<std::shared_ptr<TemplateCharacter>, CharactersCompare>
+const std::vector<std::shared_ptr<TemplateCharacter>>
     &jam::Level::getMonsters() const {
     return monsters;
 }

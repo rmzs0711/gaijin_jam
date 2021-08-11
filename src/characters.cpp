@@ -18,13 +18,11 @@ bool TemplateCharacter::isCorrectMove() {
         }
     }
     {
-        //        auto start = curLevel.attackBuildings.begin();
-        //        auto end = curLevel.attackBuildings.end();
         auto start =
             curLevel.attackBuildings.lower_bound(jam::makeEmptyBuilding(
                 curLevel, sf::Vector2i{(int)hitBox.left / jam::cellSize - 1,
                                        (int)hitBox.top / jam::cellSize - 1}));
-        auto end = curLevel.attackBuildings.lower_bound(jam::makeEmptyBuilding(
+        auto end = curLevel.attackBuildings.upper_bound(jam::makeEmptyBuilding(
             curLevel, sf::Vector2i((int)hitBox.left / jam::cellSize + 1,
                                    (int)hitBox.top / jam::cellSize + 1)));
         for (auto &i = start; i != end; i++) {
@@ -36,21 +34,6 @@ bool TemplateCharacter::isCorrectMove() {
         }
     }
     return true;
-}
-
-bool CharactersCompare::operator()(
-    const std::shared_ptr<TemplateCharacter> &first,
-    const std::shared_ptr<TemplateCharacter> &second) {
-    if (first->getSprite()->getPosition().y <
-        second->getSprite()->getPosition().y) {
-        return true;
-    }
-    if (first->getSprite()->getPosition().y ==
-        second->getSprite()->getPosition().y) {
-        return first->getSprite()->getPosition().x <
-               second->getSprite()->getPosition().x;
-    }
-    return false;
 }
 
 void Monster::isFighting() {
@@ -843,8 +826,7 @@ std::shared_ptr<Hero> Hero::makeAssasinRed(jam::Level &level,
 
 std::shared_ptr<TemplateCharacter> intersectionObjects(
     const sf::Sprite &character,
-    const std::set<std::shared_ptr<TemplateCharacter>, CharactersCompare>
-        &objects) {
+    const std::vector<std::shared_ptr<TemplateCharacter>> &objects) {
     for (auto &i : objects) {
         if (((*i).getSprite())
                 ->getGlobalBounds()
@@ -854,4 +836,17 @@ std::shared_ptr<TemplateCharacter> intersectionObjects(
         }
     }
     return nullptr;
+}
+bool charactersCompare(const std::shared_ptr<TemplateCharacter> &first,
+                       const std::shared_ptr<TemplateCharacter> &second) {
+    if (first->getSprite()->getPosition().y <
+        second->getSprite()->getPosition().y) {
+        return true;
+    }
+    if (first->getSprite()->getPosition().y ==
+        second->getSprite()->getPosition().y) {
+        return first->getSprite()->getPosition().x <
+               second->getSprite()->getPosition().x;
+    }
+    return false;
 }

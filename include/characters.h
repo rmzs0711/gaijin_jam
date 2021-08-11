@@ -95,13 +95,12 @@ public:
 
     virtual void drawCharacter(sf::RenderWindow &window) = 0;
 };
-struct CharactersCompare {
-    bool operator()(const std::shared_ptr<TemplateCharacter> &,
+bool charactersCompare (const std::shared_ptr<TemplateCharacter> &,
                     const std::shared_ptr<TemplateCharacter> &);
-};
+
 std::shared_ptr<TemplateCharacter> intersectionObjects(
     const sf::Sprite &character,
-    const std::set<std::shared_ptr<TemplateCharacter>, CharactersCompare>
+    const std::vector<std::shared_ptr<TemplateCharacter>>
     &objects);
 
 struct Monster : TemplateCharacter {

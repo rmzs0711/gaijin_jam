@@ -33,11 +33,10 @@ struct Level {
 
     void addMonster(const std::shared_ptr<Monster> &monster);
 
-    //    void heroSetPosition(const sf::Vector2f &newPos, std::size_t i = 0);
-    //    void monsterSetScale(const sf::Vector2f &newScale, std::size_t i = 0);
-    //    void monsterSetPosition(const sf::Vector2f &newPos, std::size_t i =
-    //    0); void heroSetScale(const sf::Vector2f &newScale, std::size_t i =
-    //    0);
+    void heroSetPosition(const sf::Vector2f &newPos, std::size_t i = 0);
+    void monsterSetScale(const sf::Vector2f &newScale, std::size_t i = 0);
+    void monsterSetPosition(const sf::Vector2f &newPos, std::size_t i = 0);
+    void heroSetScale(const sf::Vector2f &newScale, std::size_t i = 0);
 
     void updateStates();
 
@@ -47,15 +46,16 @@ struct Level {
 
     [[nodiscard]] const std::set<FreeObject> &getFreeObjects() const;
 
-    [[nodiscard]] const std::set<std::shared_ptr<TemplateCharacter>, CharactersCompare> &getHeroes() const;
-    [[nodiscard]] const std::set<std::shared_ptr<TemplateCharacter>, CharactersCompare> &getMonsters() const;
+    [[nodiscard]] const std::vector<std::shared_ptr<TemplateCharacter>>
+        &getHeroes() const;
+    [[nodiscard]] const std::vector<std::shared_ptr<TemplateCharacter>>
+        &getMonsters() const;
 
 private:
-
     std::vector<std::vector<Cell>> map;
     std::set<AttackBuilding> attackBuildings;
-    std::set<std::shared_ptr<TemplateCharacter>, CharactersCompare> heroes;
-    std::set<std::shared_ptr<TemplateCharacter>, CharactersCompare> monsters;
+    std::vector<std::shared_ptr<TemplateCharacter>> heroes;
+    std::vector<std::shared_ptr<TemplateCharacter>> monsters;
     std::set<FreeObject> freeObjects;
     std::list<FlyingObject> flyingObjects;
     sf::Clock clock1;
