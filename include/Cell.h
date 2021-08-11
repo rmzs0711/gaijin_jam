@@ -50,8 +50,7 @@ inline int NUMBER_OF_TEXTURES = NUMBER_OF_BACKGROUNDS;
 inline const sf::Vector2i assetCellSize = {16, 16};
 inline float fireDamage = 0.1;
 inline float earthShakeDamage = 0.05;
-inline const std::vector<std::tuple<int, sf::IntRect, std::string>> assetInfo
-    =
+inline const std::vector<std::tuple<int, sf::IntRect, std::string>> assetInfo =
     {
         std::make_tuple(NONE,
                         sf::IntRect(sf::Vector2i(0, 0), assetCellSize),
@@ -156,7 +155,16 @@ public:
                 backgroundType = LAVA_FLOOR;
                 break;
             case FROZEN_BLAST:
-                prevBackground = backgroundType;
+                switch (stateType) {
+                    case LAVA:
+                    case BLAST:
+                        prevBackground =
+                            (rand() % 2 ? DARK_GREEN_GRASS : LIGHT_GREEN_GRASS);
+                        break;
+                    default:
+                        prevBackground = backgroundType;
+                        break;
+                }
                 background.setTexture(*texturePtrs[FROZEN_GRASS]);
                 backgroundType = FROZEN_GRASS;
                 break;

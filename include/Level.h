@@ -110,5 +110,11 @@ private:
     std::vector<std::shared_ptr<Money>> money;
     std::list<FlyingObject> flyingObjects;
     sf::Clock clock1;
+
+    //skills
+    std::vector<POWER_ELEMENT> elements;
+    ABILITY ability;
+    bool readyToCast = false;
+
 };
 }  // namespace jam

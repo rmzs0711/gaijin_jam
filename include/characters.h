@@ -255,9 +255,6 @@ public:
 
 struct Hero : TemplateCharacter {
 protected:
-    std::vector<POWER_ELEMENT> elements;
-    ABILITY ability;
-    bool readyToCast = false;
 
     int state;
     bool is_move, is_always_move;
@@ -293,9 +290,6 @@ public:
                             health_,
                             damage_,
                             curLevel),
-
-          ability(CLOUD),
-          elements(2, POWER_ELEMENT::FIRE),
           state(DOWN),
           is_always_move(is_always_move_),
           is_move(is_always_move_),
