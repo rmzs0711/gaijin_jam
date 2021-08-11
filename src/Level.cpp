@@ -81,6 +81,9 @@ void jam::Level::draw(sf::RenderWindow &window) {
                         dynamic_cast<Hero &>(*i).event(event, window,
                                                        clock1.getElapsedTime());
                     }
+                    for (auto& i : money) {
+                        store.addMoney((*i).event(event, window));
+                    }
                     store.event(event, window, mouse, *this);
                     break;
             }

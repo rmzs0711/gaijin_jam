@@ -7,8 +7,9 @@
 #include <variant>
 #include <vector>
 #include "usefulFunctions.h"
-
-// const double M_PI = 3.14;
+#ifdef _MSC_VER
+const double M_PI = 3.14;
+#endif
 namespace jam {
 struct Level;
 enum CellState {
@@ -49,7 +50,8 @@ inline int NUMBER_OF_TEXTURES = NUMBER_OF_BACKGROUNDS;
 inline const sf::Vector2i assetCellSize = {16, 16};
 inline float fireDamage = 0.1;
 inline float earthShakeDamage = 0.05;
-inline const std::vector<std::tuple<int, sf::IntRect, std::string>> assetInfo =
+inline const std::vector<std::tuple<int, sf::IntRect, std::string>> assetInfo
+    =
     {
         std::make_tuple(NONE,
                         sf::IntRect(sf::Vector2i(0, 0), assetCellSize),

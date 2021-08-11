@@ -55,10 +55,14 @@ struct GameSession {
         };
 
         levels.emplace_back(firstLevel);
-
-//        levels[0].heroSetPosition({150, 150});
-//        levels[0].monsterSetPosition({cellSize * 3, cellSize * 6});
-//        levels[0].monsterSetPosition({200, 290}, 1);
+        std::vector<sf::Vector2f> monster_path;
+        monster_path.emplace_back(200, 200);
+        monster_path.emplace_back(220, 280);
+        monster_path.emplace_back(260, 340);
+        levels[0].addMonster(Monster::makeArmouredRedDemon(window, levels[0], monster_path));
+        levels[0].addMonster(Monster::makeMammoth(window, levels[0], monster_path));
+        levels[0].monsterSetPosition({cellSize * 3, cellSize * 6});
+        levels[0].monsterSetPosition({200, 290}, 1);
 
         sf::Clock clock1;
         std::vector<FlyingObject> flyingFireObjects;
@@ -89,6 +93,7 @@ struct GameSession {
 
 //        archersTower.setFlyingObject(arrow);
 
+      //  Store store(window);
         sf::Vector2f mouse;
         while (window.isOpen()) {
             window.clear();
@@ -104,6 +109,7 @@ struct GameSession {
                 }
             }
             levels[0].draw(window);
+           // store.drawStore(window);
             window.display();
         }
     }

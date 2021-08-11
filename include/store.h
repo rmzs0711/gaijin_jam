@@ -4,44 +4,69 @@
 #include "moving_object.h"
 #include <memory>
 #include "button.h"
+#include "Level.h"
+
+struct AmountMoney {
+private:
+	sf::Texture texture_icon;
+	sf::Sprite icon;
+	int money;
+	CentralisedText drawing_money;
+public:
+	AmountMoney(sf::RenderWindow& window) : money(100) {
+		texture_icon.loadFromFile("data/images/MiniWorldSprites/Miscellaneous/Chests.png");
+		icon.setTexture(texture_icon);
+		icon.setTextureRect(sf::IntRect(16, 0, 16, 16));
+		icon.setScale(1.7, 1.7);
+		drawing_money.setFillColor(sf::Color(74, 53, 27));
+		drawing_money.move(sf::Vector2f(window.mapPixelToCoords(sf::Vector2i(16, 0)).x * 1.7, 0) + sf::Vector2f(5, -3));
+	}
+
+	void setMoney(int new_money) {
+		money = new_money;
+	}
+
+	int getMoney() const {
+		return money;
+	}
+
+	void changeMoney(int money_) {
+		money += money_;
+	}
+
+	void move(sf::Vector2f position_) {
+		icon.move(position_);
+		drawing_money.move(position_);
+	}
+
+	void draw(sf::RenderWindow& window) {
+		drawing_money.setString(std::to_string(money));
+		window.draw(icon);
+		window.draw(drawing_money);
+	}
+};
 
 struct Product {
 private:
-	sf::Texture texture_money_icon;
 	sf::Texture texture_product;
 	sf::Sprite product;
-	sf::Sprite money_icon;
 	sf::Vector2i size_product;
 	std::string name_file;
-
-	int cost;
-	CentralisedText drawing_cost;
-
+	AmountMoney cost;
 public:
-	Product(sf::RenderWindow &window, int cost_, std::string file_name_product, sf::Vector2i size_product_ = sf::Vector2i(16, 16)) : name_file(file_name_product), cost(cost_), size_product(size_product_) {
+	Product(sf::RenderWindow &window, int cost_, std::string file_name_product, sf::Vector2i size_product_ = sf::Vector2i(16, 16)) : cost(window), name_file(file_name_product), size_product(size_product_) {
 		texture_product.loadFromFile(file_name_product);
 		product.setTexture(texture_product);
 		product.setTextureRect(sf::IntRect(0, 0, size_product.x, size_product.y));
 		product.setScale(4.5, 4.5);
-		texture_money_icon.loadFromFile("data/images/MiniWorldSprites/Miscellaneous/Chests.png");
-		money_icon.setTexture(texture_money_icon);
-		money_icon.setTextureRect(sf::IntRect(16, 0, 16, 16));
-		money_icon.setScale(1.7, 1.7);
-		money_icon.move(window.mapPixelToCoords(sf::Vector2i(0, size_product.y * 4.5)) + sf::Vector2f(0, 5));
-
-		drawing_cost.setString(std::to_string(cost));
-		drawing_cost.setFillColor(sf::Color(74, 53, 27));
-		drawing_cost.move(money_icon.getPosition() + sf::Vector2f(window.mapPixelToCoords(sf::Vector2i(16, 0)).x * 1.7, 0) + sf::Vector2f(5, -3));
+		cost.move(window.mapPixelToCoords(sf::Vector2i(0, size_product.y * 4.5)) + sf::Vector2f(0, 5));
+		cost.setMoney(cost_);
 	}
 
 
 	int getCost() const {
-		return cost;
+		return cost.getMoney();
 	}
-
-	/*sf::Sprite getSprite() const {
-		return product;
-	}*/
 
 	sf::Texture* getTexture() {
 		return &texture_product;
@@ -53,17 +78,8 @@ public:
 
 	void move(sf::Vector2f position_) {
 		product.move(position_);
-		money_icon.move(position_);
-		drawing_cost.move(position_);
+		cost.move(position_);
 	}
-
-	/*void setScale(sf::RenderWindow& window, sf::Vector2f scale) {
-		product.setScale(scale);
-
-		money_icon.setPosition(window.mapPixelToCoords(sf::Vector2i(0, size_product.y)) + sf::Vector2f(0, 5));
-		drawing_cost.setPosition(money_icon.getPosition() + sf::Vector2f(window.mapPixelToCoords(sf::Vector2i(16, 0)).x * 1.7, 0) + sf::Vector2f(5, -3));
-
-	}*/
 
 	std::string getFile() {
 		return name_file;
@@ -75,12 +91,38 @@ public:
 
 	void drawProduct(sf::RenderWindow& window) {
 		window.draw(product);
-		window.draw(money_icon);
-		window.draw(drawing_cost);
+		cost.draw(window);
 	}
 
 	bool isCorrectClick(const sf::Vector2f& mouse) {
 		return product.getGlobalBounds().contains(mouse);
+	}
+};
+
+struct Message {
+private:
+	std::string message;
+	CentralisedText drawing_message;
+	int count;
+public:
+	Message(sf::RenderWindow& window) : message("") {
+		drawing_message.setFillColor(sf::Color(176, 0, 0));
+		drawing_message.move(sf::Vector2f(window.mapPixelToCoords(sf::Vector2i(window.getSize())).x / 2,
+			window.mapPixelToCoords(sf::Vector2i(window.getSize())).y * 5.4 / 7.4));
+	}
+
+	void setMessage(std::string message_) {
+		count = 800;
+		message = message_;
+	}
+
+	void draw(sf::RenderWindow& window) {
+		if (count > 0) {
+			drawing_message.setString(message);
+			drawing_message.centralise();
+			window.draw(drawing_message);
+			count--;
+		}
 	}
 };
 
@@ -90,9 +132,11 @@ private:
 	sf::RectangleShape base;
 	Object move_product;
 	std::vector<std::unique_ptr<Product>> products;
+	AmountMoney money;
+	Message message;
 public:
 
-	Store(sf::RenderWindow& window) {
+	Store(sf::RenderWindow& window) : money(window), message(window) {
 		texture_base.loadFromFile("data/images/textureBase.png");
 		base.setTexture(&texture_base);
 		base.setSize(sf::Vector2f(window.mapPixelToCoords(sf::Vector2i(window.getSize())).x, window.mapPixelToCoords(sf::Vector2i(window.getSize())).y / 7.4));
@@ -107,7 +151,7 @@ public:
 		for (int i = 1; i < products.size(); i++) {
 			(*products[i]).move((*products[i - 1]).getPosition() + sf::Vector2f(40, 0));
 		}
-	
+		money.move(sf::Vector2f(10, 10));
 	}
 
 	void event(const sf::Event& event, sf::RenderWindow& window, sf::Vector2f &mouse, jam::Level &level) {
@@ -115,10 +159,16 @@ public:
 			if (!move_product.isValid()) {
 				for (int i = 0; i < products.size(); i++) {
 					if ((*products[i]).isCorrectClick(window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y)))) {
-						move_product.loadFromFile((*products[i]).getFile(), (*products[i]).getSizeProduct());
-						move_product.setPosition((*products[i]).getPosition() - sf::Vector2f(16 * 4.5, 0));
-						move_product.setScale(4.5, 4.5);
-						move_product.click_mouse_left(window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y)), mouse);
+						if (money.getMoney() >= (*products[i]).getCost()) {
+							move_product.loadFromFile((*products[i]).getFile(), (*products[i]).getSizeProduct());
+							move_product.setPosition((*products[i]).getPosition() - sf::Vector2f(16 * 4.5, 0));
+							move_product.setScale(4.5, 4.5);
+							move_product.click_mouse_left(window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y)), mouse);
+							money.changeMoney(-(*products[i]).getCost());
+						}
+						else {
+							message.setMessage("Insufficient funds for the purchase");
+						}
 						break;
 					}
 				}
@@ -133,23 +183,27 @@ public:
 		else if (event.type == sf::Event::MouseButtonReleased) {
 			std::string file = move_product.getNameFile();
 			if (file == "data/images/MiniWorldSprites/Characters/Soldiers/Melee/PurpleMelee/AssasinPurple.png") {
-				level.addHero(Hero::makeAssasinPurple(level,
+				level.addHero(Hero::makeAssasinPurple(window, level,
                                                                   move_product.getPosition()));
 			}
 			else if (file == "data/images/MiniWorldSprites/Characters/Soldiers/Melee/LimeMelee/AssasinLime.png") {
-				level.addHero(Hero::makeAssasinLime(level,
+				level.addHero(Hero::makeAssasinLime(window, level,
                                                                 move_product.getPosition()));
 			}
 			else if (file == "data/images/MiniWorldSprites/Characters/Soldiers/Melee/CyanMelee/AssasinCyan.png") {
-				level.addHero(Hero::makeAssasinCyan(level,
+				level.addHero(Hero::makeAssasinCyan(window, level,
                                                                 move_product.getPosition()));
 			}
 			else if (file == "data/images/MiniWorldSprites/Characters/Soldiers/Melee/RedMelee/AssasinRed.png") {
-				level.addHero(Hero::makeAssasinRed(level,
+				level.addHero(Hero::makeAssasinRed(window, level,
                                                                move_product.getPosition()));
 			}
 			move_product.loadFromFile("");
 		}
+	}
+
+	void addMoney(int money_) {
+		money.changeMoney(money_);
 	}
 
 	void drawStore(sf::RenderWindow& window) {
@@ -158,5 +212,7 @@ public:
 			(*i).drawProduct(window);
 		}
 		move_product.draw(window);
+		money.draw(window);
+		message.draw(window);
 	}
 };
