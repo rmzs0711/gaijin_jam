@@ -49,9 +49,11 @@ bool jam::Level::addAttackBuilding(AttackBuilding building) {
             }
         }
     }
-    //////////////////////////////////////////////////////////////////////////////////////////////
+    
     for (auto& i : home) {
-        if (hitBox.intersects(i.getHitBox())) {
+        if (i.getHitBox().intersects({ hitBox.left,
+                                           hitBox.top + hitBox.height / 2,
+                                           hitBox.width, hitBox.height / 2 })) {
             return false;
         }
     }

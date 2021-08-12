@@ -42,7 +42,7 @@ inline jam::Home makeHome(jam::Level& level) {
     jam::Home home(level);
     home.loadBuildingTexture("data/images/MiniWorldSprites/Buildings/Lime/LimeHouses.png");
     home.setTextureRect({ 16, 3 * 16, 16, 16 });
-    home.setPosInMap({ 4, 1 });
+    home.setPosInMap({ 0, 0 });
     home.setSizeInMap({ 1, 1 });
     home.setHitBox(level.getMap()[home.getPosInMap().y][home.getPosInMap().x].getGlobalBounds());
     home.setScale({ (float)cellSize / 16, (float)cellSize / 16 });
