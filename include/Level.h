@@ -116,5 +116,8 @@ private:
     ABILITY ability;
     bool readyToCast = false;
 
+    //Random trees
+    sf::Time treeCooldown = sf::seconds(10);
+    sf::Time lastTreeTime = sf::Time::Zero;
 };
 }  // namespace jam

@@ -31,7 +31,7 @@ struct GameSession {
         stateDurations.resize(NUMBER_OF_STATES, sf::seconds(2));
 
         std::vector<std::vector<int>> firstLevel = {
-            {DEAD_GRASS, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS,
+            {ROAD, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS,
              LIGHT_GREEN_GRASS, LIGHT_GREEN_GRASS, DEAD_GRASS, DEAD_GRASS,
              DEAD_GRASS, DEAD_GRASS},
             {DEAD_GRASS, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS, DEAD_GRASS,

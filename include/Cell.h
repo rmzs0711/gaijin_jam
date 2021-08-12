@@ -43,6 +43,7 @@ enum CellBackground {
     DEAD_GRASS,
     LAVA_FLOOR,
     FROZEN_GRASS,
+    ROAD,
     NUMBER_OF_BACKGROUNDS
 };
 inline int NUMBER_OF_TEXTURES = NUMBER_OF_BACKGROUNDS;
@@ -56,6 +57,11 @@ inline const std::vector<std::tuple<int, sf::IntRect, std::string>> assetInfo =
                         sf::IntRect(sf::Vector2i(0, 0), assetCellSize),
                         "data/images/black"
                         ".png"),
+        std::make_tuple(
+            ROAD,
+            sf::IntRect({assetCellSize.x * 5, 0}, {assetCellSize.x,
+                                             assetCellSize.x}),
+            "data/images/MiniWorldSprites/Ground/Winter.png"),
         std::make_tuple(
             LIGHT_GREEN_GRASS,
             sf::IntRect({0, 0}, {assetCellSize.x * 3, assetCellSize.y}),
@@ -77,7 +83,7 @@ inline const std::vector<std::tuple<int, sf::IntRect, std::string>> assetInfo =
             "data/images/MiniWorldSprites/Nature/Trees.png"),
         std::make_tuple(
             DEAD_TREE,
-            sf::IntRect({32, 0}, {assetCellSize.x * 2, assetCellSize.y}),
+            sf::IntRect({16, 0}, {assetCellSize.x * 3, assetCellSize.y}),
             "data/images/MiniWorldSprites/Nature/DeadTrees.png"),
         std::make_tuple(
             FROZEN_TREE,
@@ -91,7 +97,7 @@ inline const std::vector<std::tuple<int, sf::IntRect, std::string>> assetInfo =
                         "data/images/MiniWorldSprites/Miscellaneous/Signs.png"),
         std::make_tuple(
             FROZEN_DEAD_TREE,
-            sf::IntRect({0, 0}, {assetCellSize.x * 4, assetCellSize.y}),
+            sf::IntRect({16, 0}, {assetCellSize.x * 3, assetCellSize.y}),
             "data/images/MiniWorldSprites/Nature"
             "/WinterDeadTrees.png"),
         std::make_tuple(

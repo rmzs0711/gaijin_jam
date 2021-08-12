@@ -49,6 +49,7 @@ jam::Level::Level(const std::vector<std::vector<int>> &mapObjects)
 
     //    attackBuildings.insert(makeArcherBuilding(*this, {4, 4}));
     attackBuildings.insert(makeArcherBuilding(*this, {4, 5}));
+    attackBuildings.insert(makeWizardTower(*this, {6, 4}));
 }
 
 void jam::Level::updateStates() {
@@ -230,6 +231,18 @@ void jam::Level::draw(sf::RenderWindow &window) {
         for (auto &i : map) {
             for (auto &j : i) {
                 j.draw(window);
+                if (((clock1.getElapsedTime() - lastTreeTime) > treeCooldown) &&
+                    !rand() &&
+                    (j.getBackgroundType() == DARK_GREEN_GRASS ||
+                     j.getBackgroundType() == LIGHT_GREEN_GRASS)) {
+                    auto x = makeTree(
+                        {j.getGlobalBounds().left + (float)(rand() % cellSize),
+                         j.getGlobalBounds().top + (float)(rand() % cellSize)});
+                    lastTreeTime = clock1.getElapsedTime();
+                    if (!intersectionObjects(x.getSprite(), heroes)) {
+                        freeObjects.emplace(x);
+                    }
+                }
             }
         }
         std::sort(monsters.begin(), monsters.end(), charactersCompare);
@@ -266,13 +279,12 @@ void jam::Level::draw(sf::RenderWindow &window) {
                 auto cell =
                     sf::Vector2i(freeObject->getPosition() / (float)cellSize);
                 if (freeObject->getObjectType() == ROCK &&
-                        map[cell.y][cell.x].getState() != WALL ||
+                        (map[cell.y][cell.x].getState() != WALL &&
+                        map[cell.y][cell.x].getState() != FROZEN_BLAST)  ||
                     freeObject->getObjectType() == FIRE &&
                         map[cell.y][cell.x].getState() != BLAST ||
                     freeObject->getObjectType() != ROCK &&
                         map[cell.y][cell.x].getState() == WALL ||
-                    freeObject->getObjectType() != FIRE &&
-                        map[cell.y][cell.x].getState() == BLAST ||
                     map[cell.y][cell.x].getState() == EARTHSHAKE ||
                     map[cell.y][cell.x].getState() == LAVA) {
                     freeObject = freeObjects.erase(freeObject);
@@ -315,6 +327,20 @@ void jam::Level::draw(sf::RenderWindow &window) {
                             break;
                         case FROZEN_ROCK:
                             freeObject->changeObjectType(ROCK);
+                            break;
+                    }
+                } else if (map[cell.y][cell.x].getState() == BLAST) {
+                    switch (freeObject->getObjectType()) {
+                        case TREE:
+                        case DEAD_TREE:
+                        case FROZEN_TREE:
+                        case FROZEN_DEAD_TREE:
+                            freeObject->changeObjectType(DEAD_TREE);
+                            break;
+                        case FROZEN_ROCK:
+                            freeObject->changeObjectType(ROCK);
+                            break;
+                        default:
                             break;
                     }
                 }
