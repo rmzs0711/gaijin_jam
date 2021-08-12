@@ -13,6 +13,9 @@
 #include "makeFreeObjects.h"
 #include "usefulFunctions.h"
 
+namespace {}
+
+
 struct Money {
 private:
     sf::Texture texture_icon;
@@ -37,7 +40,7 @@ public:
     }
 
     int event(const sf::Event& event, sf::RenderWindow& window) {
-        if (is_valid && event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left && 
+        if (is_valid && event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left &&
             isCorrectClick(window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y)))) {
             is_valid = false;
             return money;
@@ -64,10 +67,6 @@ struct TemplateCharacter;
 struct Monster;
 struct Hero;
 namespace jam {
-struct Building;
-struct AttackBuilding;
-struct FlyingObject;
-struct SupportBuilding;
 
 struct Level {
     friend TemplateCharacter;
@@ -97,19 +96,25 @@ struct Level {
 
     [[nodiscard]] std::vector<std::vector<Cell>> &getMap();
 
-    const std::list<FreeObject> &getfreeObjects() const;
+    const std::set<FreeObject> &getFreeObjects() const;
 
     const std::vector<std::shared_ptr<TemplateCharacter>> &getHeroes() const;
     const std::vector<std::shared_ptr<TemplateCharacter>> &getMonsters() const;
 
 private:
     std::vector<std::vector<Cell>> map;
-    std::vector<AttackBuilding> attackBuildings;
+    std::set<AttackBuilding> attackBuildings;
     std::vector<std::shared_ptr<TemplateCharacter>> heroes;
     std::vector<std::shared_ptr<TemplateCharacter>> monsters;
+    std::set<FreeObject> freeObjects;
     std::vector<std::shared_ptr<Money>> money;
-    std::list<FreeObject> freeObjects;
     std::list<FlyingObject> flyingObjects;
     sf::Clock clock1;
+
+    //skills
+    std::vector<POWER_ELEMENT> elements;
+    ABILITY ability;
+    bool readyToCast = false;
+
 };
 }  // namespace jam

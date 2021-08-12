@@ -1,15 +1,12 @@
-#include "../include/button.h"
-#include "../include/gameSession.h"
-#include "../include/menu.h"
-#include "../include/usefulFunctions.h"
+#include "button.h"
+#include "gameSession.h"
+#include "menu.h"
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(1920, 1080), "SFML works!");
     jam::GameSession game;
-    RectangleButton<void> startGameButton([&]() {
-        game.startGame(window);
-        });
-    startGameButton.setSize({ 100.f, 50.f });
+    RectangleButton<void> startGameButton([&]() { game.startGame(window); });
+    startGameButton.setSize({100.f, 50.f});
     startGameButton.setFillColor(sf::Color::Blue);
     startGameButton.setPosition(0, 100);
 

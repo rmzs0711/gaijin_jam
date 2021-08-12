@@ -1,20 +1,36 @@
-#include "../include/characters.h"
-#include "../include/Level.h"
+#include "characters.h"
+#include "Level.h"
+#include "makeAttackBuilding.h"
 
 bool TemplateCharacter::isCorrectMove() {
     auto hitBox = character.getGlobalBounds();
-    for (auto &i : curLevel.freeObjects) {
-        if (i.getHitBox().intersects({hitBox.left,
-                                      hitBox.top + hitBox.height / 2,
-                                      hitBox.width, hitBox.height / 2})) {
-            return false;
+    {
+        auto start = curLevel.freeObjects.lower_bound(
+            jam::makeTree({hitBox.left, hitBox.top - jam::cellSize}));
+        auto end = curLevel.freeObjects.upper_bound(
+            jam::makeTree({hitBox.left, hitBox.top + jam::cellSize}));
+        for (auto &i = start; i != end; i++) {
+            if (i->getHitBox().intersects({hitBox.left,
+                                           hitBox.top + hitBox.height / 2,
+                                           hitBox.width, hitBox.height / 2})) {
+                return false;
+            }
         }
     }
-    for (auto & i : curLevel.attackBuildings) {
-        if (i.getHitBox().intersects({hitBox.left,
-                                       hitBox.top + hitBox.height / 2,
-                                       hitBox.width, hitBox.height / 2})) {
-            return false;
+    {
+        auto start =
+            curLevel.attackBuildings.lower_bound(jam::makeEmptyBuilding(
+                curLevel, sf::Vector2i{(int)hitBox.left / jam::cellSize - 1,
+                                       (int)hitBox.top / jam::cellSize - 1}));
+        auto end = curLevel.attackBuildings.upper_bound(jam::makeEmptyBuilding(
+            curLevel, sf::Vector2i((int)hitBox.left / jam::cellSize + 1,
+                                   (int)hitBox.top / jam::cellSize + 1)));
+        for (auto &i = start; i != end; i++) {
+            if (i->getHitBox().intersects({hitBox.left,
+                                           hitBox.top + hitBox.height / 2,
+                                           hitBox.width, hitBox.height / 2})) {
+                return false;
+            }
         }
     }
     return true;
@@ -49,6 +65,11 @@ void Monster::changeState(int state_, float damage_) {
         health -= damage_;
         return;
     } else if (state_ == FROZEN) {
+        std::shared_ptr<TemplateCharacter> hero =
+            intersectionObjects(character, curLevel.heroes);
+        if (hero) {
+            damage_ = hero->getDamage();
+        }
         speedCoef = 0;
         state = state_;
         health -= damage_;
@@ -60,11 +81,21 @@ void Monster::changeState(int state_, float damage_) {
         health -= damage_;
     } else if (state_ == SLOWED) {
         speedCoef = 0.5;
+        std::shared_ptr<TemplateCharacter> hero =
+            intersectionObjects(character, curLevel.heroes);
+        if (hero) {
+            damage_ = hero->getDamage();
+        }
         state = state_;
         health -= damage_;
         character.setColor(sf::Color(100, 100, 100));
     } else if (state_ == STUNNED) {
         speedCoef = 0;
+        std::shared_ptr<TemplateCharacter> hero =
+            intersectionObjects(character, curLevel.heroes);
+        if (hero) {
+            damage_ = hero->getDamage();
+        }
         state = state_;
         health -= damage_;
         health -= jam::earthShakeDamage;
@@ -74,7 +105,7 @@ void Monster::changeState(int state_, float damage_) {
         character.move(speedCoef * dx, speedCoef * dy);
         bool isRock = false;
         auto hitBox = character.getGlobalBounds();
-        for (auto &i : curLevel.getfreeObjects()) {
+        for (auto &i : curLevel.getFreeObjects()) {
             if (i.getObjectType() == jam::ROCK &&
                 i.getHitBox().intersects({hitBox.left,
                                           hitBox.top + hitBox.height / 2,
@@ -119,7 +150,7 @@ void Monster::isEffected() {
             break;
     }
 }
-void Monster::drawCharacter(sf::RenderWindow &window, jam::Level &level) {
+void Monster::drawCharacter(sf::RenderWindow &window) {
     if (isDraw()) {
         if (isLive()) {
             if (state != STUNNED && state != FROZEN) {
@@ -132,8 +163,9 @@ void Monster::drawCharacter(sf::RenderWindow &window, jam::Level &level) {
                     character.getPosition()) {
                     positions.push_back(character.getPosition());
                 }
-            } else if (positions.size() > 1 && positions[positions.size() - 1] ==
-                                                 character.getPosition()) {
+            } else if (positions.size() > 1 &&
+                       positions[positions.size() - 1] ==
+                           character.getPosition()) {
                 positions.pop_back();
             }
             if (state != STUNNED && state != FROZEN) {
@@ -142,11 +174,15 @@ void Monster::drawCharacter(sf::RenderWindow &window, jam::Level &level) {
             isEffected();
 
             window.draw(character);
-            life_bar.draw(window, health, character.getPosition() - 
-                sf::Vector2f(character.getScale().x * window.mapPixelToCoords(size_frame).x / 2, 
-                    character.getScale().y * window.mapPixelToCoords(size_frame).y));
+            life_bar.draw(
+                window, health,
+                character.getPosition() -
+                    sf::Vector2f(character.getScale().x *
+                                     window.mapPixelToCoords(size_frame).x / 2,
+                                 character.getScale().y *
+                                     window.mapPixelToCoords(size_frame).y));
         } else {
-            level.addMoney(Money::makeMoney(money, character.getPosition()));
+            curLevel.addMoney(Money::makeMoney(money, character.getPosition()));
             death();
         }
     }
@@ -217,116 +253,6 @@ void Hero::isFighting() {
 void Hero::clickMouse(const sf::Event &event,
                       sf::RenderWindow &window,
                       const sf::Time &currentTime) {
-    if (readyToCast && event.mouseButton.button == sf::Mouse::Left) {
-        sf::Vector2i selectedCell = {-1, -1};
-        for (int i = 0; i < curLevel.getMap().size() && selectedCell.x == -1;
-             i++) {
-            for (int j = 0; j < curLevel.getMap()[i].size(); j++) {
-                if (curLevel.getMap()[i][j].getGlobalBounds().contains(
-                        window.mapPixelToCoords(
-                            sf::Mouse::getPosition(window)))) {
-                    selectedCell = {i, j};
-                    break;
-                }
-            }
-        }
-        if (selectedCell.x == -1) {
-            assert(0);
-        }
-        switch (ability) {
-            case FIRE_BLAST:
-                for (int i = -1; i < 2; i++) {
-                    for (int j = -1; j < 2; j++) {
-                        curLevel
-                            .getMap()[bounds(selectedCell.x + i, 0,
-                                             (int)curLevel.getMap().size())]
-                                     [bounds(selectedCell.y + j, 0,
-                                             (int)curLevel.getMap()[0].size())]
-                            .setState(jam::BLAST, currentTime);
-                        curLevel.freeObjects.push_back(jam::makeFire(
-                            sf::Vector2f((float)bounds(
-                                             selectedCell.y + j, 0,
-                                             (int)curLevel.getMap()[0].size()) *
-                                                 jam::cellSize +
-                                             jam::cellSize / 2,
-                                         bounds(selectedCell.x + i, 0,
-                                                (int)curLevel.getMap().size()) *
-                                                 jam::cellSize +
-                                             jam::cellSize / 2)));
-                    }
-                }
-                break;
-            case CLOUD:
-                for (int i = -1; i < 2; i++) {
-                    for (int j = -1; j < 2; j++) {
-                        curLevel
-                            .getMap()[bounds(selectedCell.x + i, 0,
-                                             (int)curLevel.getMap().size())]
-                                     [bounds(selectedCell.y + j, 0,
-                                             (int)curLevel.getMap()[0].size())]
-                            .setState(jam::CLOUD, currentTime);
-                    }
-                }
-                break;
-            case LAVA:
-                for (int i = 0; i < 2; i++) {
-                    for (int j = 0; j < 2; j++) {
-                        curLevel
-                            .map[bounds(selectedCell.x + i, 0,
-                                        (int)curLevel.getMap().size())]
-                                [bounds(selectedCell.y + j, 0,
-                                        (int)curLevel.getMap()[0].size())]
-                            .setState(jam::LAVA, currentTime);
-                    }
-                }
-                break;
-            case FROZEN_BLAST:
-                for (int i = -2; i < 3; i++) {
-                    for (int j = -2; j < 3; j++) {
-                        if (std::abs(j) + std::abs(i) >= 3) {
-                            continue;
-                        }
-                        curLevel
-                            .map[bounds(selectedCell.x + i, 0,
-                                        (int)curLevel.getMap().size())]
-                                [bounds(selectedCell.y + j, 0,
-                                        (int)curLevel.map[0].size())]
-                            .setState(jam::FROZEN_BLAST, currentTime);
-                    }
-                }
-                break;
-            case EARTHSHAKE:
-                for (int i = 0; i < 2; i++) {
-                    for (int j = 0; j < 2; j++) {
-                        if (curLevel
-                                .map[bounds(selectedCell.x + i, 0,
-                                            (int)curLevel.map.size())]
-                                    [bounds(selectedCell.y + j, 0,
-                                            (int)curLevel.map[0].size())]
-                                .getGlobalBounds()
-                                .contains(character.getPosition())) {
-                            continue;
-                        }
-                        curLevel
-                            .map[bounds(selectedCell.x + i, 0,
-                                        (int)curLevel.map.size())]
-                                [bounds(selectedCell.y + j, 0,
-                                        (int)curLevel.map[0].size())]
-                            .setState(jam::EARTHSHAKE, currentTime);
-                    }
-                }
-                break;
-            case WALL:
-                curLevel.map[selectedCell.x][selectedCell.y].setState(
-                    jam::WALL, currentTime);
-                curLevel.freeObjects.push_back(jam::makeRock(sf::Vector2f(
-                    selectedCell.y * jam::cellSize + jam::cellSize / 2,
-                    selectedCell.x * jam::cellSize + jam::cellSize / 2)));
-                break;
-        }
-        readyToCast = false;
-        return;
-    }
     if (!is_always_move && event.mouseButton.button == sf::Mouse::Left) {
         if (isCorrectClick(window.mapPixelToCoords(
                 sf::Vector2i(event.mouseButton.x, event.mouseButton.y)))) {
@@ -337,13 +263,12 @@ void Hero::clickMouse(const sf::Event &event,
     }
 
     if (is_move && event.mouseButton.button == sf::Mouse::Right) {
-        readyToCast = false;
         position = window.mapPixelToCoords(
             sf::Vector2i(event.mouseButton.x, event.mouseButton.y));
-        auto bounds =
-            sf::IntRect(sf::Vector2i(0, 0),
-                        sf::Vector2i(curLevel.map[0].size() * jam::cellSize,
-                                     curLevel.map.size() * jam::cellSize));
+        auto bounds = sf::IntRect(
+            sf::Vector2i(0, 0),
+            sf::Vector2i((int)curLevel.map[0].size() * jam::cellSize,
+                         (int)curLevel.map.size() * jam::cellSize));
         if (!bounds.contains(window.mapCoordsToPixel(position))) {
             position = character.getPosition();
         }
@@ -373,7 +298,7 @@ void Hero::changeState(int state_, float damage_) {
     character.move(dx, dy);
     bool isRock = false;
     auto hitBox = character.getGlobalBounds();
-    for (auto &i : curLevel.getfreeObjects()) {
+    for (auto &i : curLevel.getFreeObjects()) {
         if (i.getObjectType() == jam::ROCK &&
             i.getHitBox().intersects({hitBox.left,
                                       hitBox.top + hitBox.height / 2,
@@ -435,15 +360,11 @@ void Hero::event(const sf::Event &event,
                  sf::RenderWindow &window,
                  const sf::Time &currentTime) {
     if (isLive()) {
-        if (event.type == sf::Event::MouseButtonPressed) {
-            clickMouse(event, window, currentTime);
-            return;
-        } else if (event.type == sf::Event::KeyPressed) {
-            keyPressed(event);
-        }
+        clickMouse(event, window, currentTime);
+        return;
     }
 }
-void Hero::drawCharacter(sf::RenderWindow& window, jam::Level& level) {
+void Hero::drawCharacter(sf::RenderWindow &window) {
     if (isDraw()) {
         if (isLive()) {
             moveToPosition();
@@ -452,10 +373,14 @@ void Hero::drawCharacter(sf::RenderWindow& window, jam::Level& level) {
         death();
         window.draw(character);
         if (isLive()) {
-            //life_bar.draw(window, current_health, character.getPosition());
-            life_bar.draw(window, health, character.getPosition() -
-                sf::Vector2f(character.getScale().x * window.mapPixelToCoords(size_frame).x / 2,
-                    character.getScale().y * window.mapPixelToCoords(size_frame).y));
+            // life_bar.draw(window, current_health, character.getPosition());
+            life_bar.draw(
+                window, health,
+                character.getPosition() -
+                    sf::Vector2f(character.getScale().x *
+                                     window.mapPixelToCoords(size_frame).x / 2,
+                                 character.getScale().y *
+                                     window.mapPixelToCoords(size_frame).y));
         }
         if (isLive() && is_move) {
             icon.setPosition(character.getPosition() -
@@ -481,41 +406,7 @@ void Hero::death() {
         health++;
     }
 }
-void Hero::keyPressed(const sf::Event &event) {
-    if (event.key.code == sf::Keyboard::R) {
-        int whatAbility = (1 << elements[0]) | (1 << elements[1]);
-        if (whatAbility == 4) {  // 100
-            ability = EARTHSHAKE;
-        } else if (whatAbility == 5) {  // 101
-            ability = LAVA;
-        } else if (whatAbility == 6) {  // 110
-            ability = WALL;
-        } else if (whatAbility == 2) {  // 010
-            ability = FROZEN_BLAST;
-        } else if (whatAbility == 3) {  // 011
-            ability = CLOUD;
-        } else if (whatAbility == 1) {  // 001
-            ability = FIRE_BLAST;
-        } else {
-            assert(0);
-        }
-        return;
-    }
-    if (event.key.code == sf::Keyboard::E) {
-        readyToCast = true;
-        return;
-    }
-    elements[0] = elements[1];
-    if (event.key.code == sf::Keyboard::Z) {
-        elements[1] = POWER_ELEMENT::FIRE;
-    }
-    if (event.key.code == sf::Keyboard::X) {
-        elements[1] = POWER_ELEMENT::ICE;
-    }
-    if (event.key.code == sf::Keyboard::C) {
-        elements[1] = POWER_ELEMENT::EARTH;
-    }
-}
+void Hero::keyPressed(const sf::Event &event) {}
 bool Hero::isCorrectClick(const sf::Vector2f &mouse) {
     return character.getGlobalBounds().contains(mouse);
 }
@@ -574,252 +465,341 @@ void TemplateCharacter::initializingCoordinates(float &dx,
         dx = speed, dy = 0;
     }
 }
-std::shared_ptr<Monster> Monster::makeArmouredRedDemon(sf::RenderWindow& window,
+
+std::shared_ptr<Monster> Monster::makeArmouredRedDemon(
+    sf::RenderWindow &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+        window,
         "data/images/MiniWorldSprites/Characters/Monsters/Demons/"
         "ArmouredRedDemon.png",
-        50, 0.1, monster_path, level, 2, 5);
+        70, 0.07, monster_path, level, 4, 5);
     (*monster).setScale(3, 3);
+    (*monster).setSpeed(0.13);
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makeRedDemon(sf::RenderWindow& window,
+std::shared_ptr<Monster> Monster::makeRedDemon(
+    sf::RenderWindow &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+        window,
         "data/images/MiniWorldSprites/Characters/Monsters/Demons/RedDemon.png",
-        50, 0.1, monster_path, level, 2, 5);
+        60, 0.07, monster_path, level, 3, 5);
     (*monster).setScale(3, 3);
+    (*monster).setSpeed(0.15);
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makePurpleDemon(sf::RenderWindow& window,
+std::shared_ptr<Monster> Monster::makePurpleDemon(
+    sf::RenderWindow &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+        window,
         "data/images/MiniWorldSprites/Characters/Monsters/Demons/"
         "PurpleDemon.png",
-        50, 0.1, monster_path, level, 2, 5);
+        60, 0.07, monster_path, level, 3, 5);
     (*monster).setScale(3, 3);
+    (*monster).setSpeed(0.15);
     return monster;
 }
 
 // makeFrostborn
 
-std::shared_ptr<Monster> Monster::makeMammoth(sf::RenderWindow& window,
+std::shared_ptr<Monster> Monster::makeMammoth(
+    sf::RenderWindow &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+        window,
         "data/images/MiniWorldSprites/Characters/Monsters/Frostborn/"
         "Mammoth.png",
-        70, 0.07, monster_path, level, 2, 4);
+        150, 0.18, monster_path, level, 20, 4);
     (*monster).setScale(4.3, 4.3);
+    (*monster).setSpeed(0.1);
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makeWendigo(sf::RenderWindow& window,
+std::shared_ptr<Monster> Monster::makeWendigo(
+    sf::RenderWindow &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+        window,
         "data/images/MiniWorldSprites/Characters/Monsters/Frostborn/"
         "Wendigo.png",
-        70, 0.07, monster_path, level, 2, 4);
+        80, 0.12, monster_path, level, 8, 4);
     (*monster).setScale(4.3, 4.3);
+    (*monster).setSpeed(0.12);
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makeYeti(sf::RenderWindow& window,
+std::shared_ptr<Monster> Monster::makeYeti(
+    sf::RenderWindow &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+        window,
         "data/images/MiniWorldSprites/Characters/Monsters/Frostborn/Yeti.png",
-        70, 0.07, monster_path, level, 2, 5);
+        70, 0.11, monster_path, level, 7, 5);
     (*monster).setScale(4.3, 4.3);
+    (*monster).setSpeed(0.13);
     return monster;
 }
 
 // makeOrcs
 
-std::shared_ptr<Monster> Monster::makeArcherGoblin(sf::RenderWindow& window,
+std::shared_ptr<Monster> Monster::makeArcherGoblin(
+    sf::RenderWindow &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+        window,
         "data/images/MiniWorldSprites/Characters/Monsters/Orcs/"
         "ArcherGoblin.png",
-        40, 0.13, monster_path, level, 2, 4);
+        50, 0.05, monster_path, level, 2, 4);
     (*monster).setScale(2.5, 2.5);
+    (*monster).setSpeed(0.17);
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makeClubGoblin(sf::RenderWindow& window,
+std::shared_ptr<Monster> Monster::makeClubGoblin(
+    sf::RenderWindow &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+        window,
         "data/images/MiniWorldSprites/Characters/Monsters/Orcs/ClubGoblin.png",
-        40, 0.13, monster_path, level, 2, 4);
+        50, 0.05, monster_path, level, 2, 4);
     (*monster).setScale(2.5, 2.5);
+    (*monster).setSpeed(0.17);
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makeFarmerGoblin(sf::RenderWindow& window,
+std::shared_ptr<Monster> Monster::makeFarmerGoblin(
+    sf::RenderWindow &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+        window,
         "data/images/MiniWorldSprites/Characters/Monsters/Orcs/"
         "FarmerGoblin.png",
-        40, 0.13, monster_path, level, 2, 4);
+        50, 0.05, monster_path, level, 2, 4);
     (*monster).setScale(2.5, 2.5);
+    (*monster).setSpeed(0.17);
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makeKamikazeGoblin(sf::RenderWindow& window,
+std::shared_ptr<Monster> Monster::makeKamikazeGoblin(
+    sf::RenderWindow &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+        window,
         "data/images/MiniWorldSprites/Characters/Monsters/Orcs/"
         "KamikazeGoblin.png",
-        40, 0.13, monster_path, level, 2, 5);
+        50, 0.05, monster_path, level, 2, 5);
     (*monster).setScale(2.5, 2.5);
+    (*monster).setSpeed(0.17);
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makeOrc(sf::RenderWindow& window,
+std::shared_ptr<Monster> Monster::makeOrc(
+    sf::RenderWindow &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
-        "data/images/MiniWorldSprites/Characters/Monsters/Orcs/Orc.png", 40,
-        0.13, monster_path, level, 2, 5);
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+        window, "data/images/MiniWorldSprites/Characters/Monsters/Orcs/Orc.png",
+        60, 0.11, monster_path, level, 5, 5);
     (*monster).setScale(2.5, 2.5);
+    (*monster).setSpeed(0.15);
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makeOrcMage(sf::RenderWindow& window,
+std::shared_ptr<Monster> Monster::makeOrcMage(
+    sf::RenderWindow &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
-        "data/images/MiniWorldSprites/Characters/Monsters/Orcs/OrcMage.png", 40,
-        0.13, monster_path, level, 2, 5);
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+        window,
+        "data/images/MiniWorldSprites/Characters/Monsters/Orcs/OrcMage.png", 55,
+        0.12, monster_path, level, 6, 5);
     (*monster).setScale(2.5, 2.5);
+    (*monster).setSpeed(0.15);
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makeOrcShaman(sf::RenderWindow& window,
+std::shared_ptr<Monster> Monster::makeOrcShaman(
+    sf::RenderWindow &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+        window,
         "data/images/MiniWorldSprites/Characters/Monsters/Orcs/OrcShaman.png",
-        40, 0.13, monster_path, level, 2, 5);
+        55, 0.12, monster_path, level, 6, 5);
     (*monster).setScale(2.5, 2.5);
+    (*monster).setSpeed(0.15);
     return monster;
 }
 
 // makePirates
 
-std::shared_ptr<Monster> Monster::makePirateCaptain(sf::RenderWindow& window,
+std::shared_ptr<Monster> Monster::makePirateCaptain(
+    sf::RenderWindow &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+        window,
         "data/images/MiniWorldSprites/Characters/Monsters/Pirates/"
         "PirateCaptain.png",
-        80, 0.15, monster_path, level, 2, 5);
+        88, 0.15, monster_path, level, 9, 5);
     (*monster).setScale(3.8, 3.8);
+    (*monster).setSpeed(0.15);
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makePirateGrunt(sf::RenderWindow& window,
+std::shared_ptr<Monster> Monster::makePirateGrunt(
+    sf::RenderWindow &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+        window,
         "data/images/MiniWorldSprites/Characters/Monsters/Pirates/"
         "PirateGrunt.png",
-        80, 0.15, monster_path, level, 2, 5);
+        80, 0.12, monster_path, level, 8, 5);
     (*monster).setScale(3.8, 3.8);
+    (*monster).setSpeed(0.15);
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makePirateGunnern(sf::RenderWindow& window,
+std::shared_ptr<Monster> Monster::makePirateGunnern(
+    sf::RenderWindow &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+        window,
         "data/images/MiniWorldSprites/Characters/Monsters/Pirates/"
         "PirateGunner.png",
-        80, 0.15, monster_path, level, 2, 5);
+        80, 0.12, monster_path, level, 8, 5);
     (*monster).setScale(3.8, 3.8);
+    (*monster).setSpeed(0.15);
     return monster;
 }
 
 // makeUndead
 
-std::shared_ptr<Monster> Monster::makeNecromancer(sf::RenderWindow& window,
+std::shared_ptr<Monster> Monster::makeNecromancer(
+    sf::RenderWindow &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+        window,
         "data/images/MiniWorldSprites/Characters/Monsters/Undead/"
         "Necromancer.png",
-        35, 0.15, monster_path, level, 2, 5);
+        65, 0.07, monster_path, level, 4, 5);
     (*monster).setScale(3, 3);
+    (*monster).setSpeed(0.15);
     return monster;
 }
 
-std::shared_ptr<Monster> Monster::makeSkeletonSoldier(sf::RenderWindow& window,
+std::shared_ptr<Monster> Monster::makeSkeletonSoldier(
+    sf::RenderWindow &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
-    std::shared_ptr<Monster> monster = std::make_shared<Monster>(window,
+    std::shared_ptr<Monster> monster = std::make_shared<Monster>(
+        window,
         "data/images/MiniWorldSprites/Characters/Monsters/Undead/"
         "Skeleton-Soldier.png",
-        35, 0.15, monster_path, level, 2, 5);
+        50, 0.05, monster_path, level, 2, 5);
     (*monster).setScale(3, 3);
+    (*monster).setSpeed(0.17);
     return monster;
 }
 
 // makeHero
 
-std::shared_ptr<Hero> Hero::makeAssasinPurple(sf::RenderWindow& window, jam::Level &level,
+std::shared_ptr<Hero> Hero::makeAssasinPurple(sf::RenderWindow &window,
+                                              jam::Level &level,
                                               sf::Vector2f position) {
-    std::shared_ptr<Hero> monster = std::make_shared<Hero>(window,
+    std::shared_ptr<Hero> monster = std::make_shared<Hero>(
+        window,
         "data/images/MiniWorldSprites/Characters/Soldiers/Melee/PurpleMelee/"
         "AssasinPurple.png",
-        100, 0.1, level, false, 5);
+        90, 0.12, level, false, 5);
     (*monster).setScale(4, 4);
-    (*monster).setSpeed(0.3);
+    (*monster).setSpeed(0.15);
     (*monster).setPosition(position);
     return monster;
 }
 
-std::shared_ptr<Hero> Hero::makeAssasinLime(sf::RenderWindow& window, jam::Level &level,
+std::shared_ptr<Hero> Hero::makeAssasinLime(sf::RenderWindow &window,
+                                            jam::Level &level,
                                             sf::Vector2f position) {
-    std::shared_ptr<Hero> monster = std::make_shared<Hero>(window,
+    std::shared_ptr<Hero> monster = std::make_shared<Hero>(
+        window,
         "data/images/MiniWorldSprites/Characters/Soldiers/Melee/LimeMelee/"
         "AssasinLime.png",
-        120, 0.12, level, false, 5);
+        110, 0.1, level, false, 5);
     (*monster).setScale(4.2, 4.2);
-    (*monster).setSpeed(0.13);
+    (*monster).setSpeed(0.15);
     (*monster).setPosition(position);
     return monster;
 }
 
-std::shared_ptr<Hero> Hero::makeAssasinCyan(sf::RenderWindow& window, jam::Level &level,
+std::shared_ptr<Hero> Hero::makeAssasinCyan(sf::RenderWindow &window,
+                                            jam::Level &level,
                                             sf::Vector2f position) {
-    std::shared_ptr<Hero> monster = std::make_shared<Hero>(window,
+    std::shared_ptr<Hero> monster = std::make_shared<Hero>(
+        window,
         "data/images/MiniWorldSprites/Characters/Soldiers/Melee/CyanMelee/"
         "AssasinCyan.png",
-        110, 0.8, level, false, 5);
+        100, 0.12, level, false, 5);
     (*monster).setScale(4.1, 4.1);
-    (*monster).setSpeed(0.22);
+    (*monster).setSpeed(0.2);
     (*monster).setPosition(position);
     return monster;
 }
 
-std::shared_ptr<Hero> Hero::makeAssasinRed(sf::RenderWindow& window, jam::Level &level,
+std::shared_ptr<Hero> Hero::makeAssasinRed(sf::RenderWindow &window,
+                                           jam::Level &level,
                                            sf::Vector2f position) {
-    std::shared_ptr<Hero> monster = std::make_shared<Hero>(window,
+    std::shared_ptr<Hero> monster = std::make_shared<Hero>(
+        window,
         "data/images/MiniWorldSprites/Characters/Soldiers/Melee/RedMelee/"
         "AssasinRed.png",
-        90, 0.14, level, false, 5);
+        110, 0.15, level, false, 5);
     (*monster).setScale(3.9, 3.9);
-    (*monster).setSpeed(0.35);
+    (*monster).setSpeed(0.25);
     (*monster).setPosition(position);
     return monster;
+}
+
+std::shared_ptr<TemplateCharacter> intersectionObjects(
+    const sf::Sprite &character,
+    const std::vector<std::shared_ptr<TemplateCharacter>> &objects) {
+    for (auto &i : objects) {
+        if (((*i).getSprite())
+                ->getGlobalBounds()
+                .intersects(character.getGlobalBounds()) &&
+            (*i).getSprite() != &character) {
+            return i;
+        }
+    }
+    return nullptr;
+}
+bool charactersCompare(const std::shared_ptr<TemplateCharacter> &first,
+                       const std::shared_ptr<TemplateCharacter> &second) {
+    if (first->getSprite()->getPosition().y <
+        second->getSprite()->getPosition().y) {
+        return true;
+    }
+    if (first->getSprite()->getPosition().y ==
+        second->getSprite()->getPosition().y) {
+        return first->getSprite()->getPosition().x <
+               second->getSprite()->getPosition().x;
+    }
+    return false;
 }

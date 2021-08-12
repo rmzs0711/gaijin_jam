@@ -2,8 +2,10 @@
 
 #include <cmath>
 #include <list>
+#include <memory>
+#include <set>
 #include <vector>
-#include "Level.h"
+#include "building.h"
 #include "SFML/Graphics.hpp"
 #include "makeFreeObjects.h"
 #include "usefulFunctions.h"
@@ -23,7 +25,7 @@ struct LifeBarCharacter {
     }
 
     void changeCurrentHealth(sf::RenderWindow& window, float health_) {
-        current.setSize(sf::Vector2f(window.mapPixelToCoords(sf::Vector2i(32, 0)).x * health_ / health, 
+        current.setSize(sf::Vector2f(window.mapPixelToCoords(sf::Vector2i(32, 0)).x * health_ / health,
             window.mapPixelToCoords(sf::Vector2i(0, 8)).y));
        // std::cout << health << " " << health_ << " " << current.getSize().x << " " << current.getSize().y << '\n';
     }
@@ -51,13 +53,13 @@ int const BURNED = -2, FROZEN = -3, SLOWED = -4, STUNNED = -5;
 enum POWER_ELEMENT { FIRE, ICE, EARTH, NUMBER_OF_POWER_ELEMENTS };
 enum ABILITY { FIRE_BLAST, CLOUD, LAVA, FROZEN_BLAST, WALL, EARTHSHAKE };
 
-
-
 namespace jam {
+struct FlyingObject;
 struct Level;
 };
 
 struct TemplateCharacter {
+    friend jam::FlyingObject;
 protected:
     LifeBarCharacter life_bar;
     bool isCorrectMove();
@@ -128,22 +130,15 @@ public:
 
     bool isDraw();
 
-    virtual void drawCharacter(sf::RenderWindow &window, jam::Level& level) = 0;
+    virtual void drawCharacter(sf::RenderWindow &window) = 0;
 };
+bool charactersCompare (const std::shared_ptr<TemplateCharacter> &,
+                    const std::shared_ptr<TemplateCharacter> &);
 
-inline std::shared_ptr<TemplateCharacter> intersectionObjects(
+std::shared_ptr<TemplateCharacter> intersectionObjects(
     const sf::Sprite &character,
-    const std::vector<std::shared_ptr<TemplateCharacter>> &objects) {
-    for (auto &i : objects) {
-        if (((*i).getSprite())
-                ->getGlobalBounds()
-                .intersects(character.getGlobalBounds()) &&
-            (*i).getSprite() != &character) {
-            return i;
-        }
-    }
-    return nullptr;
-}
+    const std::vector<std::shared_ptr<TemplateCharacter>>
+    &objects);
 
 struct Monster : TemplateCharacter {
 protected:
@@ -181,7 +176,7 @@ public:
 
     void takeDamage(float damage_);
 
-    void drawCharacter(sf::RenderWindow &window, jam::Level& level) override;
+    void drawCharacter(sf::RenderWindow &window) override;
 
     static std::shared_ptr<Monster> makeArmouredRedDemon(sf::RenderWindow& window,
         jam::Level &level,
@@ -205,7 +200,6 @@ public:
     static std::shared_ptr<Monster> makeYeti(sf::RenderWindow& window, jam::Level& level,
                                       std::vector<sf::Vector2f> &monster_path);
 
-    // makeOrcs
 
     static std::shared_ptr<Monster> makeArcherGoblin(sf::RenderWindow& window,
         jam::Level &level,
@@ -261,9 +255,6 @@ public:
 
 struct Hero : TemplateCharacter {
 protected:
-    std::vector<POWER_ELEMENT> elements;
-    ABILITY ability;
-    bool readyToCast = false;
 
     int state;
     bool is_move, is_always_move;
@@ -299,9 +290,6 @@ public:
                             health_,
                             damage_,
                             curLevel),
-
-          ability(CLOUD),
-          elements(2, POWER_ELEMENT::FIRE),
           state(DOWN),
           is_always_move(is_always_move_),
           is_move(is_always_move_),
@@ -315,7 +303,7 @@ public:
                sf::RenderWindow &window,
                const sf::Time &currentTime);
 
-    void drawCharacter(sf::RenderWindow& window, jam::Level& level) override;
+    void drawCharacter(sf::RenderWindow& window) override;
     static std::shared_ptr<Hero> makeAssasinPurple(sf::RenderWindow& window,
         jam::Level &level,
         sf::Vector2f position = sf::Vector2f(0, 0));

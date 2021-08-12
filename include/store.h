@@ -107,7 +107,7 @@ private:
 public:
 	Message(sf::RenderWindow& window) : message("") {
 		drawing_message.setFillColor(sf::Color(176, 0, 0));
-		drawing_message.move(sf::Vector2f(window.mapPixelToCoords(sf::Vector2i(window.getSize())).x / 2, 
+		drawing_message.move(sf::Vector2f(window.mapPixelToCoords(sf::Vector2i(window.getSize())).x / 2,
 			window.mapPixelToCoords(sf::Vector2i(window.getSize())).y * 5.4 / 7.4));
 	}
 
@@ -142,11 +142,11 @@ public:
 		base.setSize(sf::Vector2f(window.mapPixelToCoords(sf::Vector2i(window.getSize())).x, window.mapPixelToCoords(sf::Vector2i(window.getSize())).y / 7.4));
 		base.setPosition(sf::Vector2f(0, window.mapPixelToCoords(sf::Vector2i(window.getSize())).y * 6.4 / 7.4));
 
-		products.push_back(std::make_unique<Product>(window, 10, "data/images/MiniWorldSprites/Characters/Soldiers/Melee/PurpleMelee/AssasinPurple.png"));
+		products.push_back(std::make_unique<Product>(window, 15, "data/images/MiniWorldSprites/Characters/Soldiers/Melee/PurpleMelee/AssasinPurple.png"));
 		(*products[0]).move(base.getPosition() + sf::Vector2f(20, 12));
-		products.push_back(std::make_unique<Product>(window, 10, "data/images/MiniWorldSprites/Characters/Soldiers/Melee/LimeMelee/AssasinLime.png"));
-		products.push_back(std::make_unique<Product>(window, 10, "data/images/MiniWorldSprites/Characters/Soldiers/Melee/CyanMelee/AssasinCyan.png"));
-		products.push_back(std::make_unique<Product>(window, 10, "data/images/MiniWorldSprites/Characters/Soldiers/Melee/RedMelee/AssasinRed.png"));
+		products.push_back(std::make_unique<Product>(window, 20, "data/images/MiniWorldSprites/Characters/Soldiers/Melee/LimeMelee/AssasinLime.png"));
+		products.push_back(std::make_unique<Product>(window, 25, "data/images/MiniWorldSprites/Characters/Soldiers/Melee/CyanMelee/AssasinCyan.png"));
+		products.push_back(std::make_unique<Product>(window, 30, "data/images/MiniWorldSprites/Characters/Soldiers/Melee/RedMelee/AssasinRed.png"));
 		
 		for (int i = 1; i < products.size(); i++) {
 			(*products[i]).move((*products[i - 1]).getPosition() + sf::Vector2f(40, 0));
