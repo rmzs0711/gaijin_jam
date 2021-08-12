@@ -46,7 +46,7 @@ public:
     const sf::Texture &getBuildingTexture() const;
     void loadBuildingTexture(const std::string &path);
     void setHitBox(const sf::FloatRect &newHitBox);
-
+    void setScale(sf::Vector2f newScale);
     const sf::Vector2i &getSizeInMap() const;
     void setSizeInMap(const sf::Vector2i &newSize);
     const sf::Vector2i &getPosInMap() const;
@@ -67,7 +67,6 @@ public:
         : Building(level_) {}
     const sf::Time &getAttackCooldown() const;
     void setAttackCooldown(const sf::Time &newAttackCooldown);
-    void setScale(sf::Vector2f newScale);
     float getAttackRange() const;
     void setAttackRange(float newAttackRange);
 
@@ -88,4 +87,11 @@ protected:
 };
 
 struct SupportBuilding : Building {};
+
+struct Home : Building {
+public:
+    Home(Level& level_) : Building(level_) {}
+
+    bool isEndGame() const;
+};
 }  // namespace jam

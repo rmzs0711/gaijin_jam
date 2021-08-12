@@ -49,6 +49,12 @@ bool jam::Level::addAttackBuilding(AttackBuilding building) {
             }
         }
     }
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    for (auto& i : home) {
+        if (hitBox.intersects(i.getHitBox())) {
+            return false;
+        }
+    }
 
     attackBuildings.insert(building);
     for (auto& i : heroes) {
@@ -104,7 +110,7 @@ jam::Level::Level(const std::vector<std::vector<int>> &mapObjects)
         }
     }
 
-    //    attackBuildings.insert(makeArcherBuilding(*this, {4, 4}));
+    home.push_back(makeHome(*this));
     attackBuildings.insert(makeArcherBuilding(*this, {4, 5}));
 }
 
@@ -288,6 +294,9 @@ void jam::Level::draw(sf::RenderWindow &window) {
             for (auto &j : i) {
                 j.draw(window);
             }
+        }
+        for (auto& i : home) {
+            i.draw(window);
         }
         std::sort(monsters.begin(), monsters.end(), charactersCompare);
         std::sort(heroes.begin(), heroes.end(), charactersCompare);

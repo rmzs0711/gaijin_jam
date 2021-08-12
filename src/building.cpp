@@ -144,7 +144,7 @@ const sf::Time &jam::AttackBuilding::getAttackCooldown() const {
 void jam::AttackBuilding::setAttackCooldown(const sf::Time &newAttackCooldown) {
     AttackBuilding::attackCooldown = newAttackCooldown;
 }
-void jam::AttackBuilding::setScale(sf::Vector2f newScale) {
+void jam::Building::setScale(sf::Vector2f newScale) {
     building.setScale(newScale);
 }
 float jam::AttackBuilding::getAttackRange() const {
@@ -165,4 +165,14 @@ const sf::Vector2f &jam::AttackBuilding::getFirePosition() const {
 void jam::AttackBuilding::setFlyingObject(
     const jam::FlyingObject &flyingObject_) {
     AttackBuilding::flyingObject = flyingObject_;
+}
+
+bool jam::Home::isEndGame() const {
+    for (auto& i : level.monsters) {
+        auto hitBox = i->getSprite()->getGlobalBounds();
+        if (getHitBox().intersects({ hitBox.left, hitBox.top + hitBox.height / 2, hitBox.width, hitBox.height / 2 })) {
+            return true;
+        }
+    }
+    return false;
 }

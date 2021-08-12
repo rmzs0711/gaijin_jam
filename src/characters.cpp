@@ -33,6 +33,13 @@ bool TemplateCharacter::isCorrectMove() {
             }
         }
     }
+    /////////////////////////////////////////////////////
+    for (auto& i : curLevel.home) {
+        if (i.getHitBox().intersects(hitBox)) {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -117,6 +124,20 @@ void Monster::changeState(int state_, float damage_) {
             character.move(-dx, -dy);
             return;
         }
+
+        int t = 0;
+        while (!isCorrectMove() && t < 1000) {
+            character.move(-dx, -dy);
+            state_ = (state_ +
+                static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
+                4;
+            initializingCoordinates(dx, dy, state_);
+            dx *= 2.5, dy *= 2.5;
+            character.move(dx, dy);
+            t++;
+        }
+        assert(t < 1000);
+        
         state = state_;
         character.setTextureRect(sf::IntRect(current_frame * size_frame.x,
                                              state_ * size_frame.y,
@@ -310,15 +331,18 @@ void Hero::changeState(int state_, float damage_) {
         character.move(-dx, -dy);
         return;
     }
-    while (!isCorrectMove()) {
+    int t = 0;
+    while (!isCorrectMove() && t < 1000) {
         character.move(-dx, -dy);
         state_ = (state_ +
-                  static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
-                 4;
+            static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
+            4;
         initializingCoordinates(dx, dy, state_);
         dx *= 2.5, dy *= 2.5;
         character.move(dx, dy);
+        t++;
     }
+    assert(t < 1000);
     state = state_;
     character.setTextureRect(sf::IntRect(current_frame * size_frame.x,
                                          state_ * size_frame.y, size_frame.x,

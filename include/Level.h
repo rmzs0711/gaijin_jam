@@ -74,6 +74,7 @@ struct Level {
     friend Hero;
 
     friend Building;
+    friend Home;
     friend AttackBuilding;
     friend SupportBuilding;
 
@@ -112,6 +113,7 @@ private:
     std::vector<std::shared_ptr<Money>> money;
     std::list<FlyingObject> flyingObjects;
     sf::Clock clock1;
+    std::vector<Home> home;
 
     //skills
     std::vector<POWER_ELEMENT> elements;
