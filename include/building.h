@@ -55,6 +55,7 @@ public:
     void draw(sf::RenderWindow &window) const;
     virtual ~Building() = default;
     bool operator<(const jam::Building &rhs) const;
+    sf::Sprite* getSprite();
 
 private:
 };

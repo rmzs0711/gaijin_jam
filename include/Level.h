@@ -79,14 +79,12 @@ struct Level {
 
     explicit Level(const std::vector<std::vector<int>> &mapObjects);
 
-    void addHero(const std::shared_ptr<Hero> &hero);
+    bool addHero(const std::shared_ptr<Hero> &hero);
 
-    void addMonster(const std::shared_ptr<Monster>& monster);
+    bool addMonster(const std::shared_ptr<Monster>& monster);
     void addMoney(const std::shared_ptr<Money>& money_);
    
-    void addAttackBuilding(AttackBuilding building) {
-        attackBuildings.insert(building);
-    }
+    bool addAttackBuilding(AttackBuilding building);
 
     void heroSetPosition(const sf::Vector2f &newPos, std::size_t i = 0);
     void monsterSetScale(const sf::Vector2f &newScale, std::size_t i = 0);

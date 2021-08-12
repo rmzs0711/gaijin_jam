@@ -75,6 +75,9 @@ const sf::Vector2i &jam::Building::getSizeInMap() const {
 void jam::Building::setSizeInMap(const sf::Vector2i &newSize) {
     Building::sizeOnMap = newSize;
 }
+sf::Sprite* jam::Building::getSprite() {
+    return &building;
+}
 const sf::Vector2i &jam::Building::getPosInMap() const {
     return posInMap;
 }

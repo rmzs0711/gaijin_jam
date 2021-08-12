@@ -136,9 +136,21 @@ private:
 	std::vector<std::unique_ptr<Product>> products;
 	AmountMoney money;
 	Message message;
+
+	int cost;
+
+	void add(bool condition) {
+		if (condition) {
+			money.changeMoney(-cost);
+		}
+		else {
+			message.setMessage("You can't put an object here");
+		}
+		cost = 0;
+	}
 public:
 
-	Store(sf::RenderWindow& window) : money(window), message(window) {
+	Store(sf::RenderWindow& window) : money(window), message(window), cost(0) {
 		texture_base.loadFromFile("data/images/textureBase.png");
 		base.setTexture(&texture_base);
 		base.setSize(sf::Vector2f(window.mapPixelToCoords(sf::Vector2i(window.getSize())).x, window.mapPixelToCoords(sf::Vector2i(window.getSize())).y / 7.4));
@@ -167,7 +179,8 @@ public:
 							move_product.setPosition((*products[i]).getPosition() - sf::Vector2f(16 * 4.5, 0));
 							move_product.setScale(4.5, 4.5);
 							move_product.click_mouse_left(window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y)), mouse);
-							money.changeMoney(-(*products[i]).getCost());
+							//money.changeMoney(-(*products[i]).getCost());
+							cost = (*products[i]).getCost();
 						}
 						else {
 							message.setMessage("Insufficient funds for the purchase");
@@ -186,23 +199,19 @@ public:
 		else if (event.type == sf::Event::MouseButtonReleased) {
 			std::string file = move_product.getNameFile();
 			if (file == "data/images/MiniWorldSprites/Characters/Soldiers/Melee/PurpleMelee/AssasinPurple.png") {
-				level.addHero(Hero::makeAssasinPurple(window, level,
-                                                                  move_product.getPosition()));
+				add(level.addHero(Hero::makeAssasinPurple(window, level, move_product.getPosition())));
 			}
 			else if (file == "data/images/MiniWorldSprites/Characters/Soldiers/Melee/LimeMelee/AssasinLime.png") {
-				level.addHero(Hero::makeAssasinLime(window, level,
-                                                                move_product.getPosition()));
+				add(level.addHero(Hero::makeAssasinLime(window, level, move_product.getPosition())));
 			}
 			else if (file == "data/images/MiniWorldSprites/Characters/Soldiers/Melee/CyanMelee/AssasinCyan.png") {
-				level.addHero(Hero::makeAssasinCyan(window, level,
-                                                                move_product.getPosition()));
+				add(level.addHero(Hero::makeAssasinCyan(window, level, move_product.getPosition())));
 			}
 			else if (file == "data/images/MiniWorldSprites/Characters/Soldiers/Melee/RedMelee/AssasinRed.png") {
-				level.addHero(Hero::makeAssasinRed(window, level,
-                                                               move_product.getPosition()));
+				add(level.addHero(Hero::makeAssasinRed(window, level, move_product.getPosition())));
 			}
 			else if (file == "data/images/MiniWorldSprites/Buildings/Lime/LimeTower.png") {
-				level.addAttackBuilding(makeArcherBuilding(level, jam::toMapPosition(window, move_product.getPosition())));
+				add(level.addAttackBuilding(makeArcherBuilding(level, jam::toMapPosition(window, move_product.getPosition()))));
 			}
 			move_product.loadFromFile("");
 		}

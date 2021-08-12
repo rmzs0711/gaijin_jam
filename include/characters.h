@@ -62,7 +62,6 @@ struct TemplateCharacter {
     friend jam::FlyingObject;
 protected:
     LifeBarCharacter life_bar;
-    bool isCorrectMove();
     float speedCoef = 1;
     float speed;
     sf::Vector2f scale;
@@ -112,6 +111,8 @@ protected:
 
     void initializingCoordinates(float &dx, float &dy, int direction) const;
 public:
+    bool isCorrectMove();
+
     sf::Sprite *getSprite();
 
     virtual void setPosition(float x, float y);
