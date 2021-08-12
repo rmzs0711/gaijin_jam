@@ -1,6 +1,6 @@
 
-#include "building.h"
-#include "Level.h"
+#include "../include/building.h"
+#include "../include/Level.h"
 
 float jam::FlyingObject::getDamage() const {
     return damage;

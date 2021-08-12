@@ -5,6 +5,8 @@
 #include <memory>
 #include "button.h"
 #include "Level.h"
+#include "Cell.h"
+#include "makeAttackBuilding.h"
 
 struct AmountMoney {
 private:
@@ -147,6 +149,7 @@ public:
 		products.push_back(std::make_unique<Product>(window, 20, "data/images/MiniWorldSprites/Characters/Soldiers/Melee/LimeMelee/AssasinLime.png"));
 		products.push_back(std::make_unique<Product>(window, 25, "data/images/MiniWorldSprites/Characters/Soldiers/Melee/CyanMelee/AssasinCyan.png"));
 		products.push_back(std::make_unique<Product>(window, 30, "data/images/MiniWorldSprites/Characters/Soldiers/Melee/RedMelee/AssasinRed.png"));
+		products.push_back(std::make_unique<Product>(window, 50, "data/images/MiniWorldSprites/Buildings/Lime/LimeTower.png"));
 		
 		for (int i = 1; i < products.size(); i++) {
 			(*products[i]).move((*products[i - 1]).getPosition() + sf::Vector2f(40, 0));
@@ -197,6 +200,9 @@ public:
 			else if (file == "data/images/MiniWorldSprites/Characters/Soldiers/Melee/RedMelee/AssasinRed.png") {
 				level.addHero(Hero::makeAssasinRed(window, level,
                                                                move_product.getPosition()));
+			}
+			else if (file == "data/images/MiniWorldSprites/Buildings/Lime/LimeTower.png") {
+				level.addAttackBuilding(makeArcherBuilding(level, jam::toMapPosition(window, move_product.getPosition())));
 			}
 			move_product.loadFromFile("");
 		}

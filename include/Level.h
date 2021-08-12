@@ -83,6 +83,10 @@ struct Level {
 
     void addMonster(const std::shared_ptr<Monster>& monster);
     void addMoney(const std::shared_ptr<Money>& money_);
+   
+    void addAttackBuilding(AttackBuilding building) {
+        attackBuildings.insert(building);
+    }
 
     void heroSetPosition(const sf::Vector2f &newPos, std::size_t i = 0);
     void monsterSetScale(const sf::Vector2f &newScale, std::size_t i = 0);

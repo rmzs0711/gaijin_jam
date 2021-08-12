@@ -1,7 +1,7 @@
 
-#include "Level.h"
-#include "store.h"
-#include "makeAttackBuilding.h"
+#include "../include/Level.h"
+#include "../include/store.h"
+#include "../include/makeAttackBuilding.h"
 namespace {}
 void jam::Level::addHero(const std::shared_ptr<Hero> &hero) {
     heroes.emplace_back(hero);

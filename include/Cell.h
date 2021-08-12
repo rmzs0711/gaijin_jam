@@ -114,6 +114,14 @@ inline const int cellSize = 128;
 inline std::vector<sf::Texture *> texturePtrs;
 inline std::vector<sf::Time> stateDurations;
 
+inline sf::Vector2i toMapPosition(sf::RenderWindow& window, sf::Vector2f position) {
+    int x = window.mapCoordsToPixel(position).x;
+    int y = window.mapCoordsToPixel(position).y;
+    x = ((x - (x % cellSize)) / cellSize);
+    y = ((y - (y % cellSize)) / cellSize);
+    return sf::Vector2i(x, y);
+}
+
 struct Cell {
 public:
     void setBackgroundType(int newBackgroundType);

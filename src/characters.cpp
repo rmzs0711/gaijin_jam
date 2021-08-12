@@ -1,6 +1,6 @@
-#include "characters.h"
-#include "Level.h"
-#include "makeAttackBuilding.h"
+#include "../include/characters.h"
+#include "../include/Level.h"
+#include "../include/makeAttackBuilding.h"
 
 bool TemplateCharacter::isCorrectMove() {
     auto hitBox = character.getGlobalBounds();

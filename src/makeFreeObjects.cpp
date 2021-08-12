@@ -1,4 +1,4 @@
-#include "makeFreeObjects.h"
+#include "../include/makeFreeObjects.h"
 
 namespace jam {
 FreeObject makeEmptyObject(sf::Vector2f & pos) {
