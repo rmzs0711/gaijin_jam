@@ -10,11 +10,76 @@
 #endif
 
 namespace {}
-void jam::Level::addHero(const std::shared_ptr<Hero> &hero) {
-    heroes.emplace_back(hero);
+bool jam::Level::addHero(const std::shared_ptr<Hero> &hero) {
+    if ((*hero).isCorrectMove()) {
+        heroes.emplace_back(hero);
+        return true;
+    }
+    return false;
 }
-void jam::Level::addMonster(const std::shared_ptr<Monster> &monster) {
-    monsters.emplace_back(monster);
+bool jam::Level::addMonster(const std::shared_ptr<Monster> &monster) {
+    if ((*monster).isCorrectMove()) {
+        monsters.emplace_back(monster);
+        return true;
+    }
+    return false;
+}
+
+bool jam::Level::addAttackBuilding(AttackBuilding building) {
+    auto hitBox = (*building.getSprite()).getGlobalBounds();
+    {
+        auto start = freeObjects.lower_bound(
+            jam::makeTree({ hitBox.left, hitBox.top - jam::cellSize }));
+        auto end = freeObjects.upper_bound(
+            jam::makeTree({ hitBox.left, hitBox.top + jam::cellSize }));
+        for (auto& i = start; i != end; i++) {
+            if (i->getHitBox().intersects({ hitBox.left,
+                                            hitBox.top + hitBox.height / 2,
+                                            hitBox.width, hitBox.height / 2 })) {
+                return false;
+            }
+        }
+    }
+    {
+        auto start =
+            attackBuildings.lower_bound(jam::makeEmptyBuilding(
+                *this, sf::Vector2i{ (int)hitBox.left / jam::cellSize - 1,
+                                     (int)hitBox.top / jam::cellSize - 1 }));
+        auto end = attackBuildings.upper_bound(jam::makeEmptyBuilding(
+            *this, sf::Vector2i((int)hitBox.left / jam::cellSize + 1,
+                                (int)hitBox.top / jam::cellSize + 1)));
+        for (auto& i = start; i != end; i++) {
+            if (i->getHitBox().intersects({ hitBox.left,
+                                            hitBox.top + hitBox.height / 2,
+                                            hitBox.width, hitBox.height / 2 })) {
+                return false;
+            }
+        }
+    }
+
+    for (auto& i : home) {
+        if (i.getHitBox().intersects({ hitBox.left,
+                                       hitBox.top + hitBox.height / 2,
+                                       hitBox.width, hitBox.height / 2 })) {
+            return false;
+        }
+    }
+
+    attackBuildings.insert(building);
+    for (auto& i : heroes) {
+        if (!(*i).isCorrectMove()) {
+            attackBuildings.erase(building);
+            return false;
+        }
+    }
+    for (auto& i : monsters) {
+        if (!(*i).isCorrectMove()) {
+            attackBuildings.erase(building);
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void jam::Level::heroSetPosition(const sf::Vector2f &newPos, std::size_t i) {
@@ -57,6 +122,7 @@ jam::Level::Level(const std::vector<std::vector<int>> &mapObjects)
     //    attackBuildings.insert(makeArcherBuilding(*this, {4, 4}));
     attackBuildings.insert(makeArcherBuilding(*this, {4, 5}));
     attackBuildings.insert(makeWizardTower(*this, {6, 4}));
+    attackBuildings.insert(makeSniperBuilding(*this, {6, 5}));
     home.push_back(makeHome(*this));
 }
 
