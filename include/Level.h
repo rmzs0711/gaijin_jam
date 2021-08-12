@@ -74,15 +74,18 @@ struct Level {
     friend Hero;
 
     friend Building;
+    friend Home;
     friend AttackBuilding;
     friend SupportBuilding;
 
     explicit Level(const std::vector<std::vector<int>> &mapObjects);
 
-    void addHero(const std::shared_ptr<Hero> &hero);
+    bool addHero(const std::shared_ptr<Hero> &hero);
 
-    void addMonster(const std::shared_ptr<Monster>& monster);
+    bool addMonster(const std::shared_ptr<Monster>& monster);
     void addMoney(const std::shared_ptr<Money>& money_);
+
+    bool addAttackBuilding(AttackBuilding building);
 
     void heroSetPosition(const sf::Vector2f &newPos, std::size_t i = 0);
     void monsterSetScale(const sf::Vector2f &newScale, std::size_t i = 0);
@@ -110,6 +113,7 @@ private:
     std::vector<std::shared_ptr<Money>> money;
     std::list<FlyingObject> flyingObjects;
     sf::Clock clock1;
+    std::vector<Home> home;
 
     //skills
     std::vector<POWER_ELEMENT> elements;

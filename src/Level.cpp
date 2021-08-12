@@ -2,6 +2,13 @@
 #include <Level.h>
 #include <store.h>
 #include "makeAttackBuilding.h"
+
+#ifdef _MSC_VER
+#include "../include/Level.h"
+#include "../include/store.h"
+#include "../include/makeAttackBuilding.h"
+#endif
+
 namespace {}
 void jam::Level::addHero(const std::shared_ptr<Hero> &hero) {
     heroes.emplace_back(hero);
@@ -50,6 +57,7 @@ jam::Level::Level(const std::vector<std::vector<int>> &mapObjects)
     //    attackBuildings.insert(makeArcherBuilding(*this, {4, 4}));
     attackBuildings.insert(makeArcherBuilding(*this, {4, 5}));
     attackBuildings.insert(makeWizardTower(*this, {6, 4}));
+    home.push_back(makeHome(*this));
 }
 
 void jam::Level::updateStates() {
@@ -245,6 +253,9 @@ void jam::Level::draw(sf::RenderWindow &window) {
                 }
             }
         }
+        for (auto& i : home) {
+            i.draw(window);
+        }
         std::sort(monsters.begin(), monsters.end(), charactersCompare);
         std::sort(heroes.begin(), heroes.end(), charactersCompare);
         auto freeObject = freeObjects.begin();
@@ -370,6 +381,9 @@ void jam::Level::draw(sf::RenderWindow &window) {
                 building->draw(window);
                 building++;
             }
+        }
+        for (auto& i : money) {
+            (*i).draw(window);
         }
         store.drawStore(window);
 

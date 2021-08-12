@@ -1,6 +1,11 @@
 #include "characters.h"
 #include "Level.h"
 #include "makeAttackBuilding.h"
+#ifdef _MSC_VER
+#include "../include/characters.h"
+#include "../include/Level.h"
+#include "../include/makeAttackBuilding.h"
+#endif
 
 bool TemplateCharacter::isCorrectMove() {
     auto hitBox = character.getGlobalBounds();
@@ -33,6 +38,13 @@ bool TemplateCharacter::isCorrectMove() {
             }
         }
     }
+    /////////////////////////////////////////////////////
+    for (auto& i : curLevel.home) {
+        if (i.getHitBox().intersects(hitBox)) {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -117,6 +129,20 @@ void Monster::changeState(int state_, float damage_) {
             character.move(-dx, -dy);
             return;
         }
+
+        int t = 0;
+        while (!isCorrectMove() && t < 1000) {
+            character.move(-dx, -dy);
+            state_ = (state_ +
+                static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
+                4;
+            initializingCoordinates(dx, dy, state_);
+            dx *= 2.5, dy *= 2.5;
+            character.move(dx, dy);
+            t++;
+        }
+        assert(t < 1000);
+
         state = state_;
         character.setTextureRect(sf::IntRect(current_frame * size_frame.x,
                                              state_ * size_frame.y,
@@ -310,15 +336,18 @@ void Hero::changeState(int state_, float damage_) {
         character.move(-dx, -dy);
         return;
     }
-    while (!isCorrectMove()) {
+    int t = 0;
+    while (!isCorrectMove() && t < 1000) {
         character.move(-dx, -dy);
         state_ = (state_ +
-                  static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
-                 4;
+            static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
+            4;
         initializingCoordinates(dx, dy, state_);
         dx *= 2.5, dy *= 2.5;
         character.move(dx, dy);
+        t++;
     }
+    assert(t < 1000);
     state = state_;
     character.setTextureRect(sf::IntRect(current_frame * size_frame.x,
                                          state_ * size_frame.y, size_frame.x,
@@ -474,8 +503,9 @@ std::shared_ptr<Monster> Monster::makeArmouredRedDemon(
         window,
         "data/images/MiniWorldSprites/Characters/Monsters/Demons/"
         "ArmouredRedDemon.png",
-        50, 0.1, monster_path, level, 2, 5);
+        70, 0.07, monster_path, level, 4, 5);
     (*monster).setScale(3, 3);
+    (*monster).setSpeed(0.13);
     return monster;
 }
 
@@ -486,8 +516,9 @@ std::shared_ptr<Monster> Monster::makeRedDemon(
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
         window,
         "data/images/MiniWorldSprites/Characters/Monsters/Demons/RedDemon.png",
-        50, 0.1, monster_path, level, 2, 5);
+        60, 0.07, monster_path, level, 3, 5);
     (*monster).setScale(3, 3);
+    (*monster).setSpeed(0.15);
     return monster;
 }
 
@@ -499,8 +530,9 @@ std::shared_ptr<Monster> Monster::makePurpleDemon(
         window,
         "data/images/MiniWorldSprites/Characters/Monsters/Demons/"
         "PurpleDemon.png",
-        50, 0.1, monster_path, level, 2, 5);
+        60, 0.07, monster_path, level, 3, 5);
     (*monster).setScale(3, 3);
+    (*monster).setSpeed(0.15);
     return monster;
 }
 
@@ -514,8 +546,9 @@ std::shared_ptr<Monster> Monster::makeMammoth(
         window,
         "data/images/MiniWorldSprites/Characters/Monsters/Frostborn/"
         "Mammoth.png",
-        70, 0.07, monster_path, level, 2, 4);
+        150, 0.18, monster_path, level, 20, 4);
     (*monster).setScale(4.3, 4.3);
+    (*monster).setSpeed(0.1);
     return monster;
 }
 
@@ -527,8 +560,9 @@ std::shared_ptr<Monster> Monster::makeWendigo(
         window,
         "data/images/MiniWorldSprites/Characters/Monsters/Frostborn/"
         "Wendigo.png",
-        70, 0.07, monster_path, level, 2, 4);
+        80, 0.12, monster_path, level, 8, 4);
     (*monster).setScale(4.3, 4.3);
+    (*monster).setSpeed(0.12);
     return monster;
 }
 
@@ -539,8 +573,9 @@ std::shared_ptr<Monster> Monster::makeYeti(
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
         window,
         "data/images/MiniWorldSprites/Characters/Monsters/Frostborn/Yeti.png",
-        70, 0.07, monster_path, level, 2, 5);
+        70, 0.11, monster_path, level, 7, 5);
     (*monster).setScale(4.3, 4.3);
+    (*monster).setSpeed(0.13);
     return monster;
 }
 
@@ -554,8 +589,9 @@ std::shared_ptr<Monster> Monster::makeArcherGoblin(
         window,
         "data/images/MiniWorldSprites/Characters/Monsters/Orcs/"
         "ArcherGoblin.png",
-        40, 0.13, monster_path, level, 2, 4);
+        50, 0.05, monster_path, level, 2, 4);
     (*monster).setScale(2.5, 2.5);
+    (*monster).setSpeed(0.17);
     return monster;
 }
 
@@ -566,8 +602,9 @@ std::shared_ptr<Monster> Monster::makeClubGoblin(
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
         window,
         "data/images/MiniWorldSprites/Characters/Monsters/Orcs/ClubGoblin.png",
-        40, 0.13, monster_path, level, 2, 4);
+        50, 0.05, monster_path, level, 2, 4);
     (*monster).setScale(2.5, 2.5);
+    (*monster).setSpeed(0.17);
     return monster;
 }
 
@@ -579,8 +616,9 @@ std::shared_ptr<Monster> Monster::makeFarmerGoblin(
         window,
         "data/images/MiniWorldSprites/Characters/Monsters/Orcs/"
         "FarmerGoblin.png",
-        40, 0.13, monster_path, level, 2, 4);
+        50, 0.05, monster_path, level, 2, 4);
     (*monster).setScale(2.5, 2.5);
+    (*monster).setSpeed(0.17);
     return monster;
 }
 
@@ -592,8 +630,9 @@ std::shared_ptr<Monster> Monster::makeKamikazeGoblin(
         window,
         "data/images/MiniWorldSprites/Characters/Monsters/Orcs/"
         "KamikazeGoblin.png",
-        40, 0.13, monster_path, level, 2, 5);
+        50, 0.05, monster_path, level, 2, 5);
     (*monster).setScale(2.5, 2.5);
+    (*monster).setSpeed(0.17);
     return monster;
 }
 
@@ -603,8 +642,9 @@ std::shared_ptr<Monster> Monster::makeOrc(
     std::vector<sf::Vector2f> &monster_path) {
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
         window, "data/images/MiniWorldSprites/Characters/Monsters/Orcs/Orc.png",
-        40, 0.13, monster_path, level, 2, 5);
+        60, 0.11, monster_path, level, 5, 5);
     (*monster).setScale(2.5, 2.5);
+    (*monster).setSpeed(0.15);
     return monster;
 }
 
@@ -614,9 +654,10 @@ std::shared_ptr<Monster> Monster::makeOrcMage(
     std::vector<sf::Vector2f> &monster_path) {
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
         window,
-        "data/images/MiniWorldSprites/Characters/Monsters/Orcs/OrcMage.png", 40,
-        0.13, monster_path, level, 2, 5);
+        "data/images/MiniWorldSprites/Characters/Monsters/Orcs/OrcMage.png", 55,
+        0.12, monster_path, level, 6, 5);
     (*monster).setScale(2.5, 2.5);
+    (*monster).setSpeed(0.15);
     return monster;
 }
 
@@ -627,8 +668,9 @@ std::shared_ptr<Monster> Monster::makeOrcShaman(
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
         window,
         "data/images/MiniWorldSprites/Characters/Monsters/Orcs/OrcShaman.png",
-        40, 0.13, monster_path, level, 2, 5);
+        55, 0.12, monster_path, level, 6, 5);
     (*monster).setScale(2.5, 2.5);
+    (*monster).setSpeed(0.15);
     return monster;
 }
 
@@ -642,8 +684,9 @@ std::shared_ptr<Monster> Monster::makePirateCaptain(
         window,
         "data/images/MiniWorldSprites/Characters/Monsters/Pirates/"
         "PirateCaptain.png",
-        80, 0.15, monster_path, level, 2, 5);
+        88, 0.15, monster_path, level, 9, 5);
     (*monster).setScale(3.8, 3.8);
+    (*monster).setSpeed(0.15);
     return monster;
 }
 
@@ -655,8 +698,9 @@ std::shared_ptr<Monster> Monster::makePirateGrunt(
         window,
         "data/images/MiniWorldSprites/Characters/Monsters/Pirates/"
         "PirateGrunt.png",
-        80, 0.15, monster_path, level, 2, 5);
+        80, 0.12, monster_path, level, 8, 5);
     (*monster).setScale(3.8, 3.8);
+    (*monster).setSpeed(0.15);
     return monster;
 }
 
@@ -668,8 +712,9 @@ std::shared_ptr<Monster> Monster::makePirateGunnern(
         window,
         "data/images/MiniWorldSprites/Characters/Monsters/Pirates/"
         "PirateGunner.png",
-        80, 0.15, monster_path, level, 2, 5);
+        80, 0.12, monster_path, level, 8, 5);
     (*monster).setScale(3.8, 3.8);
+    (*monster).setSpeed(0.15);
     return monster;
 }
 
@@ -683,8 +728,9 @@ std::shared_ptr<Monster> Monster::makeNecromancer(
         window,
         "data/images/MiniWorldSprites/Characters/Monsters/Undead/"
         "Necromancer.png",
-        35, 0.15, monster_path, level, 2, 5);
+        65, 0.07, monster_path, level, 4, 5);
     (*monster).setScale(3, 3);
+    (*monster).setSpeed(0.15);
     return monster;
 }
 
@@ -696,8 +742,9 @@ std::shared_ptr<Monster> Monster::makeSkeletonSoldier(
         window,
         "data/images/MiniWorldSprites/Characters/Monsters/Undead/"
         "Skeleton-Soldier.png",
-        35, 0.15, monster_path, level, 2, 5);
+        50, 0.05, monster_path, level, 2, 5);
     (*monster).setScale(3, 3);
+    (*monster).setSpeed(0.17);
     return monster;
 }
 
@@ -710,9 +757,9 @@ std::shared_ptr<Hero> Hero::makeAssasinPurple(sf::RenderWindow &window,
         window,
         "data/images/MiniWorldSprites/Characters/Soldiers/Melee/PurpleMelee/"
         "AssasinPurple.png",
-        100, 0.1, level, false, 5);
+        90, 0.12, level, false, 5);
     (*monster).setScale(4, 4);
-    (*monster).setSpeed(0.3);
+    (*monster).setSpeed(0.15);
     (*monster).setPosition(position);
     return monster;
 }
@@ -724,9 +771,9 @@ std::shared_ptr<Hero> Hero::makeAssasinLime(sf::RenderWindow &window,
         window,
         "data/images/MiniWorldSprites/Characters/Soldiers/Melee/LimeMelee/"
         "AssasinLime.png",
-        120, 0.12, level, false, 5);
+        110, 0.1, level, false, 5);
     (*monster).setScale(4.2, 4.2);
-    (*monster).setSpeed(0.13);
+    (*monster).setSpeed(0.15);
     (*monster).setPosition(position);
     return monster;
 }
@@ -738,9 +785,9 @@ std::shared_ptr<Hero> Hero::makeAssasinCyan(sf::RenderWindow &window,
         window,
         "data/images/MiniWorldSprites/Characters/Soldiers/Melee/CyanMelee/"
         "AssasinCyan.png",
-        110, 0.8, level, false, 5);
+        100, 0.12, level, false, 5);
     (*monster).setScale(4.1, 4.1);
-    (*monster).setSpeed(0.22);
+    (*monster).setSpeed(0.2);
     (*monster).setPosition(position);
     return monster;
 }
@@ -752,9 +799,9 @@ std::shared_ptr<Hero> Hero::makeAssasinRed(sf::RenderWindow &window,
         window,
         "data/images/MiniWorldSprites/Characters/Soldiers/Melee/RedMelee/"
         "AssasinRed.png",
-        90, 0.14, level, false, 5);
+        110, 0.15, level, false, 5);
     (*monster).setScale(3.9, 3.9);
-    (*monster).setSpeed(0.35);
+    (*monster).setSpeed(0.25);
     (*monster).setPosition(position);
     return monster;
 }

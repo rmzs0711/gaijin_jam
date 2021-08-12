@@ -1,6 +1,10 @@
 
 #include <building.h>
 #include "Level.h"
+#ifdef _MSC_VER
+#include "../include/building.h"
+#include "../include/Level.h"
+#endif
 
 float jam::FlyingObject::getDamage() const {
     return damage;
@@ -74,6 +78,9 @@ const sf::Vector2i &jam::Building::getSizeInMap() const {
 }
 void jam::Building::setSizeInMap(const sf::Vector2i &newSize) {
     Building::sizeOnMap = newSize;
+}
+sf::Sprite* jam::Building::getSprite() {
+    return &building;
 }
 const sf::Vector2i &jam::Building::getPosInMap() const {
     return posInMap;
@@ -152,7 +159,7 @@ const sf::Time &jam::AttackBuilding::getAttackCooldown() const {
 void jam::AttackBuilding::setAttackCooldown(const sf::Time &newAttackCooldown) {
     AttackBuilding::attackCooldown = newAttackCooldown;
 }
-void jam::AttackBuilding::setScale(sf::Vector2f newScale) {
+void jam::Building::setScale(sf::Vector2f newScale) {
     building.setScale(newScale);
 }
 float jam::AttackBuilding::getAttackRange() const {
@@ -192,4 +199,14 @@ void jam::AttackBuildingAnimatedObject::updateFrame(float coef) const {
 }
 void jam::AttackBuildingAnimatedObject::loadTexture(const std::string &path) {
     checkLoad(texture, path);
+}
+
+bool jam::Home::isEndGame() const {
+    for (auto& i : level.monsters) {
+        auto hitBox = i->getSprite()->getGlobalBounds();
+        if (getHitBox().intersects({ hitBox.left, hitBox.top + hitBox.height / 2, hitBox.width, hitBox.height / 2 })) {
+            return true;
+        }
+    }
+    return false;
 }

@@ -1,5 +1,7 @@
 #include "makeFreeObjects.h"
-
+#ifdef _MSC_VER
+#include "../include/makeFreeObjects.h"
+#endif
 namespace jam {
 FreeObject makeEmptyObject(sf::Vector2f & pos) {
     FreeObject object(NONE);
@@ -17,7 +19,6 @@ FreeObject makeTree(const sf::Vector2f &position) {
     tree.setHitBox({tree.getPosition().x - 3 * tree.getSprite().getScale().x,
                     tree.getPosition().y - 20,
                     5 * tree.getSprite().getScale().x, 20});
-
     return tree;
 }
 

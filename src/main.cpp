@@ -2,6 +2,12 @@
 #include "gameSession.h"
 #include "menu.h"
 
+#ifdef _MSC_VER
+#include "../include/button.h"
+#include "../include/gameSession.h"
+#include "../include/menu.h"
+#endif
+
 int main() {
     sf::RenderWindow window(sf::VideoMode(1920, 1080), "SFML works!");
     jam::GameSession game;

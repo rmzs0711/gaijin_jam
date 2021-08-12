@@ -62,38 +62,11 @@ struct GameSession {
         levels[0].addMonster(Monster::makeArmouredRedDemon(window, levels[0], monster_path));
         levels[0].addMonster(Monster::makeMammoth(window, levels[0], monster_path));
         levels[0].monsterSetPosition({cellSize * 3, cellSize * 6});
-        levels[0].monsterSetPosition({200, 290}, 1);
+        levels[0].monsterSetPosition({ cellSize * 6, cellSize * 2}, 1);
 
         sf::Clock clock1;
         std::vector<FlyingObject> flyingFireObjects;
-//        AttackBuilding archersTower(flyingFireObjects, clock1);
-//        sf::Texture archersTowerTexture;
-//        checkLoad(archersTowerTexture,
-//                  "data/images/MiniWorldSprites/Buildings/Lime/LimeTower"
-//                  ".png");
-//        archersTower.setAttackCooldown(sf::seconds(1));
-//        archersTower.setAttackRange(1000);
-//        archersTower.setTexture(archersTowerTexture);
-//        archersTower.setTextureRect({16, 16, 16, 32});
-//        archersTower.setPosInMap({3, 3});
-//        archersTower.setSizeInMap({1, 2});
-//        archersTower.setScale({(float)cellSize / 16, (float)cellSize / 16});
-//        archersTower.loadFlyingObjectTextureFromFile(
-//            "data/images/MiniWorldSprites/Objects/ArrowLong.png");
-//        archersTower.setAttackPosition({cellSize / 2, cellSize / 2});
-//        auto secondTower = archersTower;
-        //        secondTower.setPosInMap({3, 2});
 
-        FlyingObject arrow;
-        arrow.setTextureRect({{5, 3}, {5, 11}});
-        arrow.setOrigin(sf::Vector2f(2.5, 0));
-        arrow.setScale(5, 5);
-        arrow.setSpeed(1);
-        arrow.setDamage(0);
-
-//        archersTower.setFlyingObject(arrow);
-
-      //  Store store(window);
         sf::Vector2f mouse;
         while (window.isOpen()) {
             window.clear();
@@ -109,7 +82,6 @@ struct GameSession {
                 }
             }
             levels[0].draw(window);
-           // store.drawStore(window);
             window.display();
         }
     }
