@@ -177,7 +177,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
                                                clock1.getElapsedTime());
             }
             for (auto &i : money) {
-                store.addMoney((*i).event(event, storeBar));
+                store.addMoney((*i).event(event, window));
             }
             store.event(event, storeBar, mouse, *this);
             switch (event.type) {
