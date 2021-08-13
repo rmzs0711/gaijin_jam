@@ -75,7 +75,7 @@ protected:
     sf::Vector2i size_frame;
     float health, damage, current_health, current_damage;
     sf::Texture character_texture, icon_texture;
-    sf::Sprite character, icon;  // icon position!
+    sf::Sprite character, icon;
     jam::Level &curLevel;
 
     TemplateCharacter(sf::RenderTarget &window,
@@ -258,7 +258,6 @@ public:
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
-    // makePirates
 
     static std::shared_ptr<Monster> makePirateCaptain(
         sf::RenderTarget &window,
@@ -275,7 +274,6 @@ public:
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
-    // makeUndead
 
     static std::shared_ptr<Monster> makeNecromancer(
         sf::RenderTarget &window,
@@ -360,4 +358,4 @@ public:
         jam::Level &level,
         sf::Vector2f position = sf::Vector2f(0, 0));
 };
-// makeHero
+

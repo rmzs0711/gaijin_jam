@@ -12,6 +12,7 @@
 #include "characters.h"
 #include "makeFreeObjects.h"
 #include "usefulFunctions.h"
+#include "button.h"
 
 namespace {}
 
@@ -78,7 +79,7 @@ struct Level {
     friend AttackBuilding;
     friend SupportBuilding;
 
-    explicit Level(const std::vector<std::vector<int>> &mapObjects);
+    explicit Level(sf::RenderWindow& window, const std::vector<std::vector<int>> &mapObjects);
 
     bool addHero(const std::shared_ptr<Hero> &hero);
 
@@ -115,6 +116,8 @@ private:
     std::list<FlyingObject> flyingObjects;
     sf::Clock clock1;
     std::vector<Home> home;
+
+    RectangleButton<void> menuGameButton;
 
     //skills
     std::vector<POWER_ELEMENT> elements;

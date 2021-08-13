@@ -1,10 +1,11 @@
-#include "characters.h"
-#include "Level.h"
-#include "makeAttackBuilding.h"
 #ifdef _MSC_VER
 #include "../include/Level.h"
 #include "../include/characters.h"
 #include "../include/makeAttackBuilding.h"
+#else
+#include "characters.h"
+#include "Level.h"
+#include "makeAttackBuilding.h"
 #endif
 
 bool TemplateCharacter::isCorrectMove() {
@@ -38,9 +39,11 @@ bool TemplateCharacter::isCorrectMove() {
             }
         }
     }
-    /////////////////////////////////////////////////////
-    for (auto &i : curLevel.home) {
-        if (i.getHitBox().intersects(hitBox)) {
+
+    for (auto& i : curLevel.home) {
+        if (i.getHitBox().intersects({ hitBox.left,
+                                           hitBox.top + hitBox.height / 2,
+                                           hitBox.width, hitBox.height / 2 })) {
             return false;
         }
     }
@@ -494,6 +497,7 @@ std::shared_ptr<Monster> Monster::makeArmouredRedDemon(
         70, 0.07, monster_path, level, 4, 5);
     (*monster).setScale(3, 3);
     (*monster).setSpeed(0.13);
+    (*monster).setPosition(-800, -800);
     return monster;
 }
 
@@ -507,6 +511,7 @@ std::shared_ptr<Monster> Monster::makeRedDemon(
         60, 0.07, monster_path, level, 3, 5);
     (*monster).setScale(3, 3);
     (*monster).setSpeed(0.15);
+    (*monster).setPosition(-800, -800);
     return monster;
 }
 
@@ -521,6 +526,7 @@ std::shared_ptr<Monster> Monster::makePurpleDemon(
         60, 0.07, monster_path, level, 3, 5);
     (*monster).setScale(3, 3);
     (*monster).setSpeed(0.15);
+    (*monster).setPosition(-800, -800);
     return monster;
 }
 
@@ -537,6 +543,7 @@ std::shared_ptr<Monster> Monster::makeMammoth(
         150, 0.18, monster_path, level, 20, 4);
     (*monster).setScale(4.3, 4.3);
     (*monster).setSpeed(0.1);
+    (*monster).setPosition(-800, -800);
     return monster;
 }
 
@@ -551,6 +558,7 @@ std::shared_ptr<Monster> Monster::makeWendigo(
         80, 0.12, monster_path, level, 8, 4);
     (*monster).setScale(4.3, 4.3);
     (*monster).setSpeed(0.12);
+    (*monster).setPosition(-800, -800);
     return monster;
 }
 
@@ -564,6 +572,7 @@ std::shared_ptr<Monster> Monster::makeYeti(
         70, 0.11, monster_path, level, 7, 5);
     (*monster).setScale(4.3, 4.3);
     (*monster).setSpeed(0.13);
+    (*monster).setPosition(-800, -800);
     return monster;
 }
 
@@ -580,6 +589,7 @@ std::shared_ptr<Monster> Monster::makeArcherGoblin(
         50, 0.05, monster_path, level, 2, 4);
     (*monster).setScale(2.5, 2.5);
     (*monster).setSpeed(0.17);
+    (*monster).setPosition(-800, -800);
     return monster;
 }
 
@@ -593,6 +603,7 @@ std::shared_ptr<Monster> Monster::makeClubGoblin(
         50, 0.05, monster_path, level, 2, 4);
     (*monster).setScale(2.5, 2.5);
     (*monster).setSpeed(0.17);
+    (*monster).setPosition(-800, -800);
     return monster;
 }
 
@@ -607,6 +618,7 @@ std::shared_ptr<Monster> Monster::makeFarmerGoblin(
         50, 0.05, monster_path, level, 2, 4);
     (*monster).setScale(2.5, 2.5);
     (*monster).setSpeed(0.17);
+    (*monster).setPosition(-800, -800);
     return monster;
 }
 
@@ -621,6 +633,7 @@ std::shared_ptr<Monster> Monster::makeKamikazeGoblin(
         50, 0.05, monster_path, level, 2, 5);
     (*monster).setScale(2.5, 2.5);
     (*monster).setSpeed(0.17);
+    (*monster).setPosition(-800, -800);
     return monster;
 }
 
@@ -633,6 +646,7 @@ std::shared_ptr<Monster> Monster::makeOrc(
         60, 0.11, monster_path, level, 5, 5);
     (*monster).setScale(2.5, 2.5);
     (*monster).setSpeed(0.15);
+    (*monster).setPosition(-800, -800);
     return monster;
 }
 
@@ -646,6 +660,7 @@ std::shared_ptr<Monster> Monster::makeOrcMage(
         0.12, monster_path, level, 6, 5);
     (*monster).setScale(2.5, 2.5);
     (*monster).setSpeed(0.15);
+    (*monster).setPosition(-800, -800);
     return monster;
 }
 
@@ -659,6 +674,7 @@ std::shared_ptr<Monster> Monster::makeOrcShaman(
         55, 0.12, monster_path, level, 6, 5);
     (*monster).setScale(2.5, 2.5);
     (*monster).setSpeed(0.15);
+    (*monster).setPosition(-800, -800);
     return monster;
 }
 
@@ -675,6 +691,7 @@ std::shared_ptr<Monster> Monster::makePirateCaptain(
         88, 0.15, monster_path, level, 9, 5);
     (*monster).setScale(3.8, 3.8);
     (*monster).setSpeed(0.15);
+    (*monster).setPosition(-800, -800);
     return monster;
 }
 
@@ -689,6 +706,7 @@ std::shared_ptr<Monster> Monster::makePirateGrunt(
         80, 0.12, monster_path, level, 8, 5);
     (*monster).setScale(3.8, 3.8);
     (*monster).setSpeed(0.15);
+    (*monster).setPosition(-800, -800);
     return monster;
 }
 
@@ -703,6 +721,7 @@ std::shared_ptr<Monster> Monster::makePirateGunnern(
         80, 0.12, monster_path, level, 8, 5);
     (*monster).setScale(3.8, 3.8);
     (*monster).setSpeed(0.15);
+    (*monster).setPosition(-800, -800);
     return monster;
 }
 
@@ -719,6 +738,7 @@ std::shared_ptr<Monster> Monster::makeNecromancer(
         65, 0.07, monster_path, level, 4, 5);
     (*monster).setScale(3, 3);
     (*monster).setSpeed(0.15);
+    (*monster).setPosition(-800, -800);
     return monster;
 }
 
@@ -733,6 +753,7 @@ std::shared_ptr<Monster> Monster::makeSkeletonSoldier(
         50, 0.05, monster_path, level, 2, 5);
     (*monster).setScale(3, 3);
     (*monster).setSpeed(0.17);
+    (*monster).setPosition(-800, -800);
     return monster;
 }
 

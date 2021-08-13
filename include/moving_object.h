@@ -41,7 +41,7 @@
             }
         }
 
-        void loadFromFile(const std::string& name_file_, sf::Vector2i size_object = sf::Vector2i(0, 0)) {
+        void loadFromFile(const std::string& name_file_, sf::IntRect rect = sf::IntRect(0, 0, 0, 0), sf::Vector2i size_object = sf::Vector2i(0, 0)) {
             name_file = name_file_;
             if (name_file == "") {
                 is_valid = false;
@@ -49,7 +49,7 @@
             }
             is_valid = true;
             object_texture.loadFromFile(name_file);
-            setTextureRect(sf::IntRect(0, 0, size_object.x, size_object.y));
+            setTextureRect(rect);
             setTexture(object_texture);
         }
 

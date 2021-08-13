@@ -10,6 +10,9 @@
 #include "moving_object.h"
 #include "usefulFunctions.h"
 #include "store.h"
+#include "menu.h"
+
+extern const sf::Vector2f sizeBaseButton;
 
 namespace jam {
 struct GameSession {
@@ -185,7 +188,7 @@ struct GameSession {
             }
         };
 
-        levels.emplace_back(firstLevel);
+        levels.emplace_back(window, firstLevel);
         std::vector<sf::Vector2f> monster_path;
         monster_path.emplace_back(200, 200);
         monster_path.emplace_back(220, 280);
@@ -195,24 +198,48 @@ struct GameSession {
         levels[0].monsterSetPosition({cellSize * 3, cellSize * 6});
         levels[0].monsterSetPosition({ cellSize * 6, cellSize * 2}, 1);
 
-        sf::Clock clock1;
-        std::vector<FlyingObject> flyingFireObjects;
-
-        sf::Vector2f mouse;
         while (window.isOpen()) {
             window.clear();
+            levels[0].draw(window);
+            window.display();
+        }
+    }
+
+    static void closeGame(sf::RenderWindow& window, std::function<void()> func) {
+        Menu close(window);
+        close.setSize({2 * sizeBaseButton.x + 200, 400});
+        sf::Texture texture;
+        texture.loadFromFile("data/images/dirt.png");
+        close.setBackground(&texture);
+        close.setPosition(window.mapPixelToCoords(sf::Vector2i(window.getSize())) / 2.f - close.getSize() / 2.f - 
+            sf::Vector2f(0, 70));
+
+        RectangleButton<void> leaveGameButton(func, "Leave the game");
+        leaveGameButton.setSize(sizeBaseButton);
+        leaveGameButton.setFillColor(sf::Color(74, 53, 27));
+        leaveGameButton.setPosition(window.mapPixelToCoords(sf::Vector2i(window.getSize())) / 2.f + sf::Vector2f(50, 0));
+        close.addButton(std::make_unique<RectangleButton<void>>(leaveGameButton));
+
+        bool f = true;
+        RectangleButton<void> notLeaveGameButton([&]() { f = false; }, "Don't leave the game");
+        notLeaveGameButton.setSize(sizeBaseButton);
+        notLeaveGameButton.setFillColor(sf::Color(74, 53, 27));
+        notLeaveGameButton.setPosition(window.mapPixelToCoords(sf::Vector2i(window.getSize())) / 2.f - 
+            sf::Vector2f(50 + sizeBaseButton.x, 0));
+        close.addButton(std::make_unique<RectangleButton<void>>(notLeaveGameButton));
+
+        while (window.isOpen() && f) {
             sf::Event event{};
             while (window.pollEvent(event)) {
-                switch (event.type) {
-                    case sf::Event::Closed:
-                        window.close();
-                        break;
-                    default:
-
-                        break;
+                if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
+                    for (auto& b : close.getButtons()) {
+                        if (b->isCorrectClick(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
+                            b->handleClick();
+                        }
+                    }
                 }
             }
-            levels[0].draw(window);
+            window.draw(close);
             window.display();
         }
     }

@@ -1,9 +1,9 @@
-
-#include <building.h>
-#include "Level.h"
 #ifdef _MSC_VER
 #include "../include/building.h"
 #include "../include/Level.h"
+#else
+#include "building.h"
+#include "Level.h"
 #endif
 
 float jam::FlyingObject::getDamage() const {

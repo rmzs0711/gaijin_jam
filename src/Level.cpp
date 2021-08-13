@@ -1,13 +1,18 @@
-
-#include <Level.h>
-#include <store.h>
-#include "makeAttackBuilding.h"
-
 #ifdef _MSC_VER
 #include "../include/Level.h"
 #include "../include/makeAttackBuilding.h"
+#include "../include/gameSession.h"
+#include "../include/game.h"
 #include "../include/store.h"
+#else
+#include <Level.h>
+#include <store.h>
+#include "makeAttackBuilding.h"
+#include "gameSession.h"
+#include "game.h"
 #endif
+
+extern const sf::Vector2f sizeBaseButton;
 
 namespace {}
 bool jam::Level::addHero(const std::shared_ptr<Hero> &hero) {
@@ -94,19 +99,12 @@ void jam::Level::heroSetScale(const sf::Vector2f &newScale, std::size_t i) {
     (*heroes[i]).setScale(newScale);
 }
 
-jam::Level::Level(const std::vector<std::vector<int>> &mapObjects)
-    : ability(FIRE_BLAST), elements(2, POWER_ELEMENT::FIRE) {
-    //    heroes.emplace_back(Hero::makeAssasinLime(*this, {100, 50}));
-    //    std::vector<sf::Vector2f> monster_path;
-    //    monster_path.emplace_back(200, 200);
-    //    monster_path.emplace_back(220, 280);
-    //    monster_path.emplace_back(260, 340);
-    //    auto weirdo = Monster::makeYeti(*this, monster_path);
-    //    weirdo->setPosition(340, 300);
-    //    monsters.emplace_back(weirdo);
-    //    weirdo = Monster::makePirateGunnern(*this, monster_path);
-    //    weirdo->setPosition(500, 500);
-    //    monsters.emplace_back(weirdo);
+jam::Level::Level(sf::RenderWindow& window, const std::vector<std::vector<int>>& mapObjects)
+    : ability(FIRE_BLAST), elements(2, POWER_ELEMENT::FIRE), menuGameButton([&]() { GameSession::closeGame(window, [&]() { jam::Game::startGame(window); }); }, "Menu") {
+
+    menuGameButton.setSize({ sizeBaseButton.x / 2, sizeBaseButton.y });
+    menuGameButton.setFillColor(sf::Color(74, 53, 27));
+    menuGameButton.setPosition({window.mapPixelToCoords(sf::Vector2i(window.getSize())).x - sizeBaseButton.x / 2 - 20, 20});
 
     freeObjects.insert(makeTree({200, 300}));
     map.resize(mapObjects.size());
@@ -117,8 +115,6 @@ jam::Level::Level(const std::vector<std::vector<int>> &mapObjects)
             map[i][j].setBackgroundType(mapObjects[i][j]);
         }
     }
-
-    //    attackBuildings.insert(makeArcherBuilding(*this, {4, 4}));
     attackBuildings.insert(makeArcherBuilding(*this, {4, 5}));
     attackBuildings.insert(makeWizardTower(*this, {6, 4}));
     attackBuildings.insert(makeSniperBuilding(*this, {6, 5}));
@@ -181,7 +177,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
                                                clock1.getElapsedTime());
             }
             for (auto &i : money) {
-                store.addMoney((*i).event(event, window));
+                store.addMoney((*i).event(event, storeBar));
             }
             store.event(event, storeBar, mouse, *this);
             switch (event.type) {
@@ -189,6 +185,12 @@ void jam::Level::draw(sf::RenderWindow &window) {
                     window.close();
                     break;
                 case sf::Event::MouseButtonPressed:
+                    if (event.mouseButton.button == sf::Mouse::Left) {
+                        if (menuGameButton.isCorrectClick(window.mapPixelToCoords({ event.mouseButton.x, event.mouseButton.y }))) {
+                            /////////////////////////////////////////////
+                            menuGameButton.handleClick();
+                        }
+                    }
                     if (!readyToCast) {
                         continue;
                     }

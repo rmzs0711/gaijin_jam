@@ -1,6 +1,7 @@
-#include "Cell.h"
 #ifdef _MSC_VER
 #include "../include/Cell.h"
+#else
+#include "Cell.h"
 #endif
 
 namespace jam {

@@ -1,7 +1,9 @@
-#include "makeFreeObjects.h"
 #ifdef _MSC_VER
 #include "../include/makeFreeObjects.h"
+#else
+#include "makeFreeObjects.h"
 #endif
+
 namespace jam {
 FreeObject makeEmptyObject(sf::Vector2f & pos) {
     FreeObject object(NONE);
