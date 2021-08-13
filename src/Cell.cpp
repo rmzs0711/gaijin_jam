@@ -90,7 +90,7 @@ void Cell::setState(const CellState &newState,
 sf::FloatRect Cell::getGlobalBounds() const {
     return background.getGlobalBounds();
 }
-void Cell::draw(sf::RenderWindow &window) {
+void Cell::draw(sf::RenderTarget &window) {
     window.draw(background);
 }
 

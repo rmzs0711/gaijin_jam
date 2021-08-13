@@ -40,7 +40,7 @@ public:
         return icon.getGlobalBounds().contains(mouse);
     }
 
-    int event(const sf::Event& event, sf::RenderWindow& window) {
+    int event(const sf::Event& event, sf::RenderTarget& window) {
         if (is_valid && event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left &&
             isCorrectClick(window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y)))) {
             is_valid = false;
@@ -104,6 +104,7 @@ struct Level {
 
     const std::vector<std::shared_ptr<TemplateCharacter>> &getHeroes() const;
     const std::vector<std::shared_ptr<TemplateCharacter>> &getMonsters() const;
+    const sf::Vector2f &getShift() const;
 
 private:
     std::vector<std::vector<Cell>> map;
@@ -126,5 +127,8 @@ private:
     //Random trees
     sf::Time treeCooldown = sf::seconds(10);
     sf::Time lastTreeTime = sf::Time::Zero;
+    sf::Vector2f shift = {0, 0};
+    //View
+    float viewMoveSpeed = 20;
 };
 }  // namespace jam

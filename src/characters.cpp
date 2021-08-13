@@ -1,6 +1,6 @@
 #ifdef _MSC_VER
-#include "../include/characters.h"
 #include "../include/Level.h"
+#include "../include/characters.h"
 #include "../include/makeAttackBuilding.h"
 #else
 #include "characters.h"
@@ -136,9 +136,9 @@ void Monster::changeState(int state_, float damage_) {
         int t = 0;
         while (!isCorrectMove() && t < 1000) {
             character.move(-dx, -dy);
-            state_ = (state_ +
-                static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
-                4;
+            state_ = (state_ + static_cast<int>(
+                                   clock.getElapsedTime().asMicroseconds())) %
+                     4;
             initializingCoordinates(dx, dy, state_);
             dx *= 2.5, dy *= 2.5;
             character.move(dx, dy);
@@ -179,7 +179,7 @@ void Monster::isEffected() {
             break;
     }
 }
-void Monster::drawCharacter(sf::RenderWindow &window) {
+void Monster::drawCharacter(sf::RenderTarget &window) {
     if (isDraw()) {
         if (isLive()) {
             if (state != STUNNED && state != FROZEN) {
@@ -203,13 +203,7 @@ void Monster::drawCharacter(sf::RenderWindow &window) {
             isEffected();
 
             window.draw(character);
-            life_bar.draw(
-                window, health,
-                character.getPosition() -
-                    sf::Vector2f(character.getScale().x *
-                                     window.mapPixelToCoords(size_frame).x / 2,
-                                 character.getScale().y *
-                                     window.mapPixelToCoords(size_frame).y));
+            life_bar.draw(window, health, character.getPosition());
         } else {
             curLevel.addMoney(Money::makeMoney(money, character.getPosition()));
             death();
@@ -280,7 +274,7 @@ void Hero::isFighting() {
     }
 }
 void Hero::clickMouse(const sf::Event &event,
-                      sf::RenderWindow &window,
+                      sf::RenderTarget &window,
                       const sf::Time &currentTime) {
     if (!is_always_move && event.mouseButton.button == sf::Mouse::Left) {
         if (isCorrectClick(window.mapPixelToCoords(
@@ -343,8 +337,8 @@ void Hero::changeState(int state_, float damage_) {
     while (!isCorrectMove() && t < 1000) {
         character.move(-dx, -dy);
         state_ = (state_ +
-            static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
-            4;
+                  static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
+                 4;
         initializingCoordinates(dx, dy, state_);
         dx *= 2.5, dy *= 2.5;
         character.move(dx, dy);
@@ -389,14 +383,14 @@ void Hero::setPosition(sf::Vector2f position_) {
     position = position_;
 }
 void Hero::event(const sf::Event &event,
-                 sf::RenderWindow &window,
+                 sf::RenderTarget &window,
                  const sf::Time &currentTime) {
     if (isLive()) {
         clickMouse(event, window, currentTime);
         return;
     }
 }
-void Hero::drawCharacter(sf::RenderWindow &window) {
+void Hero::drawCharacter(sf::RenderTarget &window) {
     if (isDraw()) {
         if (isLive()) {
             moveToPosition();
@@ -406,13 +400,7 @@ void Hero::drawCharacter(sf::RenderWindow &window) {
         window.draw(character);
         if (isLive()) {
             // life_bar.draw(window, current_health, character.getPosition());
-            life_bar.draw(
-                window, health,
-                character.getPosition() -
-                    sf::Vector2f(character.getScale().x *
-                                     window.mapPixelToCoords(size_frame).x / 2,
-                                 character.getScale().y *
-                                     window.mapPixelToCoords(size_frame).y));
+            life_bar.draw(window, health, character.getPosition());
         }
         if (isLive() && is_move) {
             icon.setPosition(character.getPosition() -
@@ -499,7 +487,7 @@ void TemplateCharacter::initializingCoordinates(float &dx,
 }
 
 std::shared_ptr<Monster> Monster::makeArmouredRedDemon(
-    sf::RenderWindow &window,
+    sf::RenderTarget &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
@@ -514,7 +502,7 @@ std::shared_ptr<Monster> Monster::makeArmouredRedDemon(
 }
 
 std::shared_ptr<Monster> Monster::makeRedDemon(
-    sf::RenderWindow &window,
+    sf::RenderTarget &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
@@ -528,7 +516,7 @@ std::shared_ptr<Monster> Monster::makeRedDemon(
 }
 
 std::shared_ptr<Monster> Monster::makePurpleDemon(
-    sf::RenderWindow &window,
+    sf::RenderTarget &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
@@ -545,7 +533,7 @@ std::shared_ptr<Monster> Monster::makePurpleDemon(
 // makeFrostborn
 
 std::shared_ptr<Monster> Monster::makeMammoth(
-    sf::RenderWindow &window,
+    sf::RenderTarget &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
@@ -560,7 +548,7 @@ std::shared_ptr<Monster> Monster::makeMammoth(
 }
 
 std::shared_ptr<Monster> Monster::makeWendigo(
-    sf::RenderWindow &window,
+    sf::RenderTarget &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
@@ -575,7 +563,7 @@ std::shared_ptr<Monster> Monster::makeWendigo(
 }
 
 std::shared_ptr<Monster> Monster::makeYeti(
-    sf::RenderWindow &window,
+    sf::RenderTarget &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
@@ -591,7 +579,7 @@ std::shared_ptr<Monster> Monster::makeYeti(
 // makeOrcs
 
 std::shared_ptr<Monster> Monster::makeArcherGoblin(
-    sf::RenderWindow &window,
+    sf::RenderTarget &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
@@ -606,7 +594,7 @@ std::shared_ptr<Monster> Monster::makeArcherGoblin(
 }
 
 std::shared_ptr<Monster> Monster::makeClubGoblin(
-    sf::RenderWindow &window,
+    sf::RenderTarget &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
@@ -620,7 +608,7 @@ std::shared_ptr<Monster> Monster::makeClubGoblin(
 }
 
 std::shared_ptr<Monster> Monster::makeFarmerGoblin(
-    sf::RenderWindow &window,
+    sf::RenderTarget &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
@@ -635,7 +623,7 @@ std::shared_ptr<Monster> Monster::makeFarmerGoblin(
 }
 
 std::shared_ptr<Monster> Monster::makeKamikazeGoblin(
-    sf::RenderWindow &window,
+    sf::RenderTarget &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
@@ -650,7 +638,7 @@ std::shared_ptr<Monster> Monster::makeKamikazeGoblin(
 }
 
 std::shared_ptr<Monster> Monster::makeOrc(
-    sf::RenderWindow &window,
+    sf::RenderTarget &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
@@ -663,7 +651,7 @@ std::shared_ptr<Monster> Monster::makeOrc(
 }
 
 std::shared_ptr<Monster> Monster::makeOrcMage(
-    sf::RenderWindow &window,
+    sf::RenderTarget &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
@@ -677,7 +665,7 @@ std::shared_ptr<Monster> Monster::makeOrcMage(
 }
 
 std::shared_ptr<Monster> Monster::makeOrcShaman(
-    sf::RenderWindow &window,
+    sf::RenderTarget &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
@@ -693,7 +681,7 @@ std::shared_ptr<Monster> Monster::makeOrcShaman(
 // makePirates
 
 std::shared_ptr<Monster> Monster::makePirateCaptain(
-    sf::RenderWindow &window,
+    sf::RenderTarget &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
@@ -708,7 +696,7 @@ std::shared_ptr<Monster> Monster::makePirateCaptain(
 }
 
 std::shared_ptr<Monster> Monster::makePirateGrunt(
-    sf::RenderWindow &window,
+    sf::RenderTarget &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
@@ -723,7 +711,7 @@ std::shared_ptr<Monster> Monster::makePirateGrunt(
 }
 
 std::shared_ptr<Monster> Monster::makePirateGunnern(
-    sf::RenderWindow &window,
+    sf::RenderTarget &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
@@ -740,7 +728,7 @@ std::shared_ptr<Monster> Monster::makePirateGunnern(
 // makeUndead
 
 std::shared_ptr<Monster> Monster::makeNecromancer(
-    sf::RenderWindow &window,
+    sf::RenderTarget &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
@@ -755,7 +743,7 @@ std::shared_ptr<Monster> Monster::makeNecromancer(
 }
 
 std::shared_ptr<Monster> Monster::makeSkeletonSoldier(
-    sf::RenderWindow &window,
+    sf::RenderTarget &window,
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
@@ -771,7 +759,7 @@ std::shared_ptr<Monster> Monster::makeSkeletonSoldier(
 
 // makeHero
 
-std::shared_ptr<Hero> Hero::makeAssasinPurple(sf::RenderWindow &window,
+std::shared_ptr<Hero> Hero::makeAssasinPurple(sf::RenderTarget &window,
                                               jam::Level &level,
                                               sf::Vector2f position) {
     std::shared_ptr<Hero> monster = std::make_shared<Hero>(
@@ -785,7 +773,7 @@ std::shared_ptr<Hero> Hero::makeAssasinPurple(sf::RenderWindow &window,
     return monster;
 }
 
-std::shared_ptr<Hero> Hero::makeAssasinLime(sf::RenderWindow &window,
+std::shared_ptr<Hero> Hero::makeAssasinLime(sf::RenderTarget &window,
                                             jam::Level &level,
                                             sf::Vector2f position) {
     std::shared_ptr<Hero> monster = std::make_shared<Hero>(
@@ -799,7 +787,7 @@ std::shared_ptr<Hero> Hero::makeAssasinLime(sf::RenderWindow &window,
     return monster;
 }
 
-std::shared_ptr<Hero> Hero::makeAssasinCyan(sf::RenderWindow &window,
+std::shared_ptr<Hero> Hero::makeAssasinCyan(sf::RenderTarget &window,
                                             jam::Level &level,
                                             sf::Vector2f position) {
     std::shared_ptr<Hero> monster = std::make_shared<Hero>(
@@ -813,7 +801,7 @@ std::shared_ptr<Hero> Hero::makeAssasinCyan(sf::RenderWindow &window,
     return monster;
 }
 
-std::shared_ptr<Hero> Hero::makeAssasinRed(sf::RenderWindow &window,
+std::shared_ptr<Hero> Hero::makeAssasinRed(sf::RenderTarget &window,
                                            jam::Level &level,
                                            sf::Vector2f position) {
     std::shared_ptr<Hero> monster = std::make_shared<Hero>(

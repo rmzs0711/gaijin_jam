@@ -120,7 +120,7 @@ inline const int cellSize = 128;
 inline std::vector<sf::Texture *> texturePtrs;
 inline std::vector<sf::Time> stateDurations;
 
-inline sf::Vector2i toMapPosition(sf::RenderWindow& window, sf::Vector2f position) {
+inline sf::Vector2i toMapPosition(sf::RenderTarget& window, sf::Vector2f position) {
     int x = window.mapCoordsToPixel(position).x;
     int y = window.mapCoordsToPixel(position).y;
     x = ((x - (x % cellSize)) / cellSize);
@@ -134,7 +134,6 @@ public:
     void setState(const CellState &newState,
                   const sf::Time &newStateStartTime = sf::Time());
     sf::FloatRect getGlobalBounds() const;
-    void draw(sf::RenderWindow &window);
 
     void setPosInMap(const sf::Vector2i &position);
 
@@ -148,6 +147,7 @@ public:
     void setCurrentFrame(sf::Vector2i newCurrentFrame);
     const sf::Vector2i &getNumberOfFrames() const;
     void setNumberOfFrames(const sf::Vector2i &newNumberOfFrames);
+    void draw(sf::RenderTarget &window);
 
 private:
     sf::Time stateStartTime;
