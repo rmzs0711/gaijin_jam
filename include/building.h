@@ -39,8 +39,8 @@ protected:
     Level &level;
 
     sf::Texture buildingTexture;
-
 public:
+    const sf::Sprite &getBuilding() const;
     explicit Building(Level &level_);
     const sf::FloatRect &getHitBox() const;
     const sf::Texture &getBuildingTexture() const;
@@ -52,7 +52,7 @@ public:
     const sf::Vector2i &getPosInMap() const;
     void setPosInMap(const sf::Vector2i &newPosInMap);
     void setTextureRect(const sf::IntRect &newRect);
-    void draw(sf::RenderWindow &window) const;
+    virtual void draw(sf::RenderWindow &window) const;
     virtual ~Building() = default;
     bool operator<(const jam::Building &rhs) const;
     sf::Sprite* getSprite();
@@ -60,11 +60,25 @@ public:
 private:
 };
 
+struct AttackBuilding;
+struct AttackBuildingAnimatedObject {
+    void updateFrame(float) const;
+    void draw(sf::RenderWindow& window) const;
+    void loadTexture(const std::string&);
+
+    mutable sf::Sprite object;
+    sf::Vector2f pos;
+    sf::Texture texture;
+    std::vector<sf::IntRect> frames;
+    mutable int curFrame = 0;
+};
+
 struct AttackBuilding : Building {
-protected:
+    friend AttackBuildingAnimatedObject;
+    AttackBuildingAnimatedObject attackBuildingAnimatedObject;
 public:
-    explicit AttackBuilding(Level &level_)
-        : Building(level_) {}
+    void draw(sf::RenderWindow& window) const override;
+    explicit AttackBuilding(Level &level_);
     const sf::Time &getAttackCooldown() const;
     void setAttackCooldown(const sf::Time &newAttackCooldown);
     float getAttackRange() const;

@@ -1,6 +1,10 @@
-
+#ifdef _MSC_VER
 #include "../include/building.h"
 #include "../include/Level.h"
+#else
+#include "building.h"
+#include "Level.h"
+#endif
 
 float jam::FlyingObject::getDamage() const {
     return damage;
@@ -119,24 +123,35 @@ bool jam::Building::operator<(const jam::Building &rhs) const {
     }
     return false;
 }
+const sf::Sprite &jam::Building::getBuilding() const {
+    return building;
+}
 void jam::AttackBuilding::attack(const sf::Time &currentTime) const {
     if (currentTime - lastAttackTime < attackCooldown) {
+        float coef =
+            (currentTime - lastAttackTime) % attackCooldown / attackCooldown;
+        attackBuildingAnimatedObject.updateFrame(coef);
         return;
     }
+    bool found = false;
     for (auto &i : level.monsters) {
         if (quadraticDist(building.getPosition(),
                           i->getSprite()->getPosition()) <
-            getAttackRange() * getAttackRange() && i->isLive()) {
+                getAttackRange() * getAttackRange() &&
+            i->isLive()) {
             flyingObject.setTexture(flyingObjectTexture);
             flyingObject.setPosition(
                 building.getGlobalBounds().left + firePosition.x,
                 building.getGlobalBounds().top + firePosition.y);
             flyingObject.setTargetPtr(i);
             level.flyingObjects.push_back(flyingObject);
+            found = true;
             break;
         }
     }
-    lastAttackTime = currentTime;
+    if (found) {
+        lastAttackTime = currentTime;
+    }
 }
 const sf::Time &jam::AttackBuilding::getAttackCooldown() const {
     return attackCooldown;
@@ -165,6 +180,25 @@ const sf::Vector2f &jam::AttackBuilding::getFirePosition() const {
 void jam::AttackBuilding::setFlyingObject(
     const jam::FlyingObject &flyingObject_) {
     AttackBuilding::flyingObject = flyingObject_;
+}
+jam::AttackBuilding::AttackBuilding(jam::Level &level_) : Building(level_) {}
+void jam::AttackBuilding::draw(sf::RenderWindow &window) const {
+    Building::draw(window);
+    attackBuildingAnimatedObject.draw(window);
+}
+
+void jam::AttackBuildingAnimatedObject::draw(sf::RenderWindow &window) const {
+    object.setTexture(texture);
+    object.setTextureRect(frames[curFrame]);
+    window.draw(object);
+}
+
+void jam::AttackBuildingAnimatedObject::updateFrame(float coef) const {
+    assert(!frames.empty());
+    curFrame = static_cast<int>((float)frames.size() * coef);
+}
+void jam::AttackBuildingAnimatedObject::loadTexture(const std::string &path) {
+    checkLoad(texture, path);
 }
 
 bool jam::Home::isEndGame() const {

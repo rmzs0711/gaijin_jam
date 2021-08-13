@@ -1,4 +1,8 @@
+#ifdef _MSC_VER
 #include "../include/Cell.h"
+#else
+#include "Cell.h"
+#endif
 
 namespace jam {
 
@@ -8,16 +12,15 @@ void Cell::setBackgroundType(int newBackgroundType) {
     setState(NORMAL);
 }
 void Cell::setState(const CellState &newState,
-              const sf::Time &newStateStartTime) {
+                    const sf::Time &newStateStartTime) {
     stateStartTime = newStateStartTime;
     switch (stateType) {
         case NORMAL:
             break;
-
         case WALL:
         case LAVA:
         case BLAST:
-            prevBackground = DEAD_GRASS;
+            prevBackground = prevBackground == ROAD ? ROAD : DEAD_GRASS;
             break;
         case EARTHSHAKE:
         case FROZEN_BLAST:
@@ -38,6 +41,9 @@ void Cell::setState(const CellState &newState,
             break;
         case LAVA:
             background.setTexture(*texturePtrs[LAVA_FLOOR]);
+            if (prevBackground == ROAD || backgroundType == ROAD) {
+                prevBackground = ROAD;
+            }
             backgroundType = LAVA_FLOOR;
             break;
         case FROZEN_BLAST:
@@ -45,6 +51,7 @@ void Cell::setState(const CellState &newState,
                 case LAVA:
                 case BLAST:
                     prevBackground =
+                        prevBackground == ROAD ? ROAD :
                         (rand() % 2 ? DARK_GREEN_GRASS : LIGHT_GREEN_GRASS);
                     break;
                 default:
@@ -55,6 +62,9 @@ void Cell::setState(const CellState &newState,
             backgroundType = FROZEN_GRASS;
             break;
         case BLAST:
+            if (prevBackground == ROAD) {
+                break;
+            }
             prevBackground = DEAD_GRASS;
             background.setTexture(*texturePtrs[DEAD_GRASS]);
             backgroundType = DEAD_GRASS;
@@ -156,8 +166,8 @@ const Object &FreeObject::getObjectType() const {
 void FreeObject::setScale(const sf::Vector2f &newScale) {
     object.setScale(newScale);
 }
-FreeObject::FreeObject(const Object &newObjectType) : objectType
-      (newObjectType){
+FreeObject::FreeObject(const Object &newObjectType)
+    : objectType(newObjectType) {
     object.setTexture(*texturePtrs[objectType]);
     setPosition({-1, -1});
     setNumberOfFrames(texturesNumberOfFrames[objectType]);
@@ -178,8 +188,7 @@ const sf::Sprite &FreeObject::getSprite() const {
 }
 void FreeObject::updateAnimation() const {
     if (isAnime) {
-        setCurrentFrame(
-            {rand() % numberOfFrames.x, rand() % numberOfFrames.y});
+        setCurrentFrame({rand() % numberOfFrames.x, rand() % numberOfFrames.y});
     }
 }
 void FreeObject::changeObjectType(const Object &newObjectType) const {
@@ -212,8 +221,7 @@ const sf::Vector2i &FreeObject::getCurrentFrame() const {
 }
 void FreeObject::setCurrentFrame(const sf::Vector2i &newCurrentFrame) const {
     FreeObject::currentFrame = newCurrentFrame;
-    object.setTextureRect(
-        {{currentFrame * assetCellSize.x}, assetCellSize});
+    object.setTextureRect({{currentFrame * assetCellSize.x}, assetCellSize});
 }
 const sf::Vector2i &FreeObject::getNumberOfFrames() const {
     return numberOfFrames;

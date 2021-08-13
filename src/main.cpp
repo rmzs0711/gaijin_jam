@@ -1,26 +1,56 @@
-#include "../include/button.h"
-#include "../include/gameSession.h"
-#include "../include/menu.h"
+#ifdef _MSC_VER
+#include "include/button.h"
+#include "include/gameSession.h"
+#include "include/menu.h"
+#else
+#include "button.h"
+#include "gameSession.h"
+#include "menu.h"
+#endif
+
+const sf::Vector2f sizeBaseButton = {390, 80};
+
+inline std::unique_ptr<RectangleButton<void>> makeButton(sf::RenderWindow &window, jam::GameSession &game, std::string type, sf::Vector2f position) {
+    if (type == "start") {
+        RectangleButton<void> startGameButton([&]() { game.startGame(window); }, "Start a new game");
+        startGameButton.setSize(sizeBaseButton);
+        startGameButton.setFillColor(sf::Color(74, 53, 27));
+        startGameButton.setPosition(window.mapPixelToCoords(sf::Vector2i(window.getSize())).x 
+            / 2 - startGameButton.getSize().x / 2, position.y);
+        return std::make_unique<RectangleButton<void>>(startGameButton);
+    }
+    else if (type == "close") {
+        RectangleButton<void> startGameButton([&]() { game.closeGame(window); }, "Get out of the game");
+        startGameButton.setSize(sizeBaseButton);
+        startGameButton.setFillColor(sf::Color(74, 53, 27));
+        startGameButton.setPosition(window.mapPixelToCoords(sf::Vector2i(window.getSize())).x
+            / 2 - startGameButton.getSize().x / 2, position.y);
+        return std::make_unique<RectangleButton<void>>(startGameButton);
+    }
+
+    assert(false);
+}
+
+float indent(int number) {
+    if (number == 1) {
+        return 200;
+    }
+    if (number == 2) {
+        return 200 + sizeBaseButton.y + 50;
+    }
+    return sizeBaseButton.y + 50 + indent(number - 1);
+}
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(1920, 1080), "SFML works!");
+    sf::RenderWindow window(sf::VideoMode(1920, 1080), "SFML works!", sf::Style::Fullscreen);
     jam::GameSession game;
-    RectangleButton<void> startGameButton([&]() { game.startGame(window); });
-    startGameButton.setSize({100.f, 50.f});
-    startGameButton.setFillColor(sf::Color::Blue);
-    startGameButton.setPosition(0, 100);
-
-    std::vector<std::unique_ptr<Button<void>>> mainMenuButtons;
-    mainMenuButtons.push_back(
-        std::move(std::make_unique<RectangleButton<void>>(startGameButton)));
-
-    Menu mainMenu;
-    mainMenu.setSize(sf::Vector2f(window.getSize()));
-    mainMenu.setColor(sf::Color::Yellow);
-    mainMenu.setButtons(mainMenuButtons);
+    Menu mainMenu(window);
+    mainMenu.addButton(makeButton(window, game, "start", sf::Vector2f(0, indent(1))));
+    mainMenu.addButton(makeButton(window, game, "close", sf::Vector2f(0, indent(2))));
 
     while (window.isOpen()) {
         sf::Event event{};
+
         while (window.pollEvent(event)) {
             switch (event.type) {
                 case sf::Event::Closed:

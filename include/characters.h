@@ -69,7 +69,7 @@ protected:
     sf::Vector2i size_frame;
     float health, damage, current_health, current_damage;
     sf::Texture character_texture, icon_texture;
-    sf::Sprite character, icon; // icon position!
+    sf::Sprite character, icon;
     jam::Level &curLevel;
 
     TemplateCharacter(sf::RenderWindow& window, const std::string &file_name,
@@ -190,8 +190,6 @@ public:
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
-    // makeFrostborn
-
     static std::shared_ptr<Monster> makeMammoth(sf::RenderWindow& window, jam::Level &level,
                                          std::vector<sf::Vector2f> &monster_path);
 
@@ -227,8 +225,6 @@ public:
     static std::shared_ptr<Monster> makeOrcShaman(sf::RenderWindow& window, jam::Level &level,
                                            std::vector<sf::Vector2f> &monster_path);
 
-    // makePirates
-
     static std::shared_ptr<Monster> makePirateCaptain(sf::RenderWindow& window,
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
@@ -240,8 +236,6 @@ public:
     static std::shared_ptr<Monster> makePirateGunnern(sf::RenderWindow& window,
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
-
-    // makeUndead
 
     static std::shared_ptr<Monster> makeNecromancer(sf::RenderWindow& window,
         jam::Level &level,
@@ -322,6 +316,3 @@ public:
                                                                               0));
 
 };
-// makeHero
-
-

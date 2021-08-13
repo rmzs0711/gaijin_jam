@@ -65,6 +65,13 @@ public:
 		cost.setMoney(cost_);
 	}
 
+	void setTextureRect(int left, int top) {
+		product.setTextureRect(sf::IntRect(left, top, size_product.x, size_product.y));
+	}
+
+	sf::IntRect getTextureRect() {
+		return product.getTextureRect();
+	}
 
 	int getCost() const {
 		return cost.getMoney();
@@ -157,14 +164,19 @@ public:
 		base.setPosition(sf::Vector2f(0, window.mapPixelToCoords(sf::Vector2i(window.getSize())).y * 6.4 / 7.4));
 
 		products.push_back(std::make_unique<Product>(window, 15, "data/images/MiniWorldSprites/Characters/Soldiers/Melee/PurpleMelee/AssasinPurple.png"));
-		(*products[0]).move(base.getPosition() + sf::Vector2f(20, 12));
+		products[0]->move(base.getPosition() + sf::Vector2f(20, 15));
 		products.push_back(std::make_unique<Product>(window, 20, "data/images/MiniWorldSprites/Characters/Soldiers/Melee/LimeMelee/AssasinLime.png"));
 		products.push_back(std::make_unique<Product>(window, 25, "data/images/MiniWorldSprites/Characters/Soldiers/Melee/CyanMelee/AssasinCyan.png"));
 		products.push_back(std::make_unique<Product>(window, 30, "data/images/MiniWorldSprites/Characters/Soldiers/Melee/RedMelee/AssasinRed.png"));
-		products.push_back(std::make_unique<Product>(window, 50, "data/images/MiniWorldSprites/Buildings/Lime/LimeTower.png"));
-		
+		products.push_back(std::make_unique<Product>(window, 150, "data/images/MiniWorldSprites/Buildings/Lime/LimeTower.png"));
+		products[products.size() - 1]->setTextureRect(0, 16);
+		products.push_back(std::make_unique<Product>(window, 150, "data/images/MiniWorldSprites/Buildings/Red/RedTower.png"));
+		products[products.size() - 1]->setTextureRect(0, 16);
+		products.push_back(std::make_unique<Product>(window, 150, "data/images/MiniWorldSprites/Buildings/Cyan/CyanTower.png"));
+		products[products.size() - 1]->setTextureRect(0, 16);
+
 		for (int i = 1; i < products.size(); i++) {
-			(*products[i]).move((*products[i - 1]).getPosition() + sf::Vector2f(40, 0));
+			products[i]->move(products[i - 1]->getPosition() + sf::Vector2f(50, 0));
 		}
 		money.move(sf::Vector2f(10, 10));
 	}
@@ -175,11 +187,10 @@ public:
 				for (int i = 0; i < products.size(); i++) {
 					if ((*products[i]).isCorrectClick(window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y)))) {
 						if (money.getMoney() >= (*products[i]).getCost()) {
-							move_product.loadFromFile((*products[i]).getFile(), (*products[i]).getSizeProduct());
+							move_product.loadFromFile((*products[i]).getFile(), (*products[i]).getTextureRect(), (*products[i]).getSizeProduct());
 							move_product.setPosition((*products[i]).getPosition() - sf::Vector2f(16 * 4.5, 0));
 							move_product.setScale(4.5, 4.5);
 							move_product.click_mouse_left(window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y)), mouse);
-							//money.changeMoney(-(*products[i]).getCost());
 							cost = (*products[i]).getCost();
 						}
 						else {
@@ -212,6 +223,12 @@ public:
 			}
 			else if (file == "data/images/MiniWorldSprites/Buildings/Lime/LimeTower.png") {
 				add(level.addAttackBuilding(makeArcherBuilding(level, jam::toMapPosition(window, move_product.getPosition()))));
+			}
+			else if (file == "data/images/MiniWorldSprites/Buildings/Red/RedTower.png") {
+				add(level.addAttackBuilding(makeSniperBuilding(level, jam::toMapPosition(window, move_product.getPosition()))));
+			}
+			else if (file == "data/images/MiniWorldSprites/Buildings/Cyan/CyanTower.png") {
+				add(level.addAttackBuilding(makeWizardTower(level, jam::toMapPosition(window, move_product.getPosition()))));
 			}
 			move_product.loadFromFile("");
 		}

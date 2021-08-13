@@ -109,20 +109,20 @@ struct RectangleButton : Button<T>, sf::RectangleShape {
     }
     void drawButton(sf::RenderTarget &target) override {
         CentralisedText text;
-        text.setString("go");
+        text.setString(Button<T>::getString());
         text.setCharacterSize(Button<T>::getTextSize());
         text.centralise();
         text.setPosition(getPosition() + getSize() / 2.f);
-        target.draw(text);
         target.draw(*this);
-        auto hitBox = getGlobalBounds();
-        if (hitBox.contains(
+        if (getGlobalBounds().contains(
                 target.mapPixelToCoords(sf::Mouse::getPosition()))) {
             auto texture = getTexture();
             setTexture(Button<T>::getClickableTexture());
             target.draw(*this);
             setTexture(texture);
+            text.setFillColor(sf::Color::Red);
         }
+        target.draw(text);
     }
 
 private:

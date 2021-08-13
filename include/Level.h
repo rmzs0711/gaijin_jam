@@ -12,6 +12,7 @@
 #include "characters.h"
 #include "makeFreeObjects.h"
 #include "usefulFunctions.h"
+#include "button.h"
 
 namespace {}
 
@@ -78,13 +79,13 @@ struct Level {
     friend AttackBuilding;
     friend SupportBuilding;
 
-    explicit Level(const std::vector<std::vector<int>> &mapObjects);
+    explicit Level(sf::RenderWindow& window, const std::vector<std::vector<int>> &mapObjects);
 
     bool addHero(const std::shared_ptr<Hero> &hero);
 
     bool addMonster(const std::shared_ptr<Monster>& monster);
     void addMoney(const std::shared_ptr<Money>& money_);
-   
+
     bool addAttackBuilding(AttackBuilding building);
 
     void heroSetPosition(const sf::Vector2f &newPos, std::size_t i = 0);
@@ -115,10 +116,15 @@ private:
     sf::Clock clock1;
     std::vector<Home> home;
 
+    RectangleButton<void> menuGameButton;
+
     //skills
     std::vector<POWER_ELEMENT> elements;
     ABILITY ability;
     bool readyToCast = false;
 
+    //Random trees
+    sf::Time treeCooldown = sf::seconds(10);
+    sf::Time lastTreeTime = sf::Time::Zero;
 };
 }  // namespace jam
