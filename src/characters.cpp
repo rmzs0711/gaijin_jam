@@ -39,7 +39,7 @@ bool TemplateCharacter::isCorrectMove() {
             }
         }
     }
-    
+
     for (auto& i : curLevel.home) {
         if (i.getHitBox().intersects({ hitBox.left,
                                            hitBox.top + hitBox.height / 2,

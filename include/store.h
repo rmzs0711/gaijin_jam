@@ -62,15 +62,27 @@ private:
     AmountMoney cost;
 
 public:
-	Product(sf::RenderTarget &window, int cost_, std::string file_name_product, sf::Vector2i size_product_ = sf::Vector2i(16, 16)) : cost(window), name_file(file_name_product), size_product(size_product_) {
-		texture_product.loadFromFile(file_name_product);
-		product.setTexture(texture_product);
-		product.setTextureRect(sf::IntRect(0, 0, size_product.x, size_product.y));
-		product.setScale(4.5, 4.5);
-		cost.move(window.mapPixelToCoords(sf::Vector2i(0, size_product.y * 4.5)) + sf::Vector2f(0, 5));
-		cost.setMoney(cost_);
-	}
+    Product(sf::RenderTarget &window,
+            int cost_,
+            std::string file_name_product,
+            sf::Vector2i size_product_ = sf::Vector2i(16, 16))
+        : cost(window),
+          name_file(file_name_product),
+          size_product(size_product_) {
+        texture_product.loadFromFile(file_name_product);
+        product.setTexture(texture_product);
+        product.setTextureRect(
+            sf::IntRect(0, 0, size_product.x, size_product.y));
+        product.setScale(4.5, 4.5);
+        cost.move(
+            window.mapPixelToCoords(sf::Vector2i(0, size_product.y * 4.5)) +
+            sf::Vector2f(0, 5));
+        cost.setMoney(cost_);
+    }
 
+    int getCost() const {
+        return cost.getMoney();
+    }
 	void setTextureRect(int left, int top) {
 		product.setTextureRect(sf::IntRect(left, top, size_product.x, size_product.y));
 	}
@@ -79,39 +91,37 @@ public:
 		return product.getTextureRect();
 	}
 
-	int getCost() const {
-		return cost.getMoney();
-	}
 
-	sf::Texture* getTexture() {
-		return &texture_product;
-	}
 
-	sf::Vector2f getPosition() const {
-		return product.getPosition() + sf::Vector2f(16 * 4.5, 0);
-	}
+    sf::Texture *getTexture() {
+        return &texture_product;
+    }
 
-	void move(sf::Vector2f position_) {
-		product.move(position_);
-		cost.move(position_);
-	}
+    sf::Vector2f getPosition() const {
+        return product.getPosition() + sf::Vector2f(16 * 4.5, 0);
+    }
 
-	std::string getFile() {
-		return name_file;
-	}
+    void move(sf::Vector2f position_) {
+        product.move(position_);
+        cost.move(position_);
+    }
 
-	sf::Vector2i getSizeProduct() {
-		return size_product;
-	}
+    std::string getFile() {
+        return name_file;
+    }
 
-	void drawProduct(sf::RenderWindow& window) {
-		window.draw(product);
-		cost.draw(window);
-	}
+    sf::Vector2i getSizeProduct() {
+        return size_product;
+    }
 
-	bool isCorrectClick(const sf::Vector2f& mouse) {
-		return product.getGlobalBounds().contains(mouse);
-	}
+    void drawProduct(sf::RenderTarget &window) {
+        window.draw(product);
+        cost.draw(window);
+    }
+
+    bool isCorrectClick(const sf::Vector2f &mouse) {
+        return product.getGlobalBounds().contains(mouse);
+    }
 };
 
 struct Message {
@@ -322,7 +332,7 @@ public:
 						break;
 					}
 				}
-			} 
+			}
 			else {
 				move_product.click_mouse_left(window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y)), mouse);
 			}
@@ -357,17 +367,17 @@ public:
 		}
 	}
 
-	void addMoney(int money_) {
-		money.changeMoney(money_);
-	}
+    void addMoney(int money_) {
+        money.changeMoney(money_);
+    }
 
-	void drawStore(sf::RenderWindow& window) {
-		window.draw(base);
-		for (auto &i : products) {
-			(*i).drawProduct(window);
-		}
-		move_product.draw(window);
-		money.draw(window);
-		message.draw(window);
-	}
+    void drawStore(sf::RenderTarget &window) {
+        window.draw(base);
+        for (auto &i : products) {
+            (*i).drawProduct(window);
+        }
+        move_product.draw(window);
+        money.draw(window);
+        message.draw(window);
+    }
 };

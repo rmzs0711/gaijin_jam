@@ -125,7 +125,7 @@ private:
     bool readyToCast = false;
 
     //Random trees
-    sf::Time treeCooldown = sf::seconds(10);
+    sf::Time treeCooldown = sf::seconds(5);
     sf::Time lastTreeTime = sf::Time::Zero;
     sf::Vector2f shift = {0, 0};
     //View

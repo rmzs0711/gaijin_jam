@@ -5,7 +5,8 @@
 #include <string>
 #include <iostream>
 
-inline int bounds(const int& x, const int& down, const int& up) {
+template<typename T>
+inline T bounds(const T& x, const T& down, const T& up) {
     return std::min(std::max(x, down), up - 1);
 }
 

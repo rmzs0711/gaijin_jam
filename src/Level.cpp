@@ -36,36 +36,35 @@ bool jam::Level::addAttackBuilding(AttackBuilding building) {
         auto start = freeObjects.lower_bound(
             jam::makeTree({hitBox.left, hitBox.top - jam::cellSize}));
         auto end = freeObjects.upper_bound(
-            jam::makeTree({ hitBox.left, hitBox.top + jam::cellSize }));
-        for (auto& i = start; i != end; i++) {
-            if (i->getHitBox().intersects({ hitBox.left,
-                                            hitBox.top + hitBox.height / 2,
-                                            hitBox.width, hitBox.height / 2 })) {
+            jam::makeTree({hitBox.left, hitBox.top + jam::cellSize}));
+        for (auto &i = start; i != end; i++) {
+            if (i->getHitBox().intersects({hitBox.left,
+                                           hitBox.top + hitBox.height / 2,
+                                           hitBox.width, hitBox.height / 2})) {
                 return false;
             }
         }
     }
     {
-        auto start =
-            attackBuildings.lower_bound(jam::makeEmptyBuilding(
-                *this, sf::Vector2i{ (int)hitBox.left / jam::cellSize - 1,
-                                     (int)hitBox.top / jam::cellSize - 1 }));
+        auto start = attackBuildings.lower_bound(jam::makeEmptyBuilding(
+            *this, sf::Vector2i{(int)hitBox.left / jam::cellSize - 1,
+                                (int)hitBox.top / jam::cellSize - 1}));
         auto end = attackBuildings.upper_bound(jam::makeEmptyBuilding(
             *this, sf::Vector2i((int)hitBox.left / jam::cellSize + 1,
                                 (int)hitBox.top / jam::cellSize + 1)));
-        for (auto& i = start; i != end; i++) {
-            if (i->getHitBox().intersects({ hitBox.left,
-                                            hitBox.top + hitBox.height / 2,
-                                            hitBox.width, hitBox.height / 2 })) {
+        for (auto &i = start; i != end; i++) {
+            if (i->getHitBox().intersects({hitBox.left,
+                                           hitBox.top + hitBox.height / 2,
+                                           hitBox.width, hitBox.height / 2})) {
                 return false;
             }
         }
     }
 
-    for (auto& i : home) {
-        if (i.getHitBox().intersects({ hitBox.left,
-                                       hitBox.top + hitBox.height / 2,
-                                       hitBox.width, hitBox.height / 2 })) {
+    for (auto &i : home) {
+        if (i.getHitBox().intersects({hitBox.left,
+                                      hitBox.top + hitBox.height / 2,
+                                      hitBox.width, hitBox.height / 2})) {
             return false;
         }
     }
@@ -106,7 +105,7 @@ jam::Level::Level(sf::RenderWindow& window, const std::vector<std::vector<int>>&
     menuGameButton.setSize({ sizeBaseButton.x / 2, sizeBaseButton.y });
     menuGameButton.setFillColor(sf::Color(74, 53, 27));
     menuGameButton.setPosition({window.mapPixelToCoords(sf::Vector2i(window.getSize())).x - sizeBaseButton.x / 2 - 20, 20});
-    
+
     freeObjects.insert(makeTree({200, 300}));
     map.resize(mapObjects.size());
     for (int i = 0; i < mapObjects.size(); i++) {
@@ -144,7 +143,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
     sf::View miniMapView({0, 0, (float)(map[0].size() * cellSize),
                           (float)(map.size() * cellSize)});
 
-    miniMapView.setViewport({0.75, 0, 0.25, 0.25});
+    miniMapView.setViewport({0.74, 0.60, 0.25, 0.25});
 
     sf::RenderTexture minimap;
     //    minimap.clear(sf::Color::Transparent);
@@ -170,173 +169,6 @@ void jam::Level::draw(sf::RenderWindow &window) {
     while (window.isOpen()) {
         window.clear();
         storeBar.clear(sf::Color::Transparent);
-
-        for (auto& i : map) {
-            for (auto& j : i) {
-                j.draw(window);
-                if (((clock1.getElapsedTime() - lastTreeTime) > treeCooldown) &&
-                    !rand() &&
-                    (j.getBackgroundType() == DARK_GREEN_GRASS ||
-                        j.getBackgroundType() == LIGHT_GREEN_GRASS)) {
-                    auto x = makeTree(
-                        { j.getGlobalBounds().left + (float)(rand() % cellSize),
-                         j.getGlobalBounds().top + (float)(rand() % cellSize) });
-                    lastTreeTime = clock1.getElapsedTime();
-                    if (!intersectionObjects(x.getSprite(), heroes)) {
-                        freeObjects.emplace(x);
-                    }
-                }
-            }
-        }
-        for (auto& i : home) {
-            i.draw(window);
-        }
-        std::sort(monsters.begin(), monsters.end(), charactersCompare);
-        std::sort(heroes.begin(), heroes.end(), charactersCompare);
-        auto freeObject = freeObjects.begin();
-        auto monster = monsters.begin();
-        auto hero = heroes.begin();
-        auto flyingObject = flyingObjects.begin();
-        auto building = attackBuildings.begin();
-        for (; freeObject != freeObjects.end() || monster != monsters.end() ||
-            hero != heroes.end() || flyingObject != flyingObjects.end() ||
-            building != attackBuildings.end();) {
-            auto objectPos = freeObject != freeObjects.end()
-                ? freeObject->getPosition().y
-                : std::numeric_limits<float>::max();
-            auto monsterPos = monster != monsters.end()
-                ? (*monster)->getSprite()->getPosition().y
-                : std::numeric_limits<float>::max();
-            auto heroPos = hero != heroes.end()
-                ? (*hero)->getSprite()->getPosition().y
-                : std::numeric_limits<float>::max();
-            auto flyingObjectPos = flyingObject != flyingObjects.end()
-                ? flyingObject->getPosition().y
-                : std::numeric_limits<float>::max();
-            auto buildingPos = building != attackBuildings.end()
-                ? building->getHitBox().top
-                : std::numeric_limits<float>::max();
-
-            float poses[5] = { objectPos, monsterPos, heroPos, flyingObjectPos,
-                              buildingPos };
-            std::sort(std::begin(poses), std::end(poses));
-            if (poses[0] == objectPos) {
-                freeObject->draw(window);
-                auto cell =
-                    sf::Vector2i(freeObject->getPosition() / (float)cellSize);
-                if (freeObject->getObjectType() == ROCK &&
-                    (map[cell.y][cell.x].getState() != WALL &&
-                        map[cell.y][cell.x].getState() != FROZEN_BLAST) ||
-                    freeObject->getObjectType() == FIRE &&
-                    map[cell.y][cell.x].getState() != BLAST ||
-                    freeObject->getObjectType() != ROCK &&
-                    map[cell.y][cell.x].getState() == WALL ||
-                    map[cell.y][cell.x].getState() == EARTHSHAKE ||
-                    map[cell.y][cell.x].getState() == LAVA) {
-                    freeObject = freeObjects.erase(freeObject);
-                    continue;
-                }
-                else if (map[cell.y][cell.x].getState() == FROZEN_BLAST) {
-                    switch (freeObject->getObjectType()) {
-                    case TREE:
-                        freeObject->changeObjectType(FROZEN_TREE);
-                        break;
-                    case DEAD_TREE:
-                        freeObject->changeObjectType(FROZEN_DEAD_TREE);
-                        break;
-                    case ROCK:
-                        freeObject->changeObjectType(FROZEN_ROCK);
-                        break;
-                    case BUILD_SIGN:
-                    case FIRE:
-                    case NONE:
-                    case FROZEN_TREE:
-                    case FROZEN_DEAD_TREE:
-                    case FROZEN_ROCK:
-                    case NUMBER_OF_OBJECTS:
-                        break;
-                    }
-                }
-                else if (map[cell.y][cell.x].getState() == NORMAL) {
-                    switch (freeObject->getObjectType()) {
-                    case TREE:
-                    case DEAD_TREE:
-                    case ROCK:
-                    case BUILD_SIGN:
-                    case FIRE:
-                    case NONE:
-                    case NUMBER_OF_OBJECTS:
-                        break;
-                    case FROZEN_TREE:
-                        freeObject->changeObjectType(TREE);
-                        break;
-                    case FROZEN_DEAD_TREE:
-                        freeObject->changeObjectType(DEAD_TREE);
-                        break;
-                    case FROZEN_ROCK:
-                        freeObject->changeObjectType(ROCK);
-                        break;
-                    }
-                }
-                else if (map[cell.y][cell.x].getState() == BLAST) {
-                    switch (freeObject->getObjectType()) {
-                    case TREE:
-                    case DEAD_TREE:
-                    case FROZEN_TREE:
-                    case FROZEN_DEAD_TREE:
-                        freeObject->changeObjectType(DEAD_TREE);
-                        break;
-                    case FROZEN_ROCK:
-                        freeObject->changeObjectType(ROCK);
-                        break;
-                    default:
-                        break;
-                    }
-                }
-                freeObject++;
-            }
-            else if (poses[0] == monsterPos) {
-                (*monster)->drawCharacter(window);
-                if (!(*monster)->isDraw()) {
-                    monster = monsters.erase(monster);
-                }
-                else {
-                    monster++;
-                }
-            }
-            else if (poses[0] == heroPos) {
-                (*hero)->drawCharacter(window);
-                if (!(*hero)->isDraw()) {
-                    hero = heroes.erase(hero);
-                }
-                else {
-                    hero++;
-                }
-            }
-            else if (poses[0] == flyingObjectPos) {
-                flyingObject->draw(window);
-                if (flyingObject->isFinished()) {
-                    flyingObject = flyingObjects.erase(flyingObject);
-                }
-                else {
-                    flyingObject++;
-                }
-            }
-            else if (poses[0] == buildingPos) {
-                building->draw(window);
-                building++;
-            }
-        }
-        for (auto& i : money) {
-            (*i).draw(window);
-        }
-        store.drawStore(window);
-        menuGameButton.drawButton(window);
-
-        //window.draw(storeSprite);
-        window.draw(minimapSprite);
-        window.setView(view);
-
         updateStates();
         sf::Event event{};
         while (window.pollEvent(event)) {
@@ -345,7 +177,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
                                                clock1.getElapsedTime());
             }
             for (auto &i : money) {
-                store.addMoney((*i).event(event, storeBar));
+                store.addMoney((*i).event(event, window));
             }
             store.event(event, storeBar, mouse, *this);
             switch (event.type) {
@@ -354,8 +186,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
                     break;
                 case sf::Event::MouseButtonPressed:
                     if (event.mouseButton.button == sf::Mouse::Left) {
-                        if (menuGameButton.isCorrectClick(window.mapPixelToCoords({ event.mouseButton.x, event.mouseButton.y }))) {    
-                            /////////////////////////////////////////////
+                        if (menuGameButton.isCorrectClick(window.mapPixelToCoords({ event.mouseButton.x, event.mouseButton.y }))) {
                             menuGameButton.handleClick();
                         }
                     }
@@ -365,8 +196,9 @@ void jam::Level::draw(sf::RenderWindow &window) {
                     if (event.mouseButton.button == sf::Mouse::Left) {
                         auto selectedCell = sf::Vector2i{
                             window.mapPixelToCoords(
-                                {event.mouseButton.y, event.mouseButton.x}) /
+                                {event.mouseButton.x, event.mouseButton.y}) /
                             (float)cellSize};
+                        std::swap(selectedCell.x, selectedCell.y);
                         switch (ability) {
                             case ABILITY::FIRE_BLAST:
                                 for (int i = -1; i < 2; i++) {
@@ -458,8 +290,8 @@ void jam::Level::draw(sf::RenderWindow &window) {
                                         (float)jam::cellSize / 2)));
                                 break;
                         }
-                        readyToCast = false;
                     }
+                    readyToCast = false;
                     break;
                 case sf::Event::KeyPressed:
                     if (event.key.code == sf::Keyboard::R) {
@@ -508,11 +340,183 @@ void jam::Level::draw(sf::RenderWindow &window) {
                     if (event.key.code == sf::Keyboard::D) {
                         shift.x += viewMoveSpeed;
                     }
+                    shift.x =
+                        bounds(shift.x, 0.f, (float)(cellSize * map[0].size()
+                                                     ) - view.getSize().x);
+                    shift.y =
+                        bounds(shift.y, 0.f, (float)(cellSize * map.size()) -
+                                                 view.getSize().y);
                     break;
                 default:
                     break;
             }
         }
+        for (auto &i : map) {
+            for (auto &j : i) {
+                if (sf::FloatRect(window.getView().getCenter() -
+                                      window.getView().getSize() / 2.f,
+                                  window.getView().getSize())
+                        .intersects(j.getGlobalBounds())) {
+                    j.draw(window);
+                }
+                if (((clock1.getElapsedTime() - lastTreeTime) > treeCooldown) &&
+                    !rand() &&
+                    (j.getBackgroundType() == DARK_GREEN_GRASS ||
+                     j.getBackgroundType() == LIGHT_GREEN_GRASS)) {
+                    auto x = makeTree(
+                        {j.getGlobalBounds().left + (float)(rand() % cellSize),
+                         j.getGlobalBounds().top + (float)(rand() % cellSize)});
+                    lastTreeTime = clock1.getElapsedTime();
+                    if (!intersectionObjects(x.getSprite(), heroes)) {
+                        freeObjects.emplace(x);
+                    }
+                }
+            }
+        }
+        for (auto &i : home) {
+            i.draw(window);
+        }
+        std::sort(monsters.begin(), monsters.end(), charactersCompare);
+        std::sort(heroes.begin(), heroes.end(), charactersCompare);
+        auto freeObject = freeObjects.begin();
+        auto monster = monsters.begin();
+        auto hero = heroes.begin();
+        auto flyingObject = flyingObjects.begin();
+        auto building = attackBuildings.begin();
+        for (; freeObject != freeObjects.end() || monster != monsters.end() ||
+               hero != heroes.end() || flyingObject != flyingObjects.end() ||
+               building != attackBuildings.end();) {
+            auto objectPos = freeObject != freeObjects.end()
+                                 ? freeObject->getPosition().y
+                                 : std::numeric_limits<float>::max();
+            auto monsterPos = monster != monsters.end()
+                                  ? (*monster)->getSprite()->getPosition().y
+                                  : std::numeric_limits<float>::max();
+            auto heroPos = hero != heroes.end()
+                               ? (*hero)->getSprite()->getPosition().y
+                               : std::numeric_limits<float>::max();
+            auto flyingObjectPos = flyingObject != flyingObjects.end()
+                                       ? flyingObject->getPosition().y
+                                       : std::numeric_limits<float>::max();
+            auto buildingPos = building != attackBuildings.end()
+                                   ? building->getHitBox().top
+                                   : std::numeric_limits<float>::max();
+
+            float poses[5] = {objectPos, monsterPos, heroPos, flyingObjectPos,
+                              buildingPos};
+            std::sort(std::begin(poses), std::end(poses));
+            if (poses[0] == objectPos) {
+                freeObject->draw(window);
+                auto cell =
+                    sf::Vector2i(freeObject->getPosition() / (float)cellSize);
+                if (freeObject->getObjectType() == ROCK &&
+                        (map[cell.y][cell.x].getState() != WALL &&
+                         map[cell.y][cell.x].getState() != FROZEN_BLAST) ||
+                    freeObject->getObjectType() == FIRE &&
+                        map[cell.y][cell.x].getState() != BLAST ||
+                    freeObject->getObjectType() != ROCK &&
+                        map[cell.y][cell.x].getState() == WALL ||
+                    map[cell.y][cell.x].getState() == EARTHSHAKE ||
+                    map[cell.y][cell.x].getState() == LAVA) {
+                    freeObject = freeObjects.erase(freeObject);
+                    continue;
+                } else if (map[cell.y][cell.x].getState() == FROZEN_BLAST) {
+                    switch (freeObject->getObjectType()) {
+                        case TREE:
+                            freeObject->changeObjectType(FROZEN_TREE);
+                            break;
+                        case DEAD_TREE:
+                            freeObject->changeObjectType(FROZEN_DEAD_TREE);
+                            break;
+                        case ROCK:
+                            freeObject->changeObjectType(FROZEN_ROCK);
+                            break;
+                        case BUILD_SIGN:
+                        case FIRE:
+                        case NONE:
+                        case FROZEN_TREE:
+                        case FROZEN_DEAD_TREE:
+                        case FROZEN_ROCK:
+                        case NUMBER_OF_OBJECTS:
+                            break;
+                    }
+                } else if (map[cell.y][cell.x].getState() == NORMAL) {
+                    switch (freeObject->getObjectType()) {
+                        case TREE:
+                        case DEAD_TREE:
+                        case ROCK:
+                        case BUILD_SIGN:
+                        case FIRE:
+                        case NONE:
+                        case NUMBER_OF_OBJECTS:
+                            break;
+                        case FROZEN_TREE:
+                            freeObject->changeObjectType(TREE);
+                            break;
+                        case FROZEN_DEAD_TREE:
+                            freeObject->changeObjectType(DEAD_TREE);
+                            break;
+                        case FROZEN_ROCK:
+                            freeObject->changeObjectType(ROCK);
+                            break;
+                    }
+                } else if (map[cell.y][cell.x].getState() == BLAST) {
+                    switch (freeObject->getObjectType()) {
+                        case TREE:
+                        case DEAD_TREE:
+                        case FROZEN_TREE:
+                        case FROZEN_DEAD_TREE:
+                            freeObject->changeObjectType(DEAD_TREE);
+                            break;
+                        case FROZEN_ROCK:
+                            freeObject->changeObjectType(ROCK);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                freeObject++;
+            } else if (poses[0] == monsterPos) {
+                (*monster)->drawCharacter(window);
+                if (!(*monster)->isDraw()) {
+                    monster = monsters.erase(monster);
+                } else {
+                    monster++;
+                }
+            } else if (poses[0] == heroPos) {
+                (*hero)->drawCharacter(window);
+                if (!(*hero)->isDraw()) {
+                    hero = heroes.erase(hero);
+                } else {
+                    hero++;
+                }
+            } else if (poses[0] == flyingObjectPos) {
+                flyingObject->draw(window);
+                if (flyingObject->isFinished()) {
+                    flyingObject = flyingObjects.erase(flyingObject);
+                } else {
+                    flyingObject++;
+                }
+            } else if (poses[0] == buildingPos) {
+                building->draw(window);
+                building++;
+            }
+        }
+        for (auto &i : money) {
+            (*i).draw(window);
+        }
+        view.setCenter(shift + view.getSize() / 2.f);
+        minimapSprite.setPosition(shift);
+        store.drawStore(storeBar);
+        storeBar.display();
+        sf::Sprite storeSprite(storeBar.getTexture());
+        storeSprite.setPosition(minimapSprite.getPosition());
+
+        window.draw(storeSprite);
+        window.draw(minimapSprite);
+        window.setView(view);
+        menuGameButton.drawButton(window);
+
         window.display();
     }
 }

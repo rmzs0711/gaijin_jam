@@ -206,11 +206,17 @@ public:
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
-    static std::shared_ptr<Monster> makeMammoth(sf::RenderTarget& window, jam::Level &level,
-                                         std::vector<sf::Vector2f> &monster_path);
+    // makeFrostborn
 
-    static std::shared_ptr<Monster> makeWendigo(sf::RenderTarget& window, jam::Level &level,
-                                         std::vector<sf::Vector2f> &monster_path);
+    static std::shared_ptr<Monster> makeMammoth(
+        sf::RenderTarget &window,
+        jam::Level &level,
+        std::vector<sf::Vector2f> &monster_path);
+
+    static std::shared_ptr<Monster> makeWendigo(
+        sf::RenderTarget &window,
+        jam::Level &level,
+        std::vector<sf::Vector2f> &monster_path);
 
     static std::shared_ptr<Monster> makeYeti(
         sf::RenderTarget &window,
@@ -253,7 +259,8 @@ public:
         std::vector<sf::Vector2f> &monster_path);
 
 
-    static std::shared_ptr<Monster> makePirateCaptain(sf::RenderTarget& window,
+    static std::shared_ptr<Monster> makePirateCaptain(
+        sf::RenderTarget &window,
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
@@ -268,7 +275,8 @@ public:
         std::vector<sf::Vector2f> &monster_path);
 
 
-    static std::shared_ptr<Monster> makeNecromancer(sf::RenderTarget& window,
+    static std::shared_ptr<Monster> makeNecromancer(
+        sf::RenderTarget &window,
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
@@ -350,3 +358,4 @@ public:
         jam::Level &level,
         sf::Vector2f position = sf::Vector2f(0, 0));
 };
+
