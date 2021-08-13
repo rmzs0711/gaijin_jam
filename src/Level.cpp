@@ -3,12 +3,16 @@
 #include "../include/store.h"
 #include "../include/makeAttackBuilding.h"
 #include "../include/gameSession.h"
+#include "../include/game.h"
 #else
 #include <Level.h>
 #include <store.h>
 #include "makeAttackBuilding.h"
 #include "gameSession.h"
+#include "game.h"
 #endif
+
+extern const sf::Vector2f sizeBaseButton;
 
 namespace {}
 bool jam::Level::addHero(const std::shared_ptr<Hero> &hero) {
@@ -96,10 +100,8 @@ void jam::Level::heroSetScale(const sf::Vector2f &newScale, std::size_t i) {
     (*heroes[i]).setScale(newScale);
 }
 
-extern const sf::Vector2f sizeBaseButton;
-
 jam::Level::Level(sf::RenderWindow& window, const std::vector<std::vector<int>>& mapObjects)
-    : ability(FIRE_BLAST), elements(2, POWER_ELEMENT::FIRE), menuGameButton([&]() { jam::GameSession::closeGame(window); }, "Menu") {
+    : ability(FIRE_BLAST), elements(2, POWER_ELEMENT::FIRE), menuGameButton([&]() { GameSession::closeGame(window, [&]() { jam::Game::startGame(window); }); }, "Menu") {
 
     menuGameButton.setSize({ sizeBaseButton.x / 2, sizeBaseButton.y });
     menuGameButton.setFillColor(sf::Color(74, 53, 27));

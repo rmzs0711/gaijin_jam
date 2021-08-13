@@ -205,7 +205,7 @@ struct GameSession {
         }
     }
 
-    static void closeGame(sf::RenderWindow& window) {
+    static void closeGame(sf::RenderWindow& window, std::function<void()> func) {
         Menu close(window);
         close.setSize({2 * sizeBaseButton.x + 200, 400});
         sf::Texture texture;
@@ -214,7 +214,7 @@ struct GameSession {
         close.setPosition(window.mapPixelToCoords(sf::Vector2i(window.getSize())) / 2.f - close.getSize() / 2.f - 
             sf::Vector2f(0, 70));
 
-        RectangleButton<void> leaveGameButton([&]() { window.close(); }, "Leave the game");
+        RectangleButton<void> leaveGameButton(func, "Leave the game");
         leaveGameButton.setSize(sizeBaseButton);
         leaveGameButton.setFillColor(sf::Color(74, 53, 27));
         leaveGameButton.setPosition(window.mapPixelToCoords(sf::Vector2i(window.getSize())) / 2.f + sf::Vector2f(50, 0));
