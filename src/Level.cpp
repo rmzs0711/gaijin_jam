@@ -181,7 +181,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
                                                clock1.getElapsedTime());
             }
             for (auto &i : money) {
-                store.addMoney((*i).event(event, storeBar));
+                store.addMoney((*i).event(event, window));
             }
             store.event(event, storeBar, mouse, *this);
             switch (event.type) {
@@ -289,8 +289,8 @@ void jam::Level::draw(sf::RenderWindow &window) {
                                         (float)jam::cellSize / 2)));
                                 break;
                         }
-                        readyToCast = false;
                     }
+                    readyToCast = false;
                     break;
                 case sf::Event::KeyPressed:
                     if (event.key.code == sf::Keyboard::R) {
@@ -339,6 +339,12 @@ void jam::Level::draw(sf::RenderWindow &window) {
                     if (event.key.code == sf::Keyboard::D) {
                         shift.x += viewMoveSpeed;
                     }
+                    shift.x =
+                        bounds(shift.x, 0.f, (float)(cellSize * map[0].size()
+                                                     ) - view.getSize().x);
+                    shift.y =
+                        bounds(shift.y, 0.f, (float)(cellSize * map.size()) -
+                                                 view.getSize().y);
                     break;
                 default:
                     break;
