@@ -9,7 +9,8 @@
 #endif
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(1920, 1080), "SFML works!");
+    sf::RenderWindow window(sf::VideoMode(), "SFML works!",
+                            sf::Style::Fullscreen);
     jam::GameSession game;
     RectangleButton<void> startGameButton([&]() { game.startGame(window); });
     startGameButton.setSize({100.f, 50.f});
@@ -24,9 +25,9 @@ int main() {
     mainMenu.setSize(sf::Vector2f(window.getSize()));
     mainMenu.setColor(sf::Color::Yellow);
     mainMenu.setButtons(mainMenuButtons);
-
+    sf::Event event{};
+    window.pollEvent(event);
     while (window.isOpen()) {
-        sf::Event event{};
         while (window.pollEvent(event)) {
             switch (event.type) {
                 case sf::Event::Closed:

@@ -5,8 +5,8 @@
 
 #ifdef _MSC_VER
 #include "../include/Level.h"
-#include "../include/store.h"
 #include "../include/makeAttackBuilding.h"
+#include "../include/store.h"
 #endif
 
 namespace {}
@@ -29,50 +29,49 @@ bool jam::Level::addAttackBuilding(AttackBuilding building) {
     auto hitBox = (*building.getSprite()).getGlobalBounds();
     {
         auto start = freeObjects.lower_bound(
-            jam::makeTree({ hitBox.left, hitBox.top - jam::cellSize }));
+            jam::makeTree({hitBox.left, hitBox.top - jam::cellSize}));
         auto end = freeObjects.upper_bound(
-            jam::makeTree({ hitBox.left, hitBox.top + jam::cellSize }));
-        for (auto& i = start; i != end; i++) {
-            if (i->getHitBox().intersects({ hitBox.left,
-                                            hitBox.top + hitBox.height / 2,
-                                            hitBox.width, hitBox.height / 2 })) {
+            jam::makeTree({hitBox.left, hitBox.top + jam::cellSize}));
+        for (auto &i = start; i != end; i++) {
+            if (i->getHitBox().intersects({hitBox.left,
+                                           hitBox.top + hitBox.height / 2,
+                                           hitBox.width, hitBox.height / 2})) {
                 return false;
             }
         }
     }
     {
-        auto start =
-            attackBuildings.lower_bound(jam::makeEmptyBuilding(
-                *this, sf::Vector2i{ (int)hitBox.left / jam::cellSize - 1,
-                                     (int)hitBox.top / jam::cellSize - 1 }));
+        auto start = attackBuildings.lower_bound(jam::makeEmptyBuilding(
+            *this, sf::Vector2i{(int)hitBox.left / jam::cellSize - 1,
+                                (int)hitBox.top / jam::cellSize - 1}));
         auto end = attackBuildings.upper_bound(jam::makeEmptyBuilding(
             *this, sf::Vector2i((int)hitBox.left / jam::cellSize + 1,
                                 (int)hitBox.top / jam::cellSize + 1)));
-        for (auto& i = start; i != end; i++) {
-            if (i->getHitBox().intersects({ hitBox.left,
-                                            hitBox.top + hitBox.height / 2,
-                                            hitBox.width, hitBox.height / 2 })) {
+        for (auto &i = start; i != end; i++) {
+            if (i->getHitBox().intersects({hitBox.left,
+                                           hitBox.top + hitBox.height / 2,
+                                           hitBox.width, hitBox.height / 2})) {
                 return false;
             }
         }
     }
 
-    for (auto& i : home) {
-        if (i.getHitBox().intersects({ hitBox.left,
-                                       hitBox.top + hitBox.height / 2,
-                                       hitBox.width, hitBox.height / 2 })) {
+    for (auto &i : home) {
+        if (i.getHitBox().intersects({hitBox.left,
+                                      hitBox.top + hitBox.height / 2,
+                                      hitBox.width, hitBox.height / 2})) {
             return false;
         }
     }
 
     attackBuildings.insert(building);
-    for (auto& i : heroes) {
+    for (auto &i : heroes) {
         if (!(*i).isCorrectMove()) {
             attackBuildings.erase(building);
             return false;
         }
     }
-    for (auto& i : monsters) {
+    for (auto &i : monsters) {
         if (!(*i).isCorrectMove()) {
             attackBuildings.erase(building);
             return false;
@@ -143,8 +142,37 @@ void jam::Level::draw(sf::RenderWindow &window) {
     Store store(window);
     clock1.restart();
     sf::Vector2f mouse;
+    sf::View view(
+        sf::FloatRect{sf::Vector2f(0, 0), sf::Vector2f(window.getSize())});
+    sf::View miniMapView({0, 0, (float)(map[0].size() * cellSize),
+                          (float)(map.size() * cellSize)});
+
+    miniMapView.setViewport({0.75, 0, 0.25, 0.25});
+
+    sf::RenderTexture minimap;
+    //    minimap.clear(sf::Color::Transparent);
+    minimap.create(window.getSize().x, window.getSize().y);
+    minimap.setView(miniMapView);
+    for (auto &i : map) {
+        for (auto &j : i) {
+            j.draw(minimap);
+        }
+    }
+    minimap.display();
+    sf::Sprite minimapSprite(minimap.getTexture());
+    minimapSprite.setColor(sf::Color(150, 150, 150));
+
+    window.setView(view);
+
+    sf::View storeView(
+        sf::FloatRect{sf::Vector2f(0, 0), sf::Vector2f(window.getSize())});
+    sf::RenderTexture storeBar;
+    storeBar.create(window.getSize().x, window.getSize().y);
+    storeBar.setView(storeView);
+
     while (window.isOpen()) {
         window.clear();
+        storeBar.clear(sf::Color::Transparent);
         updateStates();
         sf::Event event{};
         while (window.pollEvent(event)) {
@@ -153,9 +181,9 @@ void jam::Level::draw(sf::RenderWindow &window) {
                                                clock1.getElapsedTime());
             }
             for (auto &i : money) {
-                store.addMoney((*i).event(event, window));
+                store.addMoney((*i).event(event, storeBar));
             }
-            store.event(event, window, mouse, *this);
+            store.event(event, storeBar, mouse, *this);
             switch (event.type) {
                 case sf::Event::Closed:
                     window.close();
@@ -165,9 +193,10 @@ void jam::Level::draw(sf::RenderWindow &window) {
                         continue;
                     }
                     if (event.mouseButton.button == sf::Mouse::Left) {
-                        auto selectedCell =
-                            sf::Vector2i{event.mouseButton.y / cellSize,
-                                         event.mouseButton.x / cellSize};
+                        auto selectedCell = sf::Vector2i{
+                            window.mapPixelToCoords(
+                                {event.mouseButton.y, event.mouseButton.x}) /
+                            (float)cellSize};
                         switch (ability) {
                             case ABILITY::FIRE_BLAST:
                                 for (int i = -1; i < 2; i++) {
@@ -297,6 +326,18 @@ void jam::Level::draw(sf::RenderWindow &window) {
                     if (event.key.code == sf::Keyboard::C) {
                         elements[1] = POWER_ELEMENT::EARTH;
                     }
+                    if (event.key.code == sf::Keyboard::W) {
+                        shift.y -= viewMoveSpeed;
+                    }
+                    if (event.key.code == sf::Keyboard::S) {
+                        shift.y += viewMoveSpeed;
+                    }
+                    if (event.key.code == sf::Keyboard::A) {
+                        shift.x -= viewMoveSpeed;
+                    }
+                    if (event.key.code == sf::Keyboard::D) {
+                        shift.x += viewMoveSpeed;
+                    }
                     break;
                 default:
                     break;
@@ -304,7 +345,12 @@ void jam::Level::draw(sf::RenderWindow &window) {
         }
         for (auto &i : map) {
             for (auto &j : i) {
-                j.draw(window);
+                if (sf::FloatRect(window.getView().getCenter() -
+                                      window.getView().getSize() / 2.f,
+                                  window.getView().getSize())
+                        .intersects(j.getGlobalBounds())) {
+                    j.draw(window);
+                }
                 if (((clock1.getElapsedTime() - lastTreeTime) > treeCooldown) &&
                     !rand() &&
                     (j.getBackgroundType() == DARK_GREEN_GRASS ||
@@ -319,7 +365,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
                 }
             }
         }
-        for (auto& i : home) {
+        for (auto &i : home) {
             i.draw(window);
         }
         std::sort(monsters.begin(), monsters.end(), charactersCompare);
@@ -357,7 +403,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
                     sf::Vector2i(freeObject->getPosition() / (float)cellSize);
                 if (freeObject->getObjectType() == ROCK &&
                         (map[cell.y][cell.x].getState() != WALL &&
-                        map[cell.y][cell.x].getState() != FROZEN_BLAST)  ||
+                         map[cell.y][cell.x].getState() != FROZEN_BLAST) ||
                     freeObject->getObjectType() == FIRE &&
                         map[cell.y][cell.x].getState() != BLAST ||
                     freeObject->getObjectType() != ROCK &&
@@ -448,11 +494,19 @@ void jam::Level::draw(sf::RenderWindow &window) {
                 building++;
             }
         }
-        for (auto& i : money) {
+        for (auto &i : money) {
             (*i).draw(window);
         }
-        store.drawStore(window);
+        view.setCenter(shift + view.getSize() / 2.f);
+        minimapSprite.setPosition(shift);
+        store.drawStore(storeBar);
+        storeBar.display();
+        sf::Sprite storeSprite(storeBar.getTexture());
+        storeSprite.setPosition(minimapSprite.getPosition());
 
+        window.draw(storeSprite);
+        window.draw(minimapSprite);
+        window.setView(view);
         window.display();
     }
 }
@@ -472,4 +526,7 @@ const std::vector<std::shared_ptr<TemplateCharacter>> &jam::Level::getMonsters()
 }
 void jam::Level::addMoney(const std::shared_ptr<Money> &money_) {
     money.push_back(money_);
+}
+const sf::Vector2f &jam::Level::getShift() const {
+    return shift;
 }

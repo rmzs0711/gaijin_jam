@@ -35,7 +35,7 @@
             setPosition(position);
         }
 
-        void draw(sf::RenderWindow& window) {
+        void draw(sf::RenderTarget& window) {
             if (is_valid) {
                 window.draw(*this);
             }
