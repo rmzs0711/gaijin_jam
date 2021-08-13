@@ -195,8 +195,9 @@ void jam::Level::draw(sf::RenderWindow &window) {
                     if (event.mouseButton.button == sf::Mouse::Left) {
                         auto selectedCell = sf::Vector2i{
                             window.mapPixelToCoords(
-                                {event.mouseButton.y, event.mouseButton.x}) /
+                                {event.mouseButton.x, event.mouseButton.y}) /
                             (float)cellSize};
+                        std::swap(selectedCell.x, selectedCell.y);
                         switch (ability) {
                             case ABILITY::FIRE_BLAST:
                                 for (int i = -1; i < 2; i++) {
