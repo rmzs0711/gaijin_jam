@@ -134,7 +134,7 @@ public:
         count += count_;
     }
 
-    Message(sf::RenderTarget &window) : message("") {
+    Message(sf::RenderTarget &window) : message(""), count(0) {
         drawing_message.setFillColor(sf::Color(176, 0, 0));
         drawing_message.move(sf::Vector2f(
             window.mapPixelToCoords(sf::Vector2i(window.getSize())).x / 2,

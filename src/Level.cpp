@@ -131,7 +131,7 @@ void jam::Level::heroSetScale(const sf::Vector2f &newScale, std::size_t i) {
 
 jam::Level::Level(sf::RenderWindow &window,
                   const std::vector<std::vector<int>> &mapObjects)
-    : ability(FIRE_BLAST),
+    : is_end(false), ability(FIRE_BLAST),
       elements(2, POWER_ELEMENT::FIRE),
       menuGameButton(
           [&]() {
@@ -462,6 +462,10 @@ void jam::Level::draw(sf::RenderWindow &window) {
         object_bar.clear(sf::Color::Transparent);
 
 
+        if (is_end) {
+            endGame(window);
+        }
+
         for (auto &i : map) {
             for (auto &j : i) {
                 checkDraw(view, j, window);
@@ -482,6 +486,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
         for (auto &i : home) {
             i.draw(window);
         }
+
         std::sort(monsters.begin(), monsters.end(), charactersCompare);
         std::sort(heroes.begin(), heroes.end(), charactersCompare);
         auto freeObject = freeObjects.begin();
@@ -620,6 +625,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
         for (auto &i : money) {
             checkDraw(view, *i, window);
         }
+
         view.setCenter(shift + view.getSize() / 2.f);
         minimapSprite.setPosition(shift);
         store.drawStore(object_bar);
@@ -658,4 +664,23 @@ const sf::Vector2f &jam::Level::getShift() const {
 }
 const std::set<jam::SupportBuilding> &jam::Level::getSupportBuildings() const {
     return supportBuildings;
+}
+
+void jam::Level::endGame(sf::RenderWindow& window) {
+    sf::Texture texture;
+    texture.loadFromFile("data/images/game_over.png");
+    sf::Sprite sprite(texture);
+    sprite.setPosition(window.getView().getCenter());
+    window.draw(sprite);
+
+    while (window.isOpen()) {
+        sf::Event event{};
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::MouseButtonPressed || event.type == sf::Event::KeyPressed) {
+                sf::View view_(sf::FloatRect{ sf::Vector2f(0, 0), sf::Vector2f(window.getSize()) });
+                window.setView(view_);
+                jam::Game::startGame(window);
+            }
+        }
+    }
 }

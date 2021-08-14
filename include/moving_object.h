@@ -67,6 +67,7 @@ public:
         if (is_valid) {
             return getGlobalBounds().contains(mouse);
         }
+        return false;
     }
 
     void click_mouse_left(const sf::Vector2f &mouse, sf::Vector2f &old_mouse) {

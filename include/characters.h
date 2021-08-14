@@ -117,6 +117,7 @@ public:
     sf::FloatRect getGlobalBounds() const;
     bool isCorrectMove();
     void takeDamage(float damage_);
+    bool isEndGame();
 
     sf::Sprite *getSprite();
 

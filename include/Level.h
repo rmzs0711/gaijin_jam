@@ -113,6 +113,8 @@ struct Level {
     const std::vector<std::shared_ptr<TemplateCharacter>> &getMonsters() const;
     const sf::Vector2f &getShift() const;
     const std::set<SupportBuilding> &getSupportBuildings() const;
+    //bool isEndGame();
+    void endGame(sf::RenderWindow& window);
 
     std::set<SupportBuilding> supportBuildings;
     std::vector<std::vector<Cell>> map;
@@ -122,6 +124,7 @@ struct Level {
     std::set<FreeObject> freeObjects;
     std::vector<std::shared_ptr<Money>> money;
     std::list<FlyingObject> flyingObjects;
+    bool is_end;
 
 private:
     sf::Clock clock1;
