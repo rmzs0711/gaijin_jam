@@ -232,9 +232,9 @@ void jam::Level::draw(sf::RenderWindow &window) {
             lastRegenTime = clock1.getElapsedTime();
         }
 
-        window.clear();
+        /*window.clear();
         storeBar.clear(sf::Color::Transparent);
-        menuBar.clear(sf::Color::Transparent);
+        menuBar.clear(sf::Color::Transparent);*/
         updateStates();
         sf::Event event{};
         while (window.pollEvent(event)) {
@@ -424,6 +424,11 @@ void jam::Level::draw(sf::RenderWindow &window) {
                     break;
             }
         }
+
+        window.clear();
+        storeBar.clear(sf::Color::Transparent);
+        menuBar.clear(sf::Color::Transparent);
+
         for (auto &i : map) {
             for (auto &j : i) {
                 checkDraw(view, j, window);
