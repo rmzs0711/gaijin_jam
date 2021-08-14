@@ -10,8 +10,10 @@
 #ifdef _MSC_VER
 const double M_PI = 3.14;
 #endif
+
 namespace jam {
 struct Level;
+
 enum CellState {
     NORMAL,
     LAVA,
@@ -118,6 +120,7 @@ inline std::vector<sf::Vector2i> texturesNumberOfFrames;
 inline const int cellSize = 128;
 inline std::vector<sf::Texture *> texturePtrs;
 inline std::vector<sf::Time> stateDurations;
+inline std::vector<sf::Time> abilityCooldowns;
 
 inline sf::Vector2i toMapPosition(sf::RenderTarget &window,
                                   sf::Vector2f position) {

@@ -131,35 +131,54 @@ void jam::Level::heroSetScale(const sf::Vector2f &newScale, std::size_t i) {
 
 jam::Level::Level(sf::RenderWindow &window,
                   const std::vector<std::vector<int>> &mapObjects)
-    : is_end(false), ability(FIRE_BLAST),
+    : is_end(false),
+      lastAbilityUsageTimes(NUMBER_OF_ABILITIES),
+      ability(FIRE_BLAST),
       elements(2, POWER_ELEMENT::FIRE),
       menuGameButton(
           [&]() {
-              GameSession::closeGame(window,
-                  [&]() { sf::View view_(sf::FloatRect{ sf::Vector2f(0, 0), sf::Vector2f(window.getSize()) });
-                          window.setView(view_);
-                          jam::Game::startGame(window); });
+              GameSession::closeGame(window, [&]() {
+                  sf::View view_(sf::FloatRect{sf::Vector2f(0, 0),
+                                               sf::Vector2f(window.getSize())});
+                  window.setView(view_);
+                  jam::Game::startGame(window);
+              });
           },
-          "Menu"), is_active_store(false), storeButton([&]() { is_active_store = !is_active_store; }, "Store") {
+          "Menu"),
+      is_active_store(false),
+      storeButton([&]() { is_active_store = !is_active_store; }, "Store") {
     menuGameButton.setSize({sizeBaseButton.x / 2, sizeBaseButton.y});
     menuGameButton.setFillColor(sf::Color(74, 53, 27));
     menuGameButton.setPosition(
         {window.mapPixelToCoords(sf::Vector2i(window.getSize())).x -
              sizeBaseButton.x / 2 - 20,
          20});
-    storeButton.setSize({ sizeBaseButton.x / 2, sizeBaseButton.y });
+    storeButton.setSize({sizeBaseButton.x / 2, sizeBaseButton.y});
     storeButton.setFillColor(sf::Color(74, 53, 27));
-    storeButton.setPosition({ window.mapPixelToCoords(sf::Vector2i(window.getSize())).x -
-             sizeBaseButton.x / 2 - 20, window.mapPixelToCoords(sf::Vector2i(window.getSize())).y -
-             sizeBaseButton.y - 20 });
+    storeButton.setPosition(
+        {window.mapPixelToCoords(sf::Vector2i(window.getSize())).x -
+             sizeBaseButton.x / 2 - 20,
+         window.mapPixelToCoords(sf::Vector2i(window.getSize())).y -
+             sizeBaseButton.y - 20});
 
-    freeObjects.insert(makeTree({200, 300}));
     map.resize(mapObjects.size());
     for (int i = 0; i < mapObjects.size(); i++) {
         map[i].resize(mapObjects[i].size());
         for (int j = 0; j < mapObjects[i].size(); j++) {
             map[i][j].setPosInMap({j, i});
             map[i][j].setBackgroundType(mapObjects[i][j]);
+            if (!(rand() % 2) &&
+                (map[i][j].getBackgroundType() == DARK_GREEN_GRASS ||
+                 map[i][j].getBackgroundType() == LIGHT_GREEN_GRASS)) {
+                auto x = makeTree({map[i][j].getGlobalBounds().left +
+                                       (float)(rand() % cellSize),
+                                   map[i][j].getGlobalBounds().top +
+                                       (float)(rand() % cellSize)});
+                if (!intersectionObjects(x.getSprite(), heroes) &&
+                    !intersectionObjects(x.getSprite(), monsters)) {
+                    freeObjects.emplace(x);
+                }
+            }
         }
     }
     supportBuildings.insert(makeMinerCave(*this, {7, 3}));
@@ -189,6 +208,49 @@ void jam::Level::updateStates() {
     }
 }
 void jam::Level::draw(sf::RenderWindow &window) {
+    std::vector<sf::Texture> abilitiesTextures(NUMBER_OF_ABILITIES);
+    //    std::vector<sf::CircleShape> abilitiesCircles(NUMBER_OF_ABILITIES);
+    checkLoadTexture(abilitiesTextures[ABILITY::FIRE_BLAST],
+                     "data/images/fire.png", {{0, 0}, assetCellSize});
+    checkLoadTexture(abilitiesTextures[ABILITY::LAVA], "data/images/lava.png",
+                     {{0, 0}, assetCellSize});
+    checkLoadTexture(abilitiesTextures[ABILITY::FROZEN_BLAST],
+                     "data/images/MiniWorldSprites/Nature/WinterTrees.png",
+                     sf::IntRect({16, 48}, assetCellSize));
+    checkLoadTexture(abilitiesTextures[ABILITY::WALL],
+                     "data/images/MiniWorldSprites/Nature/Rocks.png",
+                     sf::IntRect({0, 0}, assetCellSize));
+    checkLoadTexture(abilitiesTextures[ABILITY::EARTHSHAKE],
+                     "data/images/MiniWorldSprites/Ground/Grass.png",
+                     sf::IntRect({48, 0}, assetCellSize));
+    checkLoadTexture(abilitiesTextures[ABILITY::CLOUD],
+                     "data/images/MiniWorldSprites/Objects/Bullet.png",
+                     sf::IntRect(assetCellSize, assetCellSize));
+    sf::CircleShape abilityCircle(cellSize / 2);
+    auto abilityCircleBackground = abilityCircle;
+    abilityCircleBackground.setFillColor(sf::Color(100, 100, 100));
+    sf::Texture manaTexture;
+    checkLoadTexture(manaTexture,
+                     "data/images/MiniWorldSprites/Objects/BallistaBolt.png",
+                     {{0, 0}, assetCellSize});
+    sf::Sprite manaSprite(manaTexture);
+    manaSprite.scale((float)cellSize / manaSprite.getLocalBounds().width,
+                     (float)cellSize / manaSprite.getLocalBounds().height);
+    manaSprite.setColor(sf::Color::Magenta);
+    sf::Sprite emptyMana = manaSprite;
+    emptyMana.setColor(sf::Color::Black);
+
+    std::vector<sf::Texture> elementsTextures(3);
+    std::vector<sf::Sprite> elementsSprites(3);
+    for (int i = 0; i < elementsTextures.size(); ++i) {
+        checkLoadTexture(
+            elementsTextures[i],
+            "data/images/MiniWorldSprites/Objects/FireballProjectile.png",
+            {(1 + i) * assetCellSize.x, 0, assetCellSize.x, assetCellSize.y});
+        elementsSprites[i].setTexture(elementsTextures[i]);
+        elementsSprites[i].setScale(10, 10);
+    }
+
     clock1.restart();
     Store store(window, is_active_store);
     sf::Vector2f mouse;
@@ -206,13 +268,12 @@ void jam::Level::draw(sf::RenderWindow &window) {
         }
     }
     minimap.display();
-    sf::Texture text = minimap.getTexture();
-    sf::Sprite fullSizeMinimapSprite(text);
+    sf::Texture fullMapTexture = minimap.getTexture();
+    sf::Sprite fullSizeMinimapSprite(fullMapTexture);
 
     sf::RectangleShape miniMapArea(sf::Vector2f(window.getSize()));
-    sf::RectangleShape minimapOutline(
-        {(float)(map[0].size() * cellSize - 160), (float)(map.size() *
-                                                        cellSize - 160)});
+    sf::RectangleShape minimapOutline({(float)(map[0].size() * cellSize - 160),
+                                       (float)(map.size() * cellSize - 160)});
     minimapOutline.setPosition(80, 80);
     minimapOutline.setFillColor(sf::Color::Transparent);
     minimapOutline.setOutlineThickness(80);
@@ -271,15 +332,14 @@ void jam::Level::draw(sf::RenderWindow &window) {
                 case sf::Event::MouseButtonPressed:
                     if (event.mouseButton.button == sf::Mouse::Left) {
                         if (menuGameButton.isCorrectClick(
-                            object_bar.mapPixelToCoords(
-                                { event.mouseButton.x,
-                                 event.mouseButton.y }))) {
+                                object_bar.mapPixelToCoords(
+                                    {event.mouseButton.x,
+                                     event.mouseButton.y}))) {
                             menuGameButton.handleClick();
-                        }
-                        else if (storeButton.isCorrectClick(
-                            object_bar.mapPixelToCoords(
-                                { event.mouseButton.x,
-                                 event.mouseButton.y }))) {
+                        } else if (storeButton.isCorrectClick(
+                                       object_bar.mapPixelToCoords(
+                                           {event.mouseButton.x,
+                                            event.mouseButton.y}))) {
                             storeButton.handleClick();
                         }
                         sf::FloatRect minimapZoneOnScreen = {
@@ -296,7 +356,12 @@ void jam::Level::draw(sf::RenderWindow &window) {
                         continue;
                     }
                     if (event.mouseButton.button == sf::Mouse::Left &&
-                        mana > abilityCost.at(ability)) {
+                        mana > abilityCost.at(ability) &&
+                        clock1.getElapsedTime() -
+                                lastAbilityUsageTimes[ability] >
+                            abilityCooldowns[ability]) {
+                        lastAbilityUsageTimes[ability] =
+                            clock1.getElapsedTime();
                         mana -= abilityCost.at(ability);
                         auto selectedCell = sf::Vector2i{
                             window.mapPixelToCoords(
@@ -424,14 +489,16 @@ void jam::Level::draw(sf::RenderWindow &window) {
                         readyToCast = true;
                         continue;
                     }
-                    elements[0] = elements[1];
                     if (event.key.code == sf::Keyboard::Z) {
+                        elements[0] = elements[1];
                         elements[1] = POWER_ELEMENT::FIRE;
                     }
                     if (event.key.code == sf::Keyboard::X) {
+                        elements[0] = elements[1];
                         elements[1] = POWER_ELEMENT::ICE;
                     }
                     if (event.key.code == sf::Keyboard::C) {
+                        elements[0] = elements[1];
                         elements[1] = POWER_ELEMENT::EARTH;
                     }
                     if (event.key.code == sf::Keyboard::W) {
@@ -506,12 +573,16 @@ void jam::Level::draw(sf::RenderWindow &window) {
             auto flyingObjectPos = flyingObject != flyingObjects.end()
                                        ? flyingObject->getPosition().y
                                        : std::numeric_limits<float>::max();
-            auto attackBuildingPos = attackBuilding != attackBuildings.end()
-                                         ? attackBuilding->getHitBox().top
-                                         : std::numeric_limits<float>::max();
-            auto supportBuildingPos = supportBuilding != supportBuildings.end()
-                                          ? supportBuilding->getHitBox().top
-                                          : std::numeric_limits<float>::max();
+            auto attackBuildingPos =
+                attackBuilding != attackBuildings.end()
+                    ? attackBuilding->getHitBox().top +
+                          attackBuilding->getHitBox().height
+                    : std::numeric_limits<float>::max();
+            auto supportBuildingPos =
+                supportBuilding != supportBuildings.end()
+                    ? supportBuilding->getHitBox().top +
+                          supportBuilding->getHitBox().height
+                    : std::numeric_limits<float>::max();
 
             float poses[6] = {objectPos,         monsterPos,
                               heroPos,           flyingObjectPos,
@@ -624,6 +695,44 @@ void jam::Level::draw(sf::RenderWindow &window) {
         view.setCenter(shift + view.getSize() / 2.f);
         minimapSprite.setPosition(shift);
         store.drawStore(object_bar);
+
+        abilityCircle.setPosition(
+            10, (float)object_bar.getSize().y / 2 + (float)(-1 * cellSize));
+        abilityCircleBackground.setPosition(abilityCircle.getPosition());
+        object_bar.draw(abilityCircleBackground);
+        abilityCircle.setOutlineColor(sf::Color::Black);
+        abilityCircle.setOutlineThickness(10);
+        abilityCircle.setTexture(&abilitiesTextures[ability]);
+        abilityCircle.setFillColor(
+            sf::Color(255 * std::min((clock1.getElapsedTime() -
+                                      lastAbilityUsageTimes[ability]) /
+                                         abilityCooldowns[ability],
+                                     1.f),
+                      255 * std::min((clock1.getElapsedTime() -
+                                      lastAbilityUsageTimes[ability]) /
+                                         abilityCooldowns[ability],
+                                     1.f),
+                      255 * std::min((clock1.getElapsedTime() -
+                                      lastAbilityUsageTimes[ability]) /
+                                         abilityCooldowns[ability],
+                                     1.f)));
+        object_bar.draw(abilityCircle);
+
+        for (int i = 0; i < elements.size(); ++i) {
+            elementsSprites[elements[i]].setPosition(
+                0, (float)object_bar.getSize().y / 2 + (float)(i * cellSize));
+            object_bar.draw(elementsSprites[elements[i]]);
+        }
+        manaSprite.setPosition(
+            6, (float)object_bar.getSize().y / 2 + (float)(2 * cellSize));
+        emptyMana.setPosition(manaSprite.getPosition());
+        sf::IntRect x = {{0, 0},
+                         {assetCellSize.x, (int)((1 - mana / maxMana) *
+                                                 (float)assetCellSize.x)}};
+        emptyMana.setTextureRect({x});
+        object_bar.draw(manaSprite);
+        object_bar.draw(emptyMana);
+
         menuGameButton.drawButton(object_bar);
         storeButton.drawButton(object_bar);
         object_bar.display();
@@ -665,7 +774,7 @@ const std::set<jam::SupportBuilding> &jam::Level::getSupportBuildings() const {
     return supportBuildings;
 }
 
-void jam::Level::endGame(sf::RenderWindow& window) {
+void jam::Level::endGame(sf::RenderWindow &window) {
     sf::Texture texture;
     texture.loadFromFile("data/images/game_over.png");
     sf::Sprite sprite(texture);
@@ -676,8 +785,10 @@ void jam::Level::endGame(sf::RenderWindow& window) {
         window.draw(sprite);
         sf::Event event{};
         while (window.pollEvent(event)) {
-            if (event.type == sf::Event::MouseButtonPressed || event.type == sf::Event::KeyPressed) {
-                sf::View view_(sf::FloatRect{ sf::Vector2f(0, 0), sf::Vector2f(window.getSize()) });
+            if (event.type == sf::Event::MouseButtonPressed ||
+                event.type == sf::Event::KeyPressed) {
+                sf::View view_(sf::FloatRect{sf::Vector2f(0, 0),
+                                             sf::Vector2f(window.getSize())});
                 window.setView(view_);
                 jam::Game::startGame(window);
             }

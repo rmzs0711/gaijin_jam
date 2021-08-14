@@ -32,6 +32,7 @@ struct GameSession {
         }
 
         stateDurations.resize(NUMBER_OF_STATES, sf::seconds(2));
+        abilityCooldowns.resize(NUMBER_OF_ABILITIES, sf::seconds(2));
 
         std::vector<std::vector<int>> firstLevel = {{
             {
@@ -2643,9 +2644,9 @@ struct GameSession {
         monster_path.emplace_back(260, 340);
         levels[0].addMonster(
             Monster::makeArmouredRedDemon(levels[0], monster_path));
-        levels[0].addMonster(Monster::makeMammoth(levels[0], monster_path));
+//        levels[0].addMonster(Monster::makeMammoth(levels[0], monster_path));
         levels[0].monsterSetPosition({cellSize * 3, cellSize * 6});
-        levels[0].monsterSetPosition({cellSize * 6, cellSize * 2}, 1);
+//        levels[0].monsterSetPosition({cellSize * 6, cellSize * 2}, 1);
 
         while (window.isOpen()) {
             window.clear();
