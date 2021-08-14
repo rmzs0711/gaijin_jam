@@ -45,11 +45,27 @@ bool TemplateCharacter::isCorrectMove() {
         if (i.getHitBox().intersects({hitBox.left,
                                       hitBox.top + hitBox.height / 2,
                                       hitBox.width, hitBox.height / 2})) {
+            std::cout << "end character22\n";
+            curLevel.is_end = true;
             return false;
         }
     }
 
     return true;
+}
+
+bool TemplateCharacter::isEndGame() {
+    auto hitBox = character.getGlobalBounds();
+    for (auto& i : curLevel.home) {
+        std::cout << "MM\n";
+        if (i.getHitBox().intersects({ hitBox.left,
+                                      hitBox.top + hitBox.height / 2,
+                                      hitBox.width, hitBox.height / 2 })) {
+            std::cout << "end character\n";
+            return true;
+        }
+    }
+    return false;
 }
 
 void Monster::isFighting() {

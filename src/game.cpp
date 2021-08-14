@@ -64,19 +64,14 @@ void jam::Game::startGame(sf::RenderWindow &window) {
                     window.close();
                     break;
                 case sf::Event::MouseButtonPressed:
-                    switch (event.mouseButton.button) {
-                        case sf::Mouse::Left:
-                            for (auto &b : mainMenu.getButtons()) {
-                                if (b->isCorrectClick(sf::Vector2f(
-                                        sf::Mouse::getPosition(window)))) {
-                                    b->handleClick();
-                                }
+                    if (event.mouseButton.button == sf::Mouse::Left) {
+                        for (auto &b : mainMenu.getButtons()) {
+                            if (b->isCorrectClick(sf::Vector2f(
+                                sf::Mouse::getPosition(window)))) {
+                                b->handleClick();
                             }
-                        default:
-                            break;
+                        }
                     }
-                default:
-                    break;
             }
         }
         window.draw(mainMenu);
