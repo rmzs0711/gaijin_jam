@@ -36,7 +36,11 @@ template <typename T>
 struct Button : Clickable<T> {
     Button() = delete;
     explicit Button(std::function<T()> func, std::string str_ = "")
-        : function(func), str(std::move(str_)) {}
+        : function(func), str(std::move(str_)) {
+        text.setString(Button<T>::getString());
+        text.setCharacterSize(Button<T>::getTextSize());
+        text.centralise();
+    }
     T handleClick() override {
         return function();
     }
@@ -65,6 +69,9 @@ private:
     std::string str;
     unsigned textSize = 30;
     const sf::Texture *clickableTexture = nullptr;
+
+protected:
+    CentralisedText text;
 };
 
 template <typename T>
@@ -79,11 +86,6 @@ struct CircleButton : Button<T>, sf::CircleShape {
         if (!Button<T>::getClickableTexture()) {
             Button<T>::setClickableTexture(getTexture());
         }
-        CentralisedText text(Button<T>::getString());
-        text.setPosition(getPosition());
-        text.setCharacterSize(Button<T>::getTextSize());
-        text.centralise();
-        target.draw(text);
         auto hitBox = getGlobalBounds();
         target.draw(*this);
         if (hitBox.contains(target.mapPixelToCoords(sf::Mouse::getPosition(
@@ -108,11 +110,7 @@ struct RectangleButton : Button<T>, sf::RectangleShape {
         return this->getGlobalBounds().contains(pos);
     }
     void drawButton(sf::RenderTarget &target) override {
-        CentralisedText text;
-        text.setString(Button<T>::getString());
-        text.setCharacterSize(Button<T>::getTextSize());
-        text.centralise();
-        text.setPosition(getPosition() + getSize() / 2.f);
+        Button<T>::text.setPosition(getPosition() + getSize() / 2.f);
         target.draw(*this);
         if (getGlobalBounds().contains(
                 target.mapPixelToCoords(sf::Mouse::getPosition()))) {
@@ -120,9 +118,9 @@ struct RectangleButton : Button<T>, sf::RectangleShape {
             setTexture(Button<T>::getClickableTexture());
             target.draw(*this);
             setTexture(texture);
-            text.setFillColor(sf::Color::Red);
+            Button<T>::text.setFillColor(sf::Color::Red);
         }
-        target.draw(text);
+        target.draw(Button<T>::text);
     }
 
 private:

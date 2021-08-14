@@ -5,11 +5,11 @@
 #include "../include/makeBuilding.h"
 #include "../include/store.h"
 #else
-#include <Level.h>
-#include <store.h>
+#include "Level.h"
 #include "game.h"
 #include "gameSession.h"
 #include "makeBuilding.h"
+#include "store.h"
 #endif
 
 extern const sf::Vector2f sizeBaseButton;
@@ -137,7 +137,7 @@ jam::Level::Level(sf::RenderWindow &window,
           [&]() {
               GameSession::closeGame(window,
                   [&]() { sf::View view_(sf::FloatRect{ sf::Vector2f(0, 0), sf::Vector2f(window.getSize()) });
-                          window.setView(view_); 
+                          window.setView(view_);
                           jam::Game::startGame(window); });
           },
           "Menu"), is_active_store(false), storeButton([&]() { is_active_store = !is_active_store; }, "Store") {
@@ -194,13 +194,11 @@ void jam::Level::draw(sf::RenderWindow &window) {
     sf::Vector2f mouse;
     sf::View view(
         sf::FloatRect{sf::Vector2f(0, 0), sf::Vector2f(window.getSize())});
+
     sf::View miniMapView({0, 0, (float)(map[0].size() * cellSize),
                           (float)(map.size() * cellSize)});
-
-    miniMapView.setViewport({0.74, 0.60, 0.25, 0.25});
-
     sf::RenderTexture minimap;
-    minimap.create(window.getSize().x, window.getSize().y);
+    minimap.create(map[0].size() * cellSize, map.size() * cellSize);
     minimap.setView(miniMapView);
     for (auto &i : map) {
         for (auto &j : i) {
@@ -208,8 +206,28 @@ void jam::Level::draw(sf::RenderWindow &window) {
         }
     }
     minimap.display();
-    sf::Sprite minimapSprite(minimap.getTexture());
-    minimapSprite.setColor(sf::Color(150, 150, 150));
+    sf::Texture text = minimap.getTexture();
+    sf::Sprite fullSizeMinimapSprite(text);
+
+    sf::RectangleShape miniMapArea(sf::Vector2f(window.getSize()));
+    sf::RectangleShape minimapOutline(
+        {(float)(map[0].size() * cellSize - 160), (float)(map.size() *
+                                                        cellSize - 160)});
+    minimapOutline.setPosition(80, 80);
+    minimapOutline.setFillColor(sf::Color::Transparent);
+    minimapOutline.setOutlineThickness(80);
+    minimapOutline.setOutlineColor(sf::Color::Black);
+    miniMapArea.setFillColor(sf::Color::Transparent);
+    miniMapArea.setOutlineThickness(50);
+    miniMapArea.setOutlineColor(sf::Color::Blue);
+
+    minimap.create(window.getSize().x, window.getSize().y);
+    minimap.clear(sf::Color::Transparent);
+    miniMapView.setViewport(
+        {1 - (float)window.getSize().y * 0.25f / (float)window.getSize().x,
+         0.60, (float)window.getSize().y * 0.25f / (float)window.getSize().x,
+         0.25});
+    minimap.setView(miniMapView);
 
     window.setView(view);
 
@@ -220,11 +238,21 @@ void jam::Level::draw(sf::RenderWindow &window) {
     object_bar.setView(object_view);
 
     while (window.isOpen()) {
+        minimap.clear(sf::Color::Transparent);
+        miniMapArea.setPosition(shift);
+        minimap.draw(fullSizeMinimapSprite);
+        minimap.draw(minimapOutline);
+        minimap.draw(miniMapArea);
+
+        minimap.display();
+        sf::Sprite minimapSprite(minimap.getTexture());
+        minimapSprite.setColor(sf::Color(200, 200, 200));
         if (clock1.getElapsedTime() - lastRegenTime > regenCooldown) {
             mana += manaRegen;
             mana = std::min(mana, maxMana);
             lastRegenTime = clock1.getElapsedTime();
         }
+
         updateStates();
         sf::Event event{};
         while (window.pollEvent(event)) {
@@ -253,6 +281,15 @@ void jam::Level::draw(sf::RenderWindow &window) {
                                 { event.mouseButton.x,
                                  event.mouseButton.y }))) {
                             storeButton.handleClick();
+                        }
+                        sf::FloatRect minimapZoneOnScreen = {
+                            0, 0, (float)(map[0].size() * cellSize),
+                            (float)(map.size() * cellSize)};
+                        sf::Vector2f mouseOnMinimap = minimap.mapPixelToCoords(
+                            {event.mouseButton.x, event.mouseButton.y});
+                        if (minimapZoneOnScreen.contains(mouseOnMinimap)) {
+                            shift = mouseOnMinimap -
+                                    sf::Vector2f(window.getSize()) / 2.f;
                         }
                     }
                     if (!readyToCast) {
@@ -424,11 +461,6 @@ void jam::Level::draw(sf::RenderWindow &window) {
         window.clear();
         object_bar.clear(sf::Color::Transparent);
 
-
-        if (is_end) {
-            endGame(window);
-        }
-
         for (auto &i : map) {
             for (auto &j : i) {
                 checkDraw(view, j, window);
@@ -486,7 +518,6 @@ void jam::Level::draw(sf::RenderWindow &window) {
                               attackBuildingPos, supportBuildingPos};
             std::sort(std::begin(poses), std::end(poses));
             if (poses[0] == objectPos) {
-                freeObject->draw(window);
                 checkDraw(view, *freeObject, window);
                 auto cell =
                     sf::Vector2i(freeObject->getPosition() / (float)cellSize);
@@ -596,7 +627,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
         menuGameButton.drawButton(object_bar);
         storeButton.drawButton(object_bar);
         object_bar.display();
-        
+
         sf::Sprite storeSprite(object_bar.getTexture());
         storeSprite.setPosition(minimapSprite.getPosition());
 
@@ -604,6 +635,10 @@ void jam::Level::draw(sf::RenderWindow &window) {
         window.draw(minimapSprite);
         window.setView(view);
         window.display();
+
+        if (is_end) {
+            endGame(window);
+        }
     }
 }
 std::vector<std::vector<jam::Cell>> &jam::Level::getMap() {
@@ -634,10 +669,11 @@ void jam::Level::endGame(sf::RenderWindow& window) {
     sf::Texture texture;
     texture.loadFromFile("data/images/game_over.png");
     sf::Sprite sprite(texture);
-    sprite.setPosition(window.getView().getCenter());
-    window.draw(sprite);
+    sf::View view(sprite.getGlobalBounds());
+    window.setView(view);
 
     while (window.isOpen()) {
+        window.draw(sprite);
         sf::Event event{};
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::MouseButtonPressed || event.type == sf::Event::KeyPressed) {
@@ -646,5 +682,6 @@ void jam::Level::endGame(sf::RenderWindow& window) {
                 jam::Game::startGame(window);
             }
         }
+        window.display();
     }
 }

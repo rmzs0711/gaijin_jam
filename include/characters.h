@@ -23,7 +23,7 @@ struct LifeBarCharacter {
     }
 
     void changeCurrentHealth(sf::RenderTarget &window, float health_) {
-        current.setSize(window.mapPixelToCoords(sf::Vector2i(32 * health_ / health, 8)));
+        current.setSize(sf::Vector2f(sf::Vector2i(32 * health_ / health, 8)));
     }
 
     void draw(sf::RenderTarget &window, float health_, sf::Vector2f position) {
@@ -34,12 +34,12 @@ struct LifeBarCharacter {
     }
 
     void setPosition(sf::RenderTarget &window, sf::Vector2f position) {
-        original.setPosition(position - window.mapPixelToCoords(sf::Vector2i(scale * 8, (scale + 2) * 16 + 5)));
+        original.setPosition(position - sf::Vector2f(sf::Vector2i(16, scale * 16 + 5)));
         current.setPosition(original.getPosition());
     }
 
     void setScale(float scale_) {
-        scale = scale_ - 2;
+        scale = scale_;
     }
 };
 
@@ -117,7 +117,6 @@ public:
     sf::FloatRect getGlobalBounds() const;
     bool isCorrectMove();
     void takeDamage(float damage_);
-    bool isEndGame();
 
     sf::Sprite *getSprite();
 
