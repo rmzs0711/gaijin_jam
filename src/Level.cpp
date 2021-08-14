@@ -158,7 +158,9 @@ jam::Level::Level(sf::RenderWindow &window,
     //    attackBuildings.insert(makeArcherBuilding(*this, {4, 5}));
     //    attackBuildings.insert(makeWizardTower(*this, {6, 4}));
     //    attackBuildings.insert(makeSniperBuilding(*this, {6, 5}));
-    supportBuildings.insert(makeBarrack(*this, {7, 3}));
+    //    supportBuildings.insert(makeBarrack(*this, {7, 3}));
+    //    supportBuildings.insert(makeHospital(*this, {7, 3}));
+    supportBuildings.insert(makeMinerCave(*this, {7, 3}));
     home.push_back(makeHome(*this));
 }
 

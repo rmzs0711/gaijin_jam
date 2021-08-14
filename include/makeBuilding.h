@@ -201,8 +201,6 @@ inline SupportBuilding makeBarrack(jam::Level &level,
         {(float)cellSize / assetCellSize.x, (float)cellSize / assetCellSize.x});
     barrack.magic = [&](Level &curLevel, const SupportBuilding &building) {
         sf::Vector2i cell = {-1, -1};
-        static int h = 0;
-        std::cout << ++h << std::endl;
         auto &map = curLevel.getMap();
         for (int i = -1; i < 2 && cell == sf::Vector2i{-1, -1}; ++i) {
             for (int j = -1; j < 2 && cell == sf::Vector2i{-1, -1}; ++j) {
@@ -253,5 +251,114 @@ inline SupportBuilding makeBarrack(jam::Level &level,
         }
     };
     return barrack;
+}
+
+inline SupportBuilding makeHospital(jam::Level &level,
+                                    const sf::Vector2i newPosInMap) {
+    jam::SupportBuilding hospital(level);
+    hospital.magicCooldown = sf::seconds(2);
+    float heal = 10;
+    hospital.loadBuildingTexture(
+        "data/images/MiniWorldSprites/Buildings/Cyan/CyanChapels.png");
+    hospital.setTextureRect({assetCellSize, assetCellSize});
+    hospital.setPosInMap(newPosInMap);
+    hospital.setSizeInMap({1, 1});
+    hospital.setHitBox(
+        level.getMap()[hospital.getPosInMap().y][hospital.getPosInMap().x]
+            .getGlobalBounds());
+    hospital.setScale(
+        {(float)cellSize / assetCellSize.x, (float)cellSize / assetCellSize.x});
+    hospital.magic = [&](Level &curLevel, const SupportBuilding &building) {
+        auto &map = curLevel.getMap();
+        sf::Vector2f startPos = {building.getGlobalBounds().left,
+                                 building.getGlobalBounds().top};
+        sf::Vector2f endPos =
+            startPos + sf::Vector2f{building.getGlobalBounds().width,
+                                    building.getGlobalBounds().height};
+        auto start = std::lower_bound(
+            curLevel.heroes.begin(), curLevel.heroes.end(),
+            Hero::makeAssasinPurple(
+                level, startPos - sf::Vector2f(cellSize, cellSize)),
+            charactersCompare);
+        auto end = std::lower_bound(
+            curLevel.heroes.begin(), curLevel.heroes.end(),
+            Hero::makeAssasinPurple(level,
+                                    endPos + sf::Vector2f(cellSize, cellSize)));
+        for (auto i = start; i != end; i++) {
+            if ((*i)->getSprite()->getPosition().x >
+                    startPos.x - (float)cellSize &&
+                (*i)->getSprite()->getPosition().x <
+                    endPos.x + (float)cellSize &&
+                dynamic_cast<Hero &>(**i).getState() != FIGHTING) {
+                (*i)->takeDamage(-20);
+            }
+        }
+    };
+    return hospital;
+}
+inline SupportBuilding makeWell(jam::Level &level,
+                                const sf::Vector2i newPosInMap) {
+    jam::SupportBuilding well(level);
+    well.magicCooldown = sf::seconds(1);
+    float manaBonus = 0.5;
+    well.loadBuildingTexture(
+        "data/images/MiniWorldSprites/Miscellaneous/Well.png");
+    well.setTextureRect({{0, assetCellSize.x}, assetCellSize});
+    well.setPosInMap(newPosInMap);
+    well.setSizeInMap({1, 1});
+    well.setHitBox(level.getMap()[well.getPosInMap().y][well.getPosInMap().x]
+                       .getGlobalBounds());
+    well.setScale(
+        {(float)cellSize / assetCellSize.x, (float)cellSize / assetCellSize.x});
+    well.magic = [&](Level &curLevel, const SupportBuilding &building) {
+        curLevel.mana += manaBonus;
+        curLevel.mana = std::min(curLevel.mana, curLevel.maxMana);
+    };
+    return well;
+}
+inline SupportBuilding makeMinerCave(jam::Level &level,
+                                     const sf::Vector2i newPosInMap) {
+    jam::SupportBuilding minerCave(level);
+    minerCave.magicCooldown = sf::seconds(10);
+    int goldBonus = 1;
+    minerCave.loadBuildingTexture(
+        "data/images/MiniWorldSprites/Buildings/Wood/CaveV2.png");
+    int randValue = rand() % 21;
+    if (randValue == 0) {
+        minerCave.setTextureRect({{2 * assetCellSize.x, assetCellSize.x},
+                                  {assetCellSize.x, assetCellSize.x}});
+    } else if (randValue >= 1 && randValue <= 2) {
+        minerCave.setTextureRect({{assetCellSize.x, assetCellSize.x},
+                                  {assetCellSize.x, assetCellSize.x}});
+    } else if (randValue >= 3 && randValue <= 5) {
+        minerCave.setTextureRect(
+            {{0, assetCellSize.x}, {assetCellSize.x, assetCellSize.x}});
+    } else if (randValue >= 6 && randValue <= 9) {
+        minerCave.setTextureRect(
+            {{2 * assetCellSize.x, 0}, {assetCellSize.x, assetCellSize.x}});
+    } else if (randValue >= 10 && randValue <= 14) {
+        minerCave.setTextureRect(
+            {{assetCellSize.x, 0}, {assetCellSize.x, assetCellSize.x}});
+    } else if (randValue >= 15 && randValue <= 20) {
+        minerCave.setTextureRect({{0, 0}, {assetCellSize.x, assetCellSize.x}});
+    }
+    minerCave.setPosInMap(newPosInMap);
+    minerCave.setSizeInMap({1, 1});
+    minerCave.setHitBox(
+        level.getMap()[minerCave.getPosInMap().y][minerCave.getPosInMap().x]
+            .getGlobalBounds());
+    minerCave.setScale(
+        {(float)cellSize / assetCellSize.x, (float)cellSize / assetCellSize.x});
+    minerCave.magic = [&](Level &curLevel, const SupportBuilding &building) {
+        auto &map = curLevel.getMap();
+        auto rect = building.getBuilding().getTextureRect();
+        level.addMoney(Money::makeMoney(
+            rect.left / assetCellSize.x + 1 + rect.top / assetCellSize.y * 3,
+            building.getBuilding().getPosition()
+                -
+                sf::Vector2f(cellSize, cellSize) / 2.f
+            ));
+    };
+    return minerCave;
 }
 }  // namespace jam

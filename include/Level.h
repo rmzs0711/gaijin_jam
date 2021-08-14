@@ -17,10 +17,11 @@
 namespace {}
 
 struct Money {
+public:
+    int money;
 private:
     sf::Texture texture_icon;
     sf::Sprite icon;
-    int money;
     bool is_valid;
 
 public:
@@ -132,7 +133,8 @@ private:
     std::vector<POWER_ELEMENT> elements;
     ABILITY ability;
     bool readyToCast = false;
-    float maxMana = 100;
+public:
+    const float maxMana = 100;
     mutable float mana = maxMana;
     float manaRegen = 100;
     sf::Time regenCooldown = sf::seconds(1);
@@ -143,7 +145,7 @@ private:
         {ABILITY::FROZEN_BLAST, 80}, {ABILITY::EARTHSHAKE, 50},
         {ABILITY::WALL, 80},         {ABILITY::CLOUD, 30},
     };
-
+private:
     // Random trees
     sf::Time treeCooldown = sf::seconds(5);
     sf::Time lastTreeTime = sf::Time::Zero;

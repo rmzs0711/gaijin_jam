@@ -184,8 +184,9 @@ void Monster::drawCharacter(sf::RenderTarget &window) {
     window.draw(character);
     life_bar.draw(window, health, character.getPosition());
 }
-void Monster::takeDamage(float damage_) {
+void TemplateCharacter::takeDamage(float damage_) {
     health -= damage_;
+    health = std::min(health, max_health);
 }
 int Monster::getState() const {
     return state;
@@ -502,7 +503,6 @@ std::shared_ptr<Monster> Monster::makePurpleDemon(
 // makeFrostborn
 
 std::shared_ptr<Monster> Monster::makeMammoth(
-
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
@@ -517,7 +517,6 @@ std::shared_ptr<Monster> Monster::makeMammoth(
 }
 
 std::shared_ptr<Monster> Monster::makeWendigo(
-
     jam::Level &level,
     std::vector<sf::Vector2f> &monster_path) {
     std::shared_ptr<Monster> monster = std::make_shared<Monster>(
@@ -753,7 +752,15 @@ void Monster::updateState() {
 }
 
 // makeHero
-
+static std::shared_ptr<Hero> makeEmptyHero(
+    jam::Level &level,
+    sf::Vector2f position = sf::Vector2f(0, 0)) {
+    std::shared_ptr<Hero> monster = std::make_shared<Hero>(
+        "",
+        0, 0, level, false, 0);
+    (*monster).setPosition(position);
+    return monster;
+}
 std::shared_ptr<Hero> Hero::makeAssasinPurple(jam::Level &level,
                                               sf::Vector2f position) {
     std::shared_ptr<Hero> monster = std::make_shared<Hero>(
@@ -815,6 +822,9 @@ void Hero::updateState() {
                              sf::Vector2f(0, size_frame.y * scale.y + 4));
         }
     }
+}
+int Hero::getState() const {
+    return state;
 }
 
 std::shared_ptr<TemplateCharacter> intersectionObjects(

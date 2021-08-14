@@ -70,7 +70,7 @@ protected:
     sf::Vector2f scale;
     int current_frame, quantity_frames;
     sf::Vector2i size_frame;
-    float health, damage, current_health, current_damage;
+    float health, damage, current_health, current_damage, max_health;
     sf::Texture character_texture, icon_texture;
     sf::Sprite character, icon;
     jam::Level &curLevel;
@@ -91,7 +91,11 @@ protected:
           health(health_),
           damage(damage_),
           scale(sf::Vector2f(0, 0)),
-          life_bar(health_) {
+          life_bar(health_),
+          max_health(health_) {
+        if (file_name == "") {
+            return;
+        }
         sf::Clock clock;
         sf::Image character_image;
         character_image.loadFromFile(file_name);
@@ -118,6 +122,7 @@ public:
     virtual void updateState() = 0;
     sf::FloatRect getGlobalBounds() const;
     bool isCorrectMove();
+    void takeDamage(float damage_);
 
     sf::Sprite *getSprite();
 
@@ -183,8 +188,6 @@ public:
 
     int getState() const;
 
-    void takeDamage(float damage_);
-
     void drawCharacter(sf::RenderTarget &window) override;
 
     static std::shared_ptr<Monster> makeArmouredRedDemon(
@@ -202,15 +205,11 @@ public:
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
-    // makeFrostborn
-
     static std::shared_ptr<Monster> makeMammoth(
-
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
     static std::shared_ptr<Monster> makeWendigo(
-
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
@@ -303,6 +302,7 @@ protected:
     void moveToPosition();
 
 public:
+    int getState() const;
     void updateState() override;
 
     Hero(const std::string &file_name,
@@ -332,25 +332,23 @@ public:
                const sf::Time &currentTime);
 
     void drawCharacter(sf::RenderTarget &window) override;
-    static std::shared_ptr<Hero> makeAssasinPurple(
 
+    static std::shared_ptr<Hero> makeEmptyHero(
+        jam::Level &level,
+        sf::Vector2f position = sf::Vector2f(0, 0));
+    static std::shared_ptr<Hero> makeAssasinPurple(
         jam::Level &level,
         sf::Vector2f position = sf::Vector2f(0, 0));
 
     static std::shared_ptr<Hero> makeAssasinLime(
-
         jam::Level &level,
         sf::Vector2f position = sf::Vector2f(0, 0));
 
     static std::shared_ptr<Hero> makeAssasinCyan(
-
         jam::Level &level,
         sf::Vector2f newPosition = sf::Vector2f(0, 0));
 
     static std::shared_ptr<Hero> makeAssasinRed(
-
         jam::Level &level,
         sf::Vector2f position = sf::Vector2f(0, 0));
 };
-
-
