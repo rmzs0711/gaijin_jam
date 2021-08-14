@@ -140,13 +140,18 @@ jam::Level::Level(sf::RenderWindow &window,
                           window.setView(view_); 
                           jam::Game::startGame(window); });
           },
-          "Menu") {
+          "Menu"), is_active_store(false), storeButton([&]() { is_active_store = !is_active_store; }, "Store") {
     menuGameButton.setSize({sizeBaseButton.x / 2, sizeBaseButton.y});
     menuGameButton.setFillColor(sf::Color(74, 53, 27));
     menuGameButton.setPosition(
         {window.mapPixelToCoords(sf::Vector2i(window.getSize())).x -
              sizeBaseButton.x / 2 - 20,
          20});
+    storeButton.setSize({ sizeBaseButton.x / 2, sizeBaseButton.y });
+    storeButton.setFillColor(sf::Color(74, 53, 27));
+    storeButton.setPosition({ window.mapPixelToCoords(sf::Vector2i(window.getSize())).x -
+             sizeBaseButton.x / 2 - 20, window.mapPixelToCoords(sf::Vector2i(window.getSize())).y -
+             sizeBaseButton.y - 20 });
 
     freeObjects.insert(makeTree({200, 300}));
     map.resize(mapObjects.size());
@@ -157,11 +162,6 @@ jam::Level::Level(sf::RenderWindow &window,
             map[i][j].setBackgroundType(mapObjects[i][j]);
         }
     }
-    //    attackBuildings.insert(makeArcherBuilding(*this, {4, 5}));
-    //    attackBuildings.insert(makeWizardTower(*this, {6, 4}));
-    //    attackBuildings.insert(makeSniperBuilding(*this, {6, 5}));
-    //    supportBuildings.insert(makeBarrack(*this, {7, 3}));
-    //    supportBuildings.insert(makeHospital(*this, {7, 3}));
     supportBuildings.insert(makeMinerCave(*this, {7, 3}));
     home.push_back(makeHome(*this));
 }
@@ -190,7 +190,7 @@ void jam::Level::updateStates() {
 }
 void jam::Level::draw(sf::RenderWindow &window) {
     clock1.restart();
-    Store store(window);
+    Store store(window, is_active_store);
     sf::Vector2f mouse;
     sf::View view(
         sf::FloatRect{sf::Vector2f(0, 0), sf::Vector2f(window.getSize())});
@@ -215,15 +215,9 @@ void jam::Level::draw(sf::RenderWindow &window) {
 
     sf::View storeView(
         sf::FloatRect{sf::Vector2f(0, 0), sf::Vector2f(window.getSize())});
-    sf::RenderTexture storeBar;
-    storeBar.create(window.getSize().x, window.getSize().y);
-    storeBar.setView(storeView);
-
-    sf::View menuView(
-        sf::FloatRect{ sf::Vector2f(0, 0), sf::Vector2f(window.getSize()) });
-    sf::RenderTexture menuBar;
-    menuBar.create(window.getSize().x, window.getSize().y);
-    menuBar.setView(menuView);
+    sf::RenderTexture Bar;
+    Bar.create(window.getSize().x, window.getSize().y);
+    Bar.setView(storeView);
 
     while (window.isOpen()) {
         if (clock1.getElapsedTime() - lastRegenTime > regenCooldown) {
@@ -231,10 +225,6 @@ void jam::Level::draw(sf::RenderWindow &window) {
             mana = std::min(mana, maxMana);
             lastRegenTime = clock1.getElapsedTime();
         }
-
-        /*window.clear();
-        storeBar.clear(sf::Color::Transparent);
-        menuBar.clear(sf::Color::Transparent);*/
         updateStates();
         sf::Event event{};
         while (window.pollEvent(event)) {
@@ -245,7 +235,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
             for (auto &i : money) {
                 store.addMoney((*i).event(event, window));
             }
-            store.event(event, storeBar, mouse, *this);
+            store.event(event, Bar, mouse, *this);
             switch (event.type) {
                 case sf::Event::Closed:
                     window.close();
@@ -253,10 +243,16 @@ void jam::Level::draw(sf::RenderWindow &window) {
                 case sf::Event::MouseButtonPressed:
                     if (event.mouseButton.button == sf::Mouse::Left) {
                         if (menuGameButton.isCorrectClick(
-                            menuBar.mapPixelToCoords(
-                                    {event.mouseButton.x,
-                                     event.mouseButton.y}))) {
+                            Bar.mapPixelToCoords(
+                                { event.mouseButton.x,
+                                 event.mouseButton.y }))) {
                             menuGameButton.handleClick();
+                        }
+                        else if (storeButton.isCorrectClick(
+                            Bar.mapPixelToCoords(
+                                { event.mouseButton.x,
+                                 event.mouseButton.y }))) {
+                            storeButton.handleClick();
                         }
                     }
                     if (!readyToCast) {
@@ -426,8 +422,8 @@ void jam::Level::draw(sf::RenderWindow &window) {
         }
 
         window.clear();
-        storeBar.clear(sf::Color::Transparent);
-        menuBar.clear(sf::Color::Transparent);
+        Bar.clear(sf::Color::Transparent);
+        
 
         for (auto &i : map) {
             for (auto &j : i) {
@@ -590,18 +586,15 @@ void jam::Level::draw(sf::RenderWindow &window) {
         }
         view.setCenter(shift + view.getSize() / 2.f);
         minimapSprite.setPosition(shift);
-        store.drawStore(storeBar);
-        storeBar.display();
-        sf::Sprite storeSprite(storeBar.getTexture());
+        store.drawStore(Bar);
+        menuGameButton.drawButton(Bar);
+        storeButton.drawButton(Bar);
+        Bar.display();
+        
+        sf::Sprite storeSprite(Bar.getTexture());
         storeSprite.setPosition(minimapSprite.getPosition());
 
-        menuGameButton.drawButton(menuBar);
-        menuBar.display();
-        sf::Sprite menuSprite(menuBar.getTexture());
-        menuSprite.setPosition(minimapSprite.getPosition());
-
         window.draw(storeSprite);
-        window.draw(menuSprite);
         window.draw(minimapSprite);
         window.setView(view);
         window.display();
