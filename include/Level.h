@@ -128,6 +128,8 @@ private:
     std::vector<Home> home;
 
     RectangleButton<void> menuGameButton;
+    RectangleButton<void> storeButton;
+    bool is_active_store;
 
     // skills
     std::vector<POWER_ELEMENT> elements;

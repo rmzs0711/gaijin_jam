@@ -2661,15 +2661,16 @@ struct GameSession {
         sf::Texture texture;
         texture.loadFromFile("data/images/dirt.png");
         close.setBackground(&texture);
-        close.setPosition(
-            window.mapPixelToCoords(sf::Vector2i(window.getSize())) / 2.f -
+
+        close.setPosition(window.getView().getCenter() -
             close.getSize() / 2.f - sf::Vector2f(0, 70));
+
+        // window.mapPixelToCoords(sf::Vector2i(window.getSize()))
 
         RectangleButton<void> leaveGameButton(func, "Leave the game");
         leaveGameButton.setSize(sizeBaseButton);
         leaveGameButton.setFillColor(sf::Color(74, 53, 27));
-        leaveGameButton.setPosition(
-            window.mapPixelToCoords(sf::Vector2i(window.getSize())) / 2.f +
+        leaveGameButton.setPosition(window.getView().getCenter() +
             sf::Vector2f(50, 0));
         close.addButton(
             std::make_unique<RectangleButton<void>>(leaveGameButton));
@@ -2679,8 +2680,7 @@ struct GameSession {
                                                  "Don't leave the game");
         notLeaveGameButton.setSize(sizeBaseButton);
         notLeaveGameButton.setFillColor(sf::Color(74, 53, 27));
-        notLeaveGameButton.setPosition(
-            window.mapPixelToCoords(sf::Vector2i(window.getSize())) / 2.f -
+        notLeaveGameButton.setPosition(window.getView().getCenter() -
             sf::Vector2f(50 + sizeBaseButton.x, 0));
         close.addButton(
             std::make_unique<RectangleButton<void>>(notLeaveGameButton));

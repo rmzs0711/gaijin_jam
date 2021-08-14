@@ -19,13 +19,11 @@ struct LifeBarCharacter {
     LifeBarCharacter(float health_) : scale(0), health(health_) {
         original.setFillColor(sf::Color(74, 53, 27));
         current.setFillColor(sf::Color::Green);
+        original.setSize(sf::Vector2f(sf::Vector2i(32, 8)));
     }
 
     void changeCurrentHealth(sf::RenderTarget &window, float health_) {
-        current.setSize(sf::Vector2f((sf::Vector2i(32, 0)).x * health_ / health,
-                                     (sf::Vector2i(0, 8)).y));
-        // std::cout << health << " " << health_ << " " << current.getSize().x
-        // << " " << current.getSize().y << '\n';
+        current.setSize(window.mapPixelToCoords(sf::Vector2i(32 * health_ / health, 8)));
     }
 
     void draw(sf::RenderTarget &window, float health_, sf::Vector2f position) {
@@ -36,12 +34,8 @@ struct LifeBarCharacter {
     }
 
     void setPosition(sf::RenderTarget &window, sf::Vector2f position) {
-        original.setPosition(position +
-                             sf::Vector2f(scale * (sf::Vector2i(-16, 0)).x / 2,
-                                          (sf::Vector2f{0, -5}).y));
-        current.setPosition(position +
-                            sf::Vector2f(scale * (sf::Vector2i(-16, 0)).x / 2,
-                                         (sf::Vector2f{0, -5}).y));
+        original.setPosition(position - window.mapPixelToCoords(sf::Vector2i(scale * 8, (scale + 2) * 16 + 5)));
+        current.setPosition(original.getPosition());
     }
 
     void setScale(float scale_) {
