@@ -416,14 +416,6 @@ void jam::Level::draw(sf::RenderWindow &window) {
         for (auto &i : map) {
             for (auto &j : i) {
                 checkDraw(view, j, window);
-                //                if (sf::FloatRect(window.getView().getCenter()
-                //                -
-                //                                      window.getView().getSize()
-                //                                      / 2.f,
-                //                                  window.getView().getSize())
-                //                        .intersects(j.getGlobalBounds())) {
-                //                    j.draw(window);
-                //                }
                 if (((clock1.getElapsedTime() - lastTreeTime) > treeCooldown) &&
                     !rand() &&
                     (j.getBackgroundType() == DARK_GREEN_GRASS ||
@@ -550,7 +542,6 @@ void jam::Level::draw(sf::RenderWindow &window) {
                 freeObject++;
             } else if (poses[0] == monsterPos) {
                 checkDraw(view, dynamic_cast<Monster &>(**monster), window);
-                //                (*monster)->drawCharacter(window);
                 if (!(*monster)->isDraw()) {
                     monster = monsters.erase(monster);
                 } else {
@@ -558,7 +549,6 @@ void jam::Level::draw(sf::RenderWindow &window) {
                 }
             } else if (poses[0] == heroPos) {
                 checkDraw(view, dynamic_cast<Hero &>(**hero), window);
-                //                (*hero)->drawCharacter(window);
                 if (!(*hero)->isDraw()) {
                     hero = heroes.erase(hero);
                 } else {
@@ -566,25 +556,21 @@ void jam::Level::draw(sf::RenderWindow &window) {
                 }
             } else if (poses[0] == flyingObjectPos) {
                 checkDraw(view, *flyingObject, window);
-                //                flyingObject->draw(window);
                 if (flyingObject->isFinished()) {
                     flyingObject = flyingObjects.erase(flyingObject);
                 } else {
                     flyingObject++;
                 }
             } else if (poses[0] == attackBuildingPos) {
-                //                attackBuilding->draw(window);
                 checkDraw(view, *attackBuilding, window);
                 attackBuilding++;
             } else if (poses[0] == supportBuildingPos) {
                 checkDraw(view, *supportBuilding, window);
-                //                supportBuilding->draw(window);
                 supportBuilding++;
             }
         }
         for (auto &i : money) {
             checkDraw(view, *i, window);
-            //            (*i).draw(window);
         }
         view.setCenter(shift + view.getSize() / 2.f);
         minimapSprite.setPosition(shift);
