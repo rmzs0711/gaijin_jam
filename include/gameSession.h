@@ -2678,7 +2678,7 @@ struct GameSession {
 
         bool f = true;
         RectangleButton<void> notLeaveGameButton([&]() { f = false; },
-                                                 "Don't leave the game");
+                                                 "Back to the game");
         notLeaveGameButton.setSize(sizeBaseButton);
         notLeaveGameButton.setFillColor(sf::Color(74, 53, 27));
         notLeaveGameButton.setPosition(window.getView().getCenter() -

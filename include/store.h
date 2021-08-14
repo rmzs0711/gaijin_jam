@@ -207,7 +207,7 @@ public:
             "data/images/MiniWorldSprites/Characters/Soldiers/Melee/RedMelee/"
             "AssasinRed.png"));
         products.push_back(std::make_unique<Product>(
-            window, 150,
+            window, 11,
             "data/images/MiniWorldSprites/Buildings/Lime/LimeTower.png"));
         products[products.size() - 1]->setTextureRect(0, 16);
         products.push_back(std::make_unique<Product>(

@@ -24,7 +24,7 @@ inline std::unique_ptr<RectangleButton<void>> jam::Game::makeButton(
     } else if (type == "close") {
         RectangleButton<void> startGameButton(
             [&]() { game.closeGame(window, [&]() { window.close(); }); },
-            "Get out of the game");
+            "Exit");
         startGameButton.setSize(sizeBaseButton);
         startGameButton.setFillColor(sf::Color(74, 53, 27));
         startGameButton.setPosition(

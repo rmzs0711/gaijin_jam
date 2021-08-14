@@ -136,6 +136,77 @@ bool jam::Level::addAttackBuilding(AttackBuilding building) {
     return true;
 }
 
+bool jam::Level::addSupportBuilding(SupportBuilding building) {
+    auto hitBox = (*building.getSprite()).getGlobalBounds();
+    {
+        auto start = freeObjects.lower_bound(
+            jam::makeTree({ hitBox.left, hitBox.top - jam::cellSize }));
+        auto end = freeObjects.upper_bound(
+            jam::makeTree({ hitBox.left, hitBox.top + jam::cellSize }));
+        for (auto& i = start; i != end; i++) {
+            if (i->getHitBox().intersects({ hitBox.left,
+                                           hitBox.top + hitBox.height / 2,
+                                           hitBox.width, hitBox.height / 2 })) {
+                return false;
+            }
+        }
+    }
+    {
+        auto start = attackBuildings.lower_bound(jam::makeEmptyAttackBuilding(
+            *this, sf::Vector2i{ (int)hitBox.left / jam::cellSize - 1,
+                                (int)hitBox.top / jam::cellSize - 1 }));
+        auto end = attackBuildings.upper_bound(jam::makeEmptyAttackBuilding(
+            *this, sf::Vector2i((int)hitBox.left / jam::cellSize + 1,
+                (int)hitBox.top / jam::cellSize + 1)));
+        for (auto& i = start; i != end; i++) {
+            if (i->getHitBox().intersects({ hitBox.left,
+                                           hitBox.top + hitBox.height / 2,
+                                           hitBox.width, hitBox.height / 2 })) {
+                return false;
+            }
+        }
+    }
+    {
+        auto start = supportBuildings.lower_bound(jam::makeEmptySupportBuilding(
+            *this, sf::Vector2i{ (int)hitBox.left / jam::cellSize - 1,
+                                (int)hitBox.top / jam::cellSize - 1 }));
+        auto end = supportBuildings.upper_bound(jam::makeEmptySupportBuilding(
+            *this, sf::Vector2i((int)hitBox.left / jam::cellSize + 1,
+                (int)hitBox.top / jam::cellSize + 1)));
+        for (auto& i = start; i != end; i++) {
+            if (i->getHitBox().intersects({ hitBox.left,
+                                           hitBox.top + hitBox.height / 2,
+                                           hitBox.width, hitBox.height / 2 })) {
+                return false;
+            }
+        }
+    }
+
+    for (auto& i : home) {
+        if (i.getHitBox().intersects({ hitBox.left,
+                                      hitBox.top + hitBox.height / 2,
+                                      hitBox.width, hitBox.height / 2 })) {
+            return false;
+        }
+    }
+
+    supportBuildings.insert(building);
+    for (auto& i : heroes) {
+        if (!(*i).isCorrectMove()) {
+            supportBuildings.erase(building);
+            return false;
+        }
+    }
+    for (auto& i : monsters) {
+        if (!(*i).isCorrectMove()) {
+            supportBuildings.erase(building);
+            return false;
+        }
+    }
+
+    return true;
+}
+
 void jam::Level::heroSetPosition(const sf::Vector2f &newPos, std::size_t i) {
     heroes[i]->setPosition(newPos);
 }
@@ -201,7 +272,6 @@ jam::Level::Level(sf::RenderWindow &window,
             }
         }
     }
-    supportBuildings.insert(makeMinerCave(*this, {7, 3}));
     home.push_back(makeHome(*this));
 }
 
@@ -827,78 +897,4 @@ void jam::Level::endGame(sf::RenderWindow &window) {
         }
         window.display();
     }
-}
-bool jam::Level::addSupportBuilding(jam::SupportBuilding building) {
-    if (map[building.getPosInMap().y][building.getPosInMap().x]
-            .getBackgroundType() == ROAD) {
-        return false;
-    }
-    auto hitBox = (*building.getSprite()).getGlobalBounds();
-    {
-        auto start = freeObjects.lower_bound(
-            jam::makeTree({hitBox.left, hitBox.top - jam::cellSize}));
-        auto end = freeObjects.upper_bound(
-            jam::makeTree({hitBox.left, hitBox.top + jam::cellSize}));
-        for (auto &i = start; i != end; i++) {
-            if (i->getHitBox().intersects({hitBox.left,
-                                           hitBox.top + hitBox.height / 2,
-                                           hitBox.width, hitBox.height / 2})) {
-                return false;
-            }
-        }
-    }
-    {
-        auto start = attackBuildings.lower_bound(jam::makeEmptyAttackBuilding(
-            *this, sf::Vector2i{(int)hitBox.left / jam::cellSize - 1,
-                                (int)hitBox.top / jam::cellSize - 1}));
-        auto end = attackBuildings.upper_bound(jam::makeEmptyAttackBuilding(
-            *this, sf::Vector2i((int)hitBox.left / jam::cellSize + 1,
-                                (int)hitBox.top / jam::cellSize + 1)));
-        for (auto &i = start; i != end; i++) {
-            if (i->getHitBox().intersects({hitBox.left,
-                                           hitBox.top + hitBox.height / 2,
-                                           hitBox.width, hitBox.height / 2})) {
-                return false;
-            }
-        }
-    }
-    {
-        auto start = supportBuildings.lower_bound(jam::makeEmptySupportBuilding(
-            *this, sf::Vector2i{(int)hitBox.left / jam::cellSize - 1,
-                                (int)hitBox.top / jam::cellSize - 1}));
-        auto end = supportBuildings.upper_bound(jam::makeEmptySupportBuilding(
-            *this, sf::Vector2i((int)hitBox.left / jam::cellSize + 1,
-                                (int)hitBox.top / jam::cellSize + 1)));
-        for (auto &i = start; i != end; i++) {
-            if (i->getHitBox().intersects({hitBox.left,
-                                           hitBox.top + hitBox.height / 2,
-                                           hitBox.width, hitBox.height / 2})) {
-                return false;
-            }
-        }
-    }
-
-    for (auto &i : home) {
-        if (i.getHitBox().intersects({hitBox.left,
-                                      hitBox.top + hitBox.height / 2,
-                                      hitBox.width, hitBox.height / 2})) {
-            return false;
-        }
-    }
-
-    supportBuildings.insert(building);
-    for (auto &i : heroes) {
-        if (!(*i).isCorrectMove()) {
-            supportBuildings.erase(building);
-            return false;
-        }
-    }
-    for (auto &i : monsters) {
-        if (!(*i).isCorrectMove()) {
-            supportBuildings.erase(building);
-            return false;
-        }
-    }
-
-    return true;
 }
