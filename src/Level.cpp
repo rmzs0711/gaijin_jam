@@ -670,10 +670,12 @@ void jam::Level::endGame(sf::RenderWindow& window) {
     sf::Texture texture;
     texture.loadFromFile("data/images/game_over.png");
     sf::Sprite sprite(texture);
-    sprite.setPosition(window.getView().getCenter());
-    window.draw(sprite);
+    sf::View view(sprite.getGlobalBounds());
+    window.setView(view);
 
     while (window.isOpen()) {
+        window.clear();
+        window.draw(sprite);
         sf::Event event{};
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::MouseButtonPressed || event.type == sf::Event::KeyPressed) {
@@ -682,5 +684,6 @@ void jam::Level::endGame(sf::RenderWindow& window) {
                 jam::Game::startGame(window);
             }
         }
+        window.display();
     }
 }
