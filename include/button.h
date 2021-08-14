@@ -111,6 +111,7 @@ struct RectangleButton : Button<T>, sf::RectangleShape {
     }
     void drawButton(sf::RenderTarget &target) override {
         Button<T>::text.setPosition(getPosition() + getSize() / 2.f);
+        Button<T>::text.setFillColor(sf::Color::White);
         target.draw(*this);
         if (getGlobalBounds().contains(
                 target.mapPixelToCoords(sf::Mouse::getPosition()))) {

@@ -40,7 +40,23 @@ bool TemplateCharacter::isCorrectMove() {
             }
         }
     }
-
+    {
+        auto start =
+            curLevel.supportBuildings.lower_bound(jam::makeEmptySupportBuilding(
+                curLevel, sf::Vector2i{(int)hitBox.left / jam::cellSize - 1,
+                                       (int)hitBox.top / jam::cellSize - 1}));
+        auto end =
+            curLevel.supportBuildings.upper_bound(jam::makeEmptySupportBuilding(
+                curLevel, sf::Vector2i((int)hitBox.left / jam::cellSize + 1,
+                                       (int)hitBox.top / jam::cellSize + 1)));
+        for (auto &i = start; i != end; i++) {
+            if (i->getHitBox().intersects({hitBox.left,
+                                           hitBox.top + hitBox.height / 2,
+                                           hitBox.width, hitBox.height / 2})) {
+                return false;
+            }
+        }
+    }
     for (auto &i : curLevel.home) {
         if (i.getHitBox().intersects({hitBox.left,
                                       hitBox.top + hitBox.height / 2,

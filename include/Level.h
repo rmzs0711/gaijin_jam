@@ -16,9 +16,11 @@
 
 namespace {}
 
+
 struct Money {
 public:
     int money;
+
 private:
     sf::Texture texture_icon;
     sf::Sprite icon;
@@ -95,6 +97,7 @@ struct Level {
     void addMoney(const std::shared_ptr<Money> &money_);
 
     bool addAttackBuilding(AttackBuilding building);
+    bool addSupportBuilding(SupportBuilding building);
 
     void heroSetPosition(const sf::Vector2f &newPos, std::size_t i = 0);
     void monsterSetScale(const sf::Vector2f &newScale, std::size_t i = 0);
@@ -112,8 +115,8 @@ struct Level {
     const std::vector<std::shared_ptr<TemplateCharacter>> &getHeroes() const;
     const std::vector<std::shared_ptr<TemplateCharacter>> &getMonsters() const;
     const sf::Vector2f &getShift() const;
-    const std::set<SupportBuilding>& getSupportBuildings() const;
-    void endGame(sf::RenderWindow& window);
+    const std::set<SupportBuilding> &getSupportBuildings() const;
+    void endGame(sf::RenderWindow &window);
 
     std::set<SupportBuilding> supportBuildings;
     std::vector<std::vector<Cell>> map;
@@ -137,6 +140,8 @@ private:
     std::vector<POWER_ELEMENT> elements;
     ABILITY ability;
     bool readyToCast = false;
+    std::vector<sf::Time> lastAbilityUsageTimes;
+
 public:
     const float maxMana = 100;
     mutable float mana = maxMana;
@@ -149,6 +154,7 @@ public:
         {ABILITY::FROZEN_BLAST, 80}, {ABILITY::EARTHSHAKE, 50},
         {ABILITY::WALL, 80},         {ABILITY::CLOUD, 30},
     };
+
 private:
     // Random trees
     sf::Time treeCooldown = sf::seconds(5);

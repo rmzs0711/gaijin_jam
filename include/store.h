@@ -206,7 +206,7 @@ public:
             "data/images/MiniWorldSprites/Characters/Soldiers/Melee/RedMelee/"
             "AssasinRed.png"));
         products.push_back(std::make_unique<Product>(
-            window, 150,
+            window, 11,
             "data/images/MiniWorldSprites/Buildings/Lime/LimeTower.png"));
         products[products.size() - 1]->setTextureRect(0, 16);
         products.push_back(std::make_unique<Product>(
@@ -216,6 +216,22 @@ public:
         products.push_back(std::make_unique<Product>(
             window, 150,
             "data/images/MiniWorldSprites/Buildings/Cyan/CyanTower.png"));
+        products[products.size() - 1]->setTextureRect(0, 16);
+        products.push_back(std::make_unique<Product>(
+            window, 150,
+            "data/images/MiniWorldSprites/Buildings/Wood/Barracks.png"));
+        products[products.size() - 1]->setTextureRect(0, 16);
+        products.push_back(std::make_unique<Product>(
+            window, 200,
+            "data/images/MiniWorldSprites/Buildings/Cyan/CyanChapels.png"));
+        products[products.size() - 1]->setTextureRect(0, 16);
+        products.push_back(std::make_unique<Product>(
+            window, 200,
+            "data/images/MiniWorldSprites/Miscellaneous/Well.png"));
+        products[products.size() - 1]->setTextureRect(0, 16);
+        products.push_back(std::make_unique<Product>(
+            window, 200,
+            "data/images/MiniWorldSprites/Buildings/Wood/CaveV2.png"));
         products[products.size() - 1]->setTextureRect(0, 16);
 
         for (int i = 1; i < products.size(); i++) {
@@ -309,6 +325,26 @@ public:
                        "data/images/MiniWorldSprites/Buildings/Cyan/"
                        "CyanTower.png") {
                 add(level.addAttackBuilding(makeWizardTower(
+                    level,
+                    jam::toMapPosition(window, level.getShift() + move_product.getPosition()))));
+            } else if (file ==
+                "data/images/MiniWorldSprites/Buildings/Wood/Barracks.png") {
+                add(level.addSupportBuilding(makeBarrack(
+                    level,
+                    jam::toMapPosition(window, level.getShift() + move_product.getPosition()))));
+            } else if (file ==
+                "data/images/MiniWorldSprites/Buildings/Cyan/CyanChapels.png") {
+                add(level.addSupportBuilding(makeHospital(
+                    level,
+                    jam::toMapPosition(window, level.getShift() + move_product.getPosition()))));
+            } else if (file ==
+                "data/images/MiniWorldSprites/Miscellaneous/Well.png") {
+                add(level.addSupportBuilding(makeWell(
+                    level,
+                    jam::toMapPosition(window, level.getShift() + move_product.getPosition()))));
+            } else if (file ==
+                "data/images/MiniWorldSprites/Buildings/Wood/CaveV2.png") {
+                add(level.addSupportBuilding(makeMinerCave(
                     level,
                     jam::toMapPosition(window, level.getShift() + move_product.getPosition()))));
             }
