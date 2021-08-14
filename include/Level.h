@@ -136,7 +136,7 @@ private:
 public:
     const float maxMana = 100;
     mutable float mana = maxMana;
-    float manaRegen = 100;
+    float manaRegen = 1;
     sf::Time regenCooldown = sf::seconds(1);
     sf::Time lastRegenTime;
     float combineCost = 10;
@@ -150,7 +150,7 @@ private:
     sf::Time treeCooldown = sf::seconds(5);
     sf::Time lastTreeTime = sf::Time::Zero;
     // View
-    float viewMoveSpeed = 20;
+    float viewMoveSpeed = 100;
     sf::Vector2f shift = {0, 0};
 };
 }  // namespace jam
