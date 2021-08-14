@@ -16,10 +16,7 @@ struct LifeBarCharacter {
     float scale;
     float health;
 
-    LifeBarCharacter(sf::RenderTarget &window, float health_)
-        : scale(0), health(health_) {
-        original.setSize(window.mapPixelToCoords(sf::Vector2i(32, 8)));
-        current.setSize(window.mapPixelToCoords(sf::Vector2i(32, 8)));
+    LifeBarCharacter(float health_) : scale(0), health(health_) {
         original.setFillColor(sf::Color(74, 53, 27));
         current.setFillColor(sf::Color::Green);
     }
@@ -73,13 +70,12 @@ protected:
     sf::Vector2f scale;
     int current_frame, quantity_frames;
     sf::Vector2i size_frame;
-    float health, damage, current_health, current_damage;
+    float health, damage, current_health, current_damage, max_health;
     sf::Texture character_texture, icon_texture;
     sf::Sprite character, icon;
     jam::Level &curLevel;
 
-    TemplateCharacter(sf::RenderTarget &window,
-                      const std::string &file_name,
+    TemplateCharacter(const std::string &file_name,
                       int quantity_frames_,
                       sf::Vector2i size_frame_,
                       float health_,
@@ -95,7 +91,11 @@ protected:
           health(health_),
           damage(damage_),
           scale(sf::Vector2f(0, 0)),
-          life_bar(window, health_) {
+          life_bar(health_),
+          max_health(health_) {
+        if (file_name == "") {
+            return;
+        }
         sf::Clock clock;
         sf::Image character_image;
         character_image.loadFromFile(file_name);
@@ -116,11 +116,13 @@ protected:
                 size_frame.x,
             0, size_frame.x, size_frame.y));
     }
-
     void initializingCoordinates(float &dx, float &dy, int direction) const;
 
 public:
+    virtual void updateState() = 0;
+    sf::FloatRect getGlobalBounds() const;
     bool isCorrectMove();
+    void takeDamage(float damage_);
 
     sf::Sprite *getSprite();
 
@@ -165,8 +167,8 @@ protected:
     void moveToPosition();
 
 public:
-    Monster(sf::RenderTarget &window,
-            const std::string &file_name,
+    void updateState() override;
+    Monster(const std::string &file_name,
             float health_,
             float damage_,
             std::vector<sf::Vector2f> &positions_,
@@ -174,8 +176,7 @@ public:
             int money_ = 0,
             int quantity_frames_ = 4,
             sf::Vector2i size_frame_ = sf::Vector2i(16, 16))
-        : TemplateCharacter(window,
-                            file_name,
+        : TemplateCharacter(file_name,
                             quantity_frames_,
                             size_frame_,
                             health_,
@@ -187,101 +188,93 @@ public:
 
     int getState() const;
 
-    void takeDamage(float damage_);
-
     void drawCharacter(sf::RenderTarget &window) override;
 
     static std::shared_ptr<Monster> makeArmouredRedDemon(
-        sf::RenderTarget &window,
+
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
     static std::shared_ptr<Monster> makeRedDemon(
-        sf::RenderTarget &window,
+
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
     static std::shared_ptr<Monster> makePurpleDemon(
-        sf::RenderTarget &window,
+
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
-    // makeFrostborn
-
     static std::shared_ptr<Monster> makeMammoth(
-        sf::RenderTarget &window,
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
     static std::shared_ptr<Monster> makeWendigo(
-        sf::RenderTarget &window,
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
     static std::shared_ptr<Monster> makeYeti(
-        sf::RenderTarget &window,
+
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
     static std::shared_ptr<Monster> makeArcherGoblin(
-        sf::RenderTarget &window,
+
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
     static std::shared_ptr<Monster> makeClubGoblin(
-        sf::RenderTarget &window,
+
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
     static std::shared_ptr<Monster> makeFarmerGoblin(
-        sf::RenderTarget &window,
+
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
     static std::shared_ptr<Monster> makeKamikazeGoblin(
-        sf::RenderTarget &window,
+
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
     static std::shared_ptr<Monster> makeOrc(
-        sf::RenderTarget &window,
+
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
     static std::shared_ptr<Monster> makeOrcMage(
-        sf::RenderTarget &window,
+
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
     static std::shared_ptr<Monster> makeOrcShaman(
-        sf::RenderTarget &window,
+
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
-
     static std::shared_ptr<Monster> makePirateCaptain(
-        sf::RenderTarget &window,
+
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
     static std::shared_ptr<Monster> makePirateGrunt(
-        sf::RenderTarget &window,
+
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
     static std::shared_ptr<Monster> makePirateGunnern(
-        sf::RenderTarget &window,
+
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
-
     static std::shared_ptr<Monster> makeNecromancer(
-        sf::RenderTarget &window,
+
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 
     static std::shared_ptr<Monster> makeSkeletonSoldier(
-        sf::RenderTarget &window,
+
         jam::Level &level,
         std::vector<sf::Vector2f> &monster_path);
 };
@@ -309,16 +302,17 @@ protected:
     void moveToPosition();
 
 public:
-    Hero(sf::RenderTarget &window,
-         const std::string &file_name,
+    int getState() const;
+    void updateState() override;
+
+    Hero(const std::string &file_name,
          float health_,
          float damage_,
          jam::Level &curLevel,
          bool is_always_move_ = true,
          int quantity_frames_ = 4,
          sf::Vector2i size_frame_ = sf::Vector2i(16, 16))
-        : TemplateCharacter(window,
-                            file_name,
+        : TemplateCharacter(file_name,
                             quantity_frames_,
                             size_frame_,
                             health_,
@@ -338,24 +332,23 @@ public:
                const sf::Time &currentTime);
 
     void drawCharacter(sf::RenderTarget &window) override;
+
+    static std::shared_ptr<Hero> makeEmptyHero(
+        jam::Level &level,
+        sf::Vector2f position = sf::Vector2f(0, 0));
     static std::shared_ptr<Hero> makeAssasinPurple(
-        sf::RenderTarget &window,
         jam::Level &level,
         sf::Vector2f position = sf::Vector2f(0, 0));
 
     static std::shared_ptr<Hero> makeAssasinLime(
-        sf::RenderTarget &window,
         jam::Level &level,
         sf::Vector2f position = sf::Vector2f(0, 0));
 
     static std::shared_ptr<Hero> makeAssasinCyan(
-        sf::RenderTarget &window,
         jam::Level &level,
         sf::Vector2f newPosition = sf::Vector2f(0, 0));
 
     static std::shared_ptr<Hero> makeAssasinRed(
-        sf::RenderTarget &window,
         jam::Level &level,
         sf::Vector2f position = sf::Vector2f(0, 0));
 };
-

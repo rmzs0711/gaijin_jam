@@ -12,26 +12,27 @@ struct Menu : sf::Drawable {
     /*const sf::RectangleShape &getBackground() const {
         return background;
     }*/
-    
-    void setSize(const sf::Vector2f& newSize) {
+
+    void setSize(const sf::Vector2f &newSize) {
         background.setSize(newSize);
     }
 
     sf::Vector2f getSize() {
         return background.getSize();
     }
-    
-    void setColor(const sf::Color& newColor) {
+
+    void setColor(const sf::Color &newColor) {
         background.setFillColor(newColor);
     }
 
-    void setPosition(const sf::Vector2f& newPosition) {
+    void setPosition(const sf::Vector2f &newPosition) {
         background.setPosition(newPosition);
     }
 
-    Menu(sf::RenderWindow& window) {
+    Menu(sf::RenderWindow &window) {
         background.setPosition(0, 0);
-        background.setSize(window.mapPixelToCoords(sf::Vector2i(window.getSize())));
+        background.setSize(
+            window.mapPixelToCoords(sf::Vector2i(window.getSize())));
         texture_background.loadFromFile("data/images/textureBase.png");
         background.setTexture(&texture_background);
     }

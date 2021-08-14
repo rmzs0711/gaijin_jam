@@ -50,9 +50,10 @@ void Cell::setState(const CellState &newState,
             switch (stateType) {
                 case LAVA:
                 case BLAST:
-                    prevBackground =
-                        prevBackground == ROAD ? ROAD :
-                        (rand() % 2 ? DARK_GREEN_GRASS : LIGHT_GREEN_GRASS);
+                    prevBackground = prevBackground == ROAD
+                                         ? ROAD
+                                         : (rand() % 2 ? DARK_GREEN_GRASS
+                                                       : LIGHT_GREEN_GRASS);
                     break;
                 default:
                     prevBackground = backgroundType;
@@ -90,7 +91,7 @@ void Cell::setState(const CellState &newState,
 sf::FloatRect Cell::getGlobalBounds() const {
     return background.getGlobalBounds();
 }
-void Cell::draw(sf::RenderTarget &window) {
+void Cell::draw(sf::RenderTarget &window) const {
     window.draw(background);
 }
 
@@ -195,7 +196,7 @@ void FreeObject::changeObjectType(const Object &newObjectType) const {
     object.setTexture(*texturePtrs[newObjectType]);
     objectType = newObjectType;
 }
-void FreeObject::draw(sf::RenderWindow &window) const {
+void FreeObject::draw(sf::RenderTarget &window) const {
     sf::RectangleShape rect;
     rect.setPosition(hitBox.left, hitBox.top);
     rect.setSize({hitBox.width, hitBox.height});
@@ -231,6 +232,9 @@ void FreeObject::setNumberOfFrames(const sf::Vector2i &newNumberOfFrames) {
 }
 void FreeObject::setAnimation(bool condition) {
     isAnime = condition;
+}
+sf::FloatRect FreeObject::getGlobalBounds() const {
+    return object.getGlobalBounds();
 }
 
 }  // namespace jam

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include "SFML/Graphics.hpp"
 #include "characters.h"
 
@@ -16,9 +17,9 @@ public:
     void setTextureRect(const sf::IntRect &rect);
     float getSpeed() const;
     void setSpeed(float newSpeed);
-    void draw(sf::RenderWindow &window);
+    void draw(sf::RenderTarget &window) const;
     bool isFinished();
-
+    sf::FloatRect getGlobalBounds() const;
     void setTargetPtr(const std::shared_ptr<TemplateCharacter> &targetPtr_);
     bool operator<(const FlyingObject &rhs) const;
 
@@ -39,7 +40,9 @@ protected:
     Level &level;
 
     sf::Texture buildingTexture;
+
 public:
+    sf::FloatRect getGlobalBounds() const;
     const sf::Sprite &getBuilding() const;
     explicit Building(Level &level_);
     const sf::FloatRect &getHitBox() const;
@@ -52,19 +55,20 @@ public:
     const sf::Vector2i &getPosInMap() const;
     void setPosInMap(const sf::Vector2i &newPosInMap);
     void setTextureRect(const sf::IntRect &newRect);
-    virtual void draw(sf::RenderWindow &window) const;
+    virtual void draw(sf::RenderTarget &window) const;
     virtual ~Building() = default;
-    bool operator<(const jam::Building &rhs) const;
-    sf::Sprite* getSprite();
+    virtual bool operator<(const jam::Building &rhs) const;
+    sf::Sprite *getSprite();
 
 private:
 };
 
 struct AttackBuilding;
+
 struct AttackBuildingAnimatedObject {
     void updateFrame(float) const;
-    void draw(sf::RenderWindow& window) const;
-    void loadTexture(const std::string&);
+    void draw(sf::RenderTarget &window) const;
+    void loadTexture(const std::string &);
 
     mutable sf::Sprite object;
     sf::Vector2f pos;
@@ -76,9 +80,10 @@ struct AttackBuildingAnimatedObject {
 struct AttackBuilding : Building {
     friend AttackBuildingAnimatedObject;
     AttackBuildingAnimatedObject attackBuildingAnimatedObject;
+
 public:
-    void draw(sf::RenderWindow& window) const override;
     explicit AttackBuilding(Level &level_);
+    void draw(sf::RenderTarget &window) const override;
     const sf::Time &getAttackCooldown() const;
     void setAttackCooldown(const sf::Time &newAttackCooldown);
     float getAttackRange() const;
@@ -89,7 +94,7 @@ public:
     const sf::Vector2f &getFirePosition() const;
 
     void setFlyingObject(const FlyingObject &flyingObject_);
-    void attack(const sf::Time&) const;
+    void attack(const sf::Time &) const;
 
 protected:
     sf::Texture flyingObjectTexture;
@@ -100,11 +105,18 @@ protected:
     sf::Vector2f firePosition;
 };
 
-struct SupportBuilding : Building {};
+struct SupportBuilding : Building {
+    explicit SupportBuilding(Level &level_);
+
+    std::function<void(Level &, const SupportBuilding &)> magic;
+    void doMagic(const sf::Time &) const;
+    mutable sf::Time lastMagicTime;
+    sf::Time magicCooldown;
+};
 
 struct Home : Building {
 public:
-    Home(Level& level_) : Building(level_) {}
+    Home(Level &level_) : Building(level_) {}
 
     bool isEndGame() const;
 };
