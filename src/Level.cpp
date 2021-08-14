@@ -213,11 +213,11 @@ void jam::Level::draw(sf::RenderWindow &window) {
 
     window.setView(view);
 
-    sf::View storeView(
+    sf::View object_view(
         sf::FloatRect{sf::Vector2f(0, 0), sf::Vector2f(window.getSize())});
-    sf::RenderTexture Bar;
-    Bar.create(window.getSize().x, window.getSize().y);
-    Bar.setView(storeView);
+    sf::RenderTexture object_bar;
+    object_bar.create(window.getSize().x, window.getSize().y);
+    object_bar.setView(object_view);
 
     while (window.isOpen()) {
         if (clock1.getElapsedTime() - lastRegenTime > regenCooldown) {
@@ -235,7 +235,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
             for (auto &i : money) {
                 store.addMoney((*i).event(event, window));
             }
-            store.event(event, Bar, mouse, *this);
+            store.event(event, object_bar, mouse, *this);
             switch (event.type) {
                 case sf::Event::Closed:
                     window.close();
@@ -243,13 +243,13 @@ void jam::Level::draw(sf::RenderWindow &window) {
                 case sf::Event::MouseButtonPressed:
                     if (event.mouseButton.button == sf::Mouse::Left) {
                         if (menuGameButton.isCorrectClick(
-                            Bar.mapPixelToCoords(
+                            object_bar.mapPixelToCoords(
                                 { event.mouseButton.x,
                                  event.mouseButton.y }))) {
                             menuGameButton.handleClick();
                         }
                         else if (storeButton.isCorrectClick(
-                            Bar.mapPixelToCoords(
+                            object_bar.mapPixelToCoords(
                                 { event.mouseButton.x,
                                  event.mouseButton.y }))) {
                             storeButton.handleClick();
@@ -422,7 +422,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
         }
 
         window.clear();
-        Bar.clear(sf::Color::Transparent);
+        object_bar.clear(sf::Color::Transparent);
         
 
         for (auto &i : map) {
@@ -586,12 +586,12 @@ void jam::Level::draw(sf::RenderWindow &window) {
         }
         view.setCenter(shift + view.getSize() / 2.f);
         minimapSprite.setPosition(shift);
-        store.drawStore(Bar);
-        menuGameButton.drawButton(Bar);
-        storeButton.drawButton(Bar);
-        Bar.display();
+        store.drawStore(object_bar);
+        menuGameButton.drawButton(object_bar);
+        storeButton.drawButton(object_bar);
+        object_bar.display();
         
-        sf::Sprite storeSprite(Bar.getTexture());
+        sf::Sprite storeSprite(object_bar.getTexture());
         storeSprite.setPosition(minimapSprite.getPosition());
 
         window.draw(storeSprite);
