@@ -2,8 +2,8 @@
 #include "../include/building.h"
 #include "../include/Level.h"
 #else
-#include "building.h"
 #include "Level.h"
+#include "building.h"
 #endif
 
 float jam::FlyingObject::getDamage() const {
@@ -24,7 +24,10 @@ float jam::FlyingObject::getSpeed() const {
 void jam::FlyingObject::setSpeed(float newSpeed) {
     FlyingObject::speed = newSpeed;
 }
-void jam::FlyingObject::draw(sf::RenderWindow &window) {
+void jam::FlyingObject::draw(sf::RenderTarget &window) const {
+    window.draw(object);
+}
+bool jam::FlyingObject::isFinished() {
     object.setOrigin(getOrigin());
     object.setScale(getScale());
     auto &curPos = getPosition();
@@ -37,14 +40,11 @@ void jam::FlyingObject::draw(sf::RenderWindow &window) {
     auto Dist = std::sqrt((xDist * xDist) + (yDist * yDist));
 
     move(speed * sf::Vector2f{xDist / Dist, yDist / Dist});
-    object.setRotation((asin(yDist / Dist) < 0 ? -1 : 1) *
+    object.setRotation(((float)asin(yDist / Dist) < 0 ? -1.f : 1.f) *
                            std::acos(xDist / Dist) * 180 / M_PI -
                        90);
-
     object.setPosition(getPosition());
-    window.draw(object);
-}
-bool jam::FlyingObject::isFinished() {
+
     if (object.getGlobalBounds().contains(targetPos)) {
         targetPtr->health -= damage;
         return true;
@@ -67,6 +67,9 @@ bool jam::FlyingObject::operator<(const jam::FlyingObject &rhs) const {
     }
     return false;
 }
+sf::FloatRect jam::FlyingObject::getGlobalBounds() const {
+    return object.getGlobalBounds();
+}
 const sf::FloatRect &jam::Building::getHitBox() const {
     return hitBox;
 }
@@ -79,7 +82,7 @@ const sf::Vector2i &jam::Building::getSizeInMap() const {
 void jam::Building::setSizeInMap(const sf::Vector2i &newSize) {
     Building::sizeOnMap = newSize;
 }
-sf::Sprite* jam::Building::getSprite() {
+sf::Sprite *jam::Building::getSprite() {
     return &building;
 }
 const sf::Vector2i &jam::Building::getPosInMap() const {
@@ -96,7 +99,7 @@ void jam::Building::setTextureRect(const sf::IntRect &newRect) {
     building.setOrigin(building.getGlobalBounds().width / 2,
                        building.getGlobalBounds().height);
 }
-void jam::Building::draw(sf::RenderWindow &window) const {
+void jam::Building::draw(sf::RenderTarget &window) const {
     building.setTexture(buildingTexture);
     window.draw(building);
     sf::RectangleShape rect({hitBox.width, hitBox.height});
@@ -162,6 +165,9 @@ void jam::AttackBuilding::setAttackCooldown(const sf::Time &newAttackCooldown) {
 void jam::Building::setScale(sf::Vector2f newScale) {
     building.setScale(newScale);
 }
+sf::FloatRect jam::Building::getGlobalBounds() const {
+    return building.getGlobalBounds();
+}
 float jam::AttackBuilding::getAttackRange() const {
     return attackRange;
 }
@@ -182,12 +188,12 @@ void jam::AttackBuilding::setFlyingObject(
     AttackBuilding::flyingObject = flyingObject_;
 }
 jam::AttackBuilding::AttackBuilding(jam::Level &level_) : Building(level_) {}
-void jam::AttackBuilding::draw(sf::RenderWindow &window) const {
+void jam::AttackBuilding::draw(sf::RenderTarget &window) const {
     Building::draw(window);
     attackBuildingAnimatedObject.draw(window);
 }
 
-void jam::AttackBuildingAnimatedObject::draw(sf::RenderWindow &window) const {
+void jam::AttackBuildingAnimatedObject::draw(sf::RenderTarget &window) const {
     object.setTexture(texture);
     object.setTextureRect(frames[curFrame]);
     window.draw(object);
@@ -202,11 +208,21 @@ void jam::AttackBuildingAnimatedObject::loadTexture(const std::string &path) {
 }
 
 bool jam::Home::isEndGame() const {
-    for (auto& i : level.monsters) {
+    for (auto &i : level.monsters) {
         auto hitBox = i->getSprite()->getGlobalBounds();
-        if (getHitBox().intersects({ hitBox.left, hitBox.top + hitBox.height / 2, hitBox.width, hitBox.height / 2 })) {
+        if (getHitBox().intersects({hitBox.left, hitBox.top + hitBox.height / 2,
+                                    hitBox.width, hitBox.height / 2})) {
             return true;
         }
     }
     return false;
+}
+
+// SupportBuilding
+jam::SupportBuilding::SupportBuilding(jam::Level &level_) : Building(level_) {}
+void jam::SupportBuilding::doMagic(const sf::Time &curTime) const {
+    if (curTime - lastMagicTime > magicCooldown) {
+        magic(level, *this);
+        lastMagicTime = curTime;
+    }
 }

@@ -5,7 +5,7 @@
 #endif
 
 namespace jam {
-FreeObject makeEmptyObject(sf::Vector2f & pos) {
+FreeObject makeEmptyObject(sf::Vector2f &pos) {
     FreeObject object(NONE);
     object.setPosition(pos);
     return object;
@@ -37,7 +37,6 @@ FreeObject makeRock(const sf::Vector2f &position) {
                     hitBox.width - 5, hitBox.height / 3});
     return rock;
 }
-
 
 FreeObject makeFire(const sf::Vector2f &position) {
     static FreeObject fire(FIRE);

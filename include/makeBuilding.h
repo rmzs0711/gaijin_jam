@@ -2,14 +2,30 @@
 #include "Cell.h"
 #include "Level.h"
 #include "building.h"
+#include "characters.h"
 
 namespace jam {
-inline jam::AttackBuilding makeEmptyBuilding(jam::Level &level,
-                                             const sf::Vector2i newPosInMap) {
+inline jam::Building makeEmptyBuilding(jam::Level &level,
+                                       const sf::Vector2i newPosInMap) {
+    jam::Building tower(level);
+    tower.setPosInMap(newPosInMap);
+    return tower;
+}
+inline jam::AttackBuilding makeEmptyAttackBuilding(
+    jam::Level &level,
+    const sf::Vector2i newPosInMap) {
     jam::AttackBuilding tower(level);
     tower.setPosInMap(newPosInMap);
     return tower;
 }
+inline jam::SupportBuilding makeEmptySupportBuilding(
+    jam::Level &level,
+    const sf::Vector2i newPosInMap) {
+    jam::SupportBuilding tower(level);
+    tower.setPosInMap(newPosInMap);
+    return tower;
+}
+
 inline jam::AttackBuilding makeArcherBuilding(jam::Level &level,
                                               const sf::Vector2i newPosInMap) {
     jam::AttackBuilding archersTower(level);
@@ -92,7 +108,7 @@ inline jam::AttackBuilding makeSniperBuilding(jam::Level &level,
 
     for (int i = 0; i < 4; i++) {
         sniperTower.attackBuildingAnimatedObject.frames.emplace_back(
-            sf::IntRect({(i) * assetCellSize.x, 4 * assetCellSize.x},
+            sf::IntRect({(i)*assetCellSize.x, 4 * assetCellSize.x},
                         assetCellSize));
     }
     sniperTower.attackBuildingAnimatedObject.texture.loadFromFile(
@@ -113,7 +129,7 @@ inline jam::AttackBuilding makeWizardTower(jam::Level &level,
                                            const sf::Vector2i newPosInMap) {
     jam::AttackBuilding wizardTower(level);
     wizardTower.setAttackCooldown(sf::seconds(1.5));
-    wizardTower.setAttackRange(10    * cellSize);
+    wizardTower.setAttackRange(10 * cellSize);
     wizardTower.loadBuildingTexture(
         "data/images/MiniWorldSprites/Buildings/Cyan/CyanTower.png");
     wizardTower.setTextureRect(
@@ -166,5 +182,76 @@ inline jam::Home makeHome(jam::Level &level) {
                        .getGlobalBounds());
     home.setScale({(float)cellSize / 16, (float)cellSize / 16});
     return home;
+}
+
+// Support Building
+inline SupportBuilding makeBarrack(jam::Level &level,
+                                   const sf::Vector2i newPosInMap) {
+    jam::SupportBuilding barrack(level);
+    barrack.magicCooldown = sf::seconds(60);
+    barrack.loadBuildingTexture(
+        "data/images/MiniWorldSprites/Buildings/Wood/Barracks.png");
+    barrack.setTextureRect({{0, 0}, {assetCellSize.x, assetCellSize.x}});
+    barrack.setPosInMap(newPosInMap);
+    barrack.setSizeInMap({1, 1});
+    barrack.setHitBox(
+        level.getMap()[barrack.getPosInMap().y][barrack.getPosInMap().x]
+            .getGlobalBounds());
+    barrack.setScale(
+        {(float)cellSize / assetCellSize.x, (float)cellSize / assetCellSize.x});
+    barrack.magic = [&](Level &curLevel, const SupportBuilding &building) {
+        sf::Vector2i cell = {-1, -1};
+        static int h = 0;
+        std::cout << ++h << std::endl;
+        auto &map = curLevel.getMap();
+        for (int i = -1; i < 2 && cell == sf::Vector2i{-1, -1}; ++i) {
+            for (int j = -1; j < 2 && cell == sf::Vector2i{-1, -1}; ++j) {
+                cell = {
+                    bounds(building.getPosInMap().x + i, 0, (int)map[0].size()),
+                    bounds(building.getPosInMap().y, 0, (int)map.size())};
+                if (map[cell.y][cell.x].getBackgroundType() !=
+                    jam::CellBackground::ROAD) {
+                    cell = {-1, -1};
+                }
+            }
+        }
+        if (cell != sf::Vector2i{-1, -1}) {
+            int randValue = rand() % 10;
+            if (randValue == 0) {
+                curLevel.addHero(Hero::makeAssasinRed(
+                    level,
+                    sf::Vector2f(
+                        map[cell.y][cell.x].getGlobalBounds().left +
+                            map[cell.y][cell.x].getGlobalBounds().width / 2,
+                        map[cell.y][cell.x].getGlobalBounds().top +
+                            map[cell.y][cell.x].getGlobalBounds().height / 2)));
+            } else if (randValue >= 1 && randValue <= 2) {
+                curLevel.addHero(Hero::makeAssasinCyan(
+                    level,
+                    sf::Vector2f(
+                        map[cell.y][cell.x].getGlobalBounds().left +
+                            map[cell.y][cell.x].getGlobalBounds().width / 2,
+                        map[cell.y][cell.x].getGlobalBounds().top +
+                            map[cell.y][cell.x].getGlobalBounds().height / 2)));
+            } else if (randValue >= 3 && randValue <= 5) {
+                curLevel.addHero(Hero::makeAssasinLime(
+                    level,
+                    sf::Vector2f(
+                        map[cell.y][cell.x].getGlobalBounds().left +
+                            map[cell.y][cell.x].getGlobalBounds().width / 2,
+                        map[cell.y][cell.x].getGlobalBounds().top +
+                            map[cell.y][cell.x].getGlobalBounds().height / 2)));
+            } else if (randValue >= 6 && randValue <= 9) {
+                curLevel.addHero(Hero::makeAssasinPurple(
+                    level,
+                    sf::Vector2f(
+                        map[cell.y][cell.x].getGlobalBounds().left +
+                            map[cell.y][cell.x].getGlobalBounds().width / 2,
+                        map[cell.y][cell.x].getGlobalBounds().top +
+                            map[cell.y][cell.x].getGlobalBounds().height / 2)));
+            }
+        }
+    };
+    return barrack;
 }
 }  // namespace jam

@@ -1,20 +1,50 @@
 #ifdef _MSC_VER
 #include "../include/Level.h"
-#include "../include/makeAttackBuilding.h"
-#include "../include/gameSession.h"
 #include "../include/game.h"
+#include "../include/gameSession.h"
+#include "../include/makeAttackBuilding.h"
 #include "../include/store.h"
 #else
 #include <Level.h>
 #include <store.h>
-#include "makeAttackBuilding.h"
-#include "gameSession.h"
 #include "game.h"
+#include "gameSession.h"
+#include "makeBuilding.h"
 #endif
 
 extern const sf::Vector2f sizeBaseButton;
 
-namespace {}
+namespace {
+bool isInView(const sf::View &view, const sf::FloatRect &objectRect) {
+    return sf::FloatRect(view.getCenter() - view.getSize() / 2.f,
+                         view.getSize())
+        .intersects(objectRect);
+}
+
+template <typename T>
+void checkDraw(const sf::View &view, T &object, sf::RenderTarget &window) {
+    if (isInView(view, object.getGlobalBounds())) {
+        object.draw(window);
+    }
+}
+template <>
+void checkDraw<Monster>(const sf::View &view,
+                        Monster &object,
+                        sf::RenderTarget &window) {
+    if (isInView(view, object.getGlobalBounds())) {
+        object.drawCharacter(window);
+    }
+}
+template <>
+void checkDraw<Hero>(const sf::View &view,
+                     Hero &object,
+                     sf::RenderTarget &window) {
+    if (isInView(view, object.getGlobalBounds())) {
+        object.drawCharacter(window);
+    }
+}
+
+}  // namespace
 bool jam::Level::addHero(const std::shared_ptr<Hero> &hero) {
     if ((*hero).isCorrectMove()) {
         heroes.emplace_back(hero);
@@ -46,10 +76,10 @@ bool jam::Level::addAttackBuilding(AttackBuilding building) {
         }
     }
     {
-        auto start = attackBuildings.lower_bound(jam::makeEmptyBuilding(
+        auto start = attackBuildings.lower_bound(jam::makeEmptyAttackBuilding(
             *this, sf::Vector2i{(int)hitBox.left / jam::cellSize - 1,
                                 (int)hitBox.top / jam::cellSize - 1}));
-        auto end = attackBuildings.upper_bound(jam::makeEmptyBuilding(
+        auto end = attackBuildings.upper_bound(jam::makeEmptyAttackBuilding(
             *this, sf::Vector2i((int)hitBox.left / jam::cellSize + 1,
                                 (int)hitBox.top / jam::cellSize + 1)));
         for (auto &i = start; i != end; i++) {
@@ -99,12 +129,22 @@ void jam::Level::heroSetScale(const sf::Vector2f &newScale, std::size_t i) {
     (*heroes[i]).setScale(newScale);
 }
 
-jam::Level::Level(sf::RenderWindow& window, const std::vector<std::vector<int>>& mapObjects)
-    : ability(FIRE_BLAST), elements(2, POWER_ELEMENT::FIRE), menuGameButton([&]() { GameSession::closeGame(window, [&]() { jam::Game::startGame(window); }); }, "Menu") {
-
-    menuGameButton.setSize({ sizeBaseButton.x / 2, sizeBaseButton.y });
+jam::Level::Level(sf::RenderWindow &window,
+                  const std::vector<std::vector<int>> &mapObjects)
+    : ability(FIRE_BLAST),
+      elements(2, POWER_ELEMENT::FIRE),
+      menuGameButton(
+          [&]() {
+              GameSession::closeGame(window,
+                                     [&]() { jam::Game::startGame(window); });
+          },
+          "Menu") {
+    menuGameButton.setSize({sizeBaseButton.x / 2, sizeBaseButton.y});
     menuGameButton.setFillColor(sf::Color(74, 53, 27));
-    menuGameButton.setPosition({window.mapPixelToCoords(sf::Vector2i(window.getSize())).x - sizeBaseButton.x / 2 - 20, 20});
+    menuGameButton.setPosition(
+        {window.mapPixelToCoords(sf::Vector2i(window.getSize())).x -
+             sizeBaseButton.x / 2 - 20,
+         20});
 
     freeObjects.insert(makeTree({200, 300}));
     map.resize(mapObjects.size());
@@ -115,9 +155,10 @@ jam::Level::Level(sf::RenderWindow& window, const std::vector<std::vector<int>>&
             map[i][j].setBackgroundType(mapObjects[i][j]);
         }
     }
-    attackBuildings.insert(makeArcherBuilding(*this, {4, 5}));
-    attackBuildings.insert(makeWizardTower(*this, {6, 4}));
-    attackBuildings.insert(makeSniperBuilding(*this, {6, 5}));
+    //    attackBuildings.insert(makeArcherBuilding(*this, {4, 5}));
+    //    attackBuildings.insert(makeWizardTower(*this, {6, 4}));
+    //    attackBuildings.insert(makeSniperBuilding(*this, {6, 5}));
+    supportBuildings.insert(makeBarrack(*this, {7, 3}));
     home.push_back(makeHome(*this));
 }
 
@@ -133,10 +174,19 @@ void jam::Level::updateStates() {
     for (auto &i : attackBuildings) {
         i.attack(clock1.getElapsedTime());
     }
+    for (auto &i : supportBuildings) {
+        i.doMagic(clock1.getElapsedTime());
+    }
+    for (auto &i : heroes) {
+        i->updateState();
+    }
+    for (auto &i : monsters) {
+        i->updateState();
+    }
 }
 void jam::Level::draw(sf::RenderWindow &window) {
-    Store store(window);
     clock1.restart();
+    Store store(window);
     sf::Vector2f mouse;
     sf::View view(
         sf::FloatRect{sf::Vector2f(0, 0), sf::Vector2f(window.getSize())});
@@ -146,7 +196,6 @@ void jam::Level::draw(sf::RenderWindow &window) {
     miniMapView.setViewport({0.75, 0, 0.25, 0.25});
 
     sf::RenderTexture minimap;
-    //    minimap.clear(sf::Color::Transparent);
     minimap.create(window.getSize().x, window.getSize().y);
     minimap.setView(miniMapView);
     for (auto &i : map) {
@@ -167,6 +216,12 @@ void jam::Level::draw(sf::RenderWindow &window) {
     storeBar.setView(storeView);
 
     while (window.isOpen()) {
+        if (clock1.getElapsedTime() - lastRegenTime > regenCooldown) {
+            mana += manaRegen;
+            mana = std::min(mana, maxMana);
+            lastRegenTime = clock1.getElapsedTime();
+        }
+
         window.clear();
         storeBar.clear(sf::Color::Transparent);
         updateStates();
@@ -186,15 +241,19 @@ void jam::Level::draw(sf::RenderWindow &window) {
                     break;
                 case sf::Event::MouseButtonPressed:
                     if (event.mouseButton.button == sf::Mouse::Left) {
-                        if (menuGameButton.isCorrectClick(window.mapPixelToCoords({ event.mouseButton.x, event.mouseButton.y }))) {
-                            /////////////////////////////////////////////
+                        if (menuGameButton.isCorrectClick(
+                                window.mapPixelToCoords(
+                                    {event.mouseButton.x,
+                                     event.mouseButton.y}))) {
                             menuGameButton.handleClick();
                         }
                     }
                     if (!readyToCast) {
                         continue;
                     }
-                    if (event.mouseButton.button == sf::Mouse::Left) {
+                    if (event.mouseButton.button == sf::Mouse::Left &&
+                        mana > abilityCost.at(ability)) {
+                        mana -= abilityCost.at(ability);
                         auto selectedCell = sf::Vector2i{
                             window.mapPixelToCoords(
                                 {event.mouseButton.x, event.mouseButton.y}) /
@@ -295,7 +354,9 @@ void jam::Level::draw(sf::RenderWindow &window) {
                     readyToCast = false;
                     break;
                 case sf::Event::KeyPressed:
-                    if (event.key.code == sf::Keyboard::R) {
+                    if (event.key.code == sf::Keyboard::R &&
+                        mana > combineCost) {
+                        mana -= combineCost;
                         int whatAbility =
                             (1 << elements[0]) | (1 << elements[1]);
                         if (whatAbility == 4) {  // 100
@@ -341,12 +402,12 @@ void jam::Level::draw(sf::RenderWindow &window) {
                     if (event.key.code == sf::Keyboard::D) {
                         shift.x += viewMoveSpeed;
                     }
-                    shift.x =
-                        bounds(shift.x, 0.f, (float)(cellSize * map[0].size()
-                                                     ) - view.getSize().x);
-                    shift.y =
-                        bounds(shift.y, 0.f, (float)(cellSize * map.size()) -
-                                                 view.getSize().y);
+                    shift.x = bounds(
+                        shift.x, 0.f,
+                        (float)(cellSize * map[0].size()) - view.getSize().x);
+                    shift.y = bounds(
+                        shift.y, 0.f,
+                        (float)(cellSize * map.size()) - view.getSize().y);
                     break;
                 default:
                     break;
@@ -354,12 +415,15 @@ void jam::Level::draw(sf::RenderWindow &window) {
         }
         for (auto &i : map) {
             for (auto &j : i) {
-                if (sf::FloatRect(window.getView().getCenter() -
-                                      window.getView().getSize() / 2.f,
-                                  window.getView().getSize())
-                        .intersects(j.getGlobalBounds())) {
-                    j.draw(window);
-                }
+                checkDraw(view, j, window);
+                //                if (sf::FloatRect(window.getView().getCenter()
+                //                -
+                //                                      window.getView().getSize()
+                //                                      / 2.f,
+                //                                  window.getView().getSize())
+                //                        .intersects(j.getGlobalBounds())) {
+                //                    j.draw(window);
+                //                }
                 if (((clock1.getElapsedTime() - lastTreeTime) > treeCooldown) &&
                     !rand() &&
                     (j.getBackgroundType() == DARK_GREEN_GRASS ||
@@ -383,10 +447,12 @@ void jam::Level::draw(sf::RenderWindow &window) {
         auto monster = monsters.begin();
         auto hero = heroes.begin();
         auto flyingObject = flyingObjects.begin();
-        auto building = attackBuildings.begin();
+        auto attackBuilding = attackBuildings.begin();
+        auto supportBuilding = supportBuildings.begin();
         for (; freeObject != freeObjects.end() || monster != monsters.end() ||
                hero != heroes.end() || flyingObject != flyingObjects.end() ||
-               building != attackBuildings.end();) {
+               attackBuilding != attackBuildings.end() ||
+               supportBuilding != supportBuildings.end();) {
             auto objectPos = freeObject != freeObjects.end()
                                  ? freeObject->getPosition().y
                                  : std::numeric_limits<float>::max();
@@ -399,15 +465,20 @@ void jam::Level::draw(sf::RenderWindow &window) {
             auto flyingObjectPos = flyingObject != flyingObjects.end()
                                        ? flyingObject->getPosition().y
                                        : std::numeric_limits<float>::max();
-            auto buildingPos = building != attackBuildings.end()
-                                   ? building->getHitBox().top
-                                   : std::numeric_limits<float>::max();
+            auto attackBuildingPos = attackBuilding != attackBuildings.end()
+                                         ? attackBuilding->getHitBox().top
+                                         : std::numeric_limits<float>::max();
+            auto supportBuildingPos = supportBuilding != supportBuildings.end()
+                                          ? supportBuilding->getHitBox().top
+                                          : std::numeric_limits<float>::max();
 
-            float poses[5] = {objectPos, monsterPos, heroPos, flyingObjectPos,
-                              buildingPos};
+            float poses[6] = {objectPos,         monsterPos,
+                              heroPos,           flyingObjectPos,
+                              attackBuildingPos, supportBuildingPos};
             std::sort(std::begin(poses), std::end(poses));
             if (poses[0] == objectPos) {
                 freeObject->draw(window);
+                checkDraw(view, *freeObject, window);
                 auto cell =
                     sf::Vector2i(freeObject->getPosition() / (float)cellSize);
                 if (freeObject->getObjectType() == ROCK &&
@@ -478,33 +549,42 @@ void jam::Level::draw(sf::RenderWindow &window) {
                 }
                 freeObject++;
             } else if (poses[0] == monsterPos) {
-                (*monster)->drawCharacter(window);
+                checkDraw(view, dynamic_cast<Monster &>(**monster), window);
+                //                (*monster)->drawCharacter(window);
                 if (!(*monster)->isDraw()) {
                     monster = monsters.erase(monster);
                 } else {
                     monster++;
                 }
             } else if (poses[0] == heroPos) {
-                (*hero)->drawCharacter(window);
+                checkDraw(view, dynamic_cast<Hero &>(**hero), window);
+                //                (*hero)->drawCharacter(window);
                 if (!(*hero)->isDraw()) {
                     hero = heroes.erase(hero);
                 } else {
                     hero++;
                 }
             } else if (poses[0] == flyingObjectPos) {
-                flyingObject->draw(window);
+                checkDraw(view, *flyingObject, window);
+                //                flyingObject->draw(window);
                 if (flyingObject->isFinished()) {
                     flyingObject = flyingObjects.erase(flyingObject);
                 } else {
                     flyingObject++;
                 }
-            } else if (poses[0] == buildingPos) {
-                building->draw(window);
-                building++;
+            } else if (poses[0] == attackBuildingPos) {
+                //                attackBuilding->draw(window);
+                checkDraw(view, *attackBuilding, window);
+                attackBuilding++;
+            } else if (poses[0] == supportBuildingPos) {
+                checkDraw(view, *supportBuilding, window);
+                //                supportBuilding->draw(window);
+                supportBuilding++;
             }
         }
         for (auto &i : money) {
-            (*i).draw(window);
+            checkDraw(view, *i, window);
+            //            (*i).draw(window);
         }
         view.setCenter(shift + view.getSize() / 2.f);
         minimapSprite.setPosition(shift);
@@ -538,4 +618,7 @@ void jam::Level::addMoney(const std::shared_ptr<Money> &money_) {
 }
 const sf::Vector2f &jam::Level::getShift() const {
     return shift;
+}
+const std::set<jam::SupportBuilding> &jam::Level::getSupportBuildings() const {
+    return supportBuildings;
 }

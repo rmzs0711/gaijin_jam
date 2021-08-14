@@ -57,11 +57,10 @@ inline const std::vector<std::tuple<int, sf::IntRect, std::string>> assetInfo =
                         sf::IntRect(sf::Vector2i(0, 0), assetCellSize),
                         "data/images/black"
                         ".png"),
-        std::make_tuple(
-            ROAD,
-            sf::IntRect({assetCellSize.x * 5, 0}, {assetCellSize.x,
-                                             assetCellSize.x}),
-            "data/images/MiniWorldSprites/Ground/Winter.png"),
+        std::make_tuple(ROAD,
+                        sf::IntRect({assetCellSize.x * 5, 0},
+                                    {assetCellSize.x, assetCellSize.x}),
+                        "data/images/MiniWorldSprites/Ground/Winter.png"),
         std::make_tuple(
             LIGHT_GREEN_GRASS,
             sf::IntRect({0, 0}, {assetCellSize.x * 3, assetCellSize.y}),
@@ -120,7 +119,8 @@ inline const int cellSize = 128;
 inline std::vector<sf::Texture *> texturePtrs;
 inline std::vector<sf::Time> stateDurations;
 
-inline sf::Vector2i toMapPosition(sf::RenderTarget& window, sf::Vector2f position) {
+inline sf::Vector2i toMapPosition(sf::RenderTarget &window,
+                                  sf::Vector2f position) {
     int x = window.mapCoordsToPixel(position).x;
     int y = window.mapCoordsToPixel(position).y;
     x = ((x - (x % cellSize)) / cellSize);
@@ -147,7 +147,7 @@ public:
     void setCurrentFrame(sf::Vector2i newCurrentFrame);
     const sf::Vector2i &getNumberOfFrames() const;
     void setNumberOfFrames(const sf::Vector2i &newNumberOfFrames);
-    void draw(sf::RenderTarget &window);
+    void draw(sf::RenderTarget &window) const;
 
 private:
     sf::Time stateStartTime;
@@ -165,13 +165,14 @@ struct FreeObject {
     bool operator<(const FreeObject &rhs) const;
     const Object &getObjectType() const;
     void setScale(const sf::Vector2f &newScale);
+    sf::FloatRect getGlobalBounds() const;
     void setPosition(const sf::Vector2f &newPos);
     const sf::Vector2f &getPosition() const;
     void setOrigin(const sf::Vector2f &newOrigin);
     const sf::Sprite &getSprite() const;
     void updateAnimation() const;
     void changeObjectType(const Object &newObjectType) const;
-    void draw(sf::RenderWindow &window) const;
+    void draw(sf::RenderTarget &window) const;
     const sf::FloatRect &getHitBox() const;
     void setHitBox(const sf::FloatRect &newHitBox);
     const sf::Vector2i &getCurrentFrame() const;

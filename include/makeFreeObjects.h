@@ -2,7 +2,7 @@
 
 #include "Cell.h"
 namespace jam {
-FreeObject makeEmptyObject(sf::Vector2f & pos);
+FreeObject makeEmptyObject(sf::Vector2f &pos);
 FreeObject makeTree(const sf::Vector2f &position);
 
 FreeObject makeRock(const sf::Vector2f &position);
