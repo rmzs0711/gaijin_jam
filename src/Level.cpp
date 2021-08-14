@@ -518,7 +518,6 @@ void jam::Level::draw(sf::RenderWindow &window) {
                               attackBuildingPos, supportBuildingPos};
             std::sort(std::begin(poses), std::end(poses));
             if (poses[0] == objectPos) {
-                freeObject->draw(window);
                 checkDraw(view, *freeObject, window);
                 auto cell =
                     sf::Vector2i(freeObject->getPosition() / (float)cellSize);
