@@ -117,7 +117,5 @@ struct SupportBuilding : Building {
 struct Home : Building {
 public:
     Home(Level &level_) : Building(level_) {}
-
-    bool isEndGame() const;
 };
 }  // namespace jam

@@ -207,17 +207,6 @@ void jam::AttackBuildingAnimatedObject::loadTexture(const std::string &path) {
     checkLoad(texture, path);
 }
 
-bool jam::Home::isEndGame() const {
-    for (auto &i : level.monsters) {
-        auto hitBox = i->getSprite()->getGlobalBounds();
-        if (getHitBox().intersects({hitBox.left, hitBox.top + hitBox.height / 2,
-                                    hitBox.width, hitBox.height / 2})) {
-            return true;
-        }
-    }
-    return false;
-}
-
 // SupportBuilding
 jam::SupportBuilding::SupportBuilding(jam::Level &level_) : Building(level_) {}
 void jam::SupportBuilding::doMagic(const sf::Time &curTime) const {

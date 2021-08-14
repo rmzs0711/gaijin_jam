@@ -461,11 +461,6 @@ void jam::Level::draw(sf::RenderWindow &window) {
         window.clear();
         object_bar.clear(sf::Color::Transparent);
 
-
-        if (is_end) {
-            endGame(window);
-        }
-
         for (auto &i : map) {
             for (auto &j : i) {
                 checkDraw(view, j, window);
@@ -640,6 +635,10 @@ void jam::Level::draw(sf::RenderWindow &window) {
         window.draw(minimapSprite);
         window.setView(view);
         window.display();
+
+        if (is_end) {
+            endGame(window);
+        }
     }
 }
 std::vector<std::vector<jam::Cell>> &jam::Level::getMap() {
@@ -674,7 +673,6 @@ void jam::Level::endGame(sf::RenderWindow& window) {
     window.setView(view);
 
     while (window.isOpen()) {
-        window.clear();
         window.draw(sprite);
         sf::Event event{};
         while (window.pollEvent(event)) {

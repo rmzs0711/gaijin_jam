@@ -112,8 +112,7 @@ struct Level {
     const std::vector<std::shared_ptr<TemplateCharacter>> &getHeroes() const;
     const std::vector<std::shared_ptr<TemplateCharacter>> &getMonsters() const;
     const sf::Vector2f &getShift() const;
-    const std::set<SupportBuilding> &getSupportBuildings() const;
-    //bool isEndGame();
+    const std::set<SupportBuilding>& getSupportBuildings() const;
     void endGame(sf::RenderWindow& window);
 
     std::set<SupportBuilding> supportBuildings;
