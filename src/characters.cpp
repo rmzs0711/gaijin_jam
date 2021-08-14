@@ -88,7 +88,6 @@ void Monster::changeState(int state_, float damage_) {
     if (state_ == NOT_FIGHTING) {
         character.setColor(sf::Color::White);
         state = state_;
-        speedCoef = 1;
     } else if (state_ == FIGHTING && state != FROZEN && state != STUNNED) {
         character.setColor(sf::Color::White);
         state = FIGHTING;
@@ -114,6 +113,7 @@ void Monster::changeState(int state_, float damage_) {
         health -= damage_;
     } else if (state_ == SLOWED) {
         speedCoef = 0.5;
+        damage = current_damage * 0.5;
         std::shared_ptr<TemplateCharacter> hero =
             intersectionObjects(character, curLevel.heroes);
         if (hero) {
@@ -761,6 +761,10 @@ void Monster::updateState() {
                 moveToPosition();
             }
             isEffected();
+            if (state != SLOWED) {
+                speedCoef = 1;
+                damage = current_damage;
+            }
         } else {
             curLevel.addMoney(Money::makeMoney(money, character.getPosition()));
             death();

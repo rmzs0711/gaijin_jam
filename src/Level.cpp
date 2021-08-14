@@ -61,6 +61,11 @@ bool jam::Level::addMonster(const std::shared_ptr<Monster> &monster) {
 }
 
 bool jam::Level::addAttackBuilding(AttackBuilding building) {
+    if (map[building.getPosInMap().y][building.getPosInMap().x]
+            .getBackgroundType() == ROAD) {
+        return false;
+    }
+
     auto hitBox = (*building.getSprite()).getGlobalBounds();
     {
         auto start = freeObjects.lower_bound(
@@ -80,6 +85,21 @@ bool jam::Level::addAttackBuilding(AttackBuilding building) {
             *this, sf::Vector2i{(int)hitBox.left / jam::cellSize - 1,
                                 (int)hitBox.top / jam::cellSize - 1}));
         auto end = attackBuildings.upper_bound(jam::makeEmptyAttackBuilding(
+            *this, sf::Vector2i((int)hitBox.left / jam::cellSize + 1,
+                                (int)hitBox.top / jam::cellSize + 1)));
+        for (auto &i = start; i != end; i++) {
+            if (i->getHitBox().intersects({hitBox.left,
+                                           hitBox.top + hitBox.height / 2,
+                                           hitBox.width, hitBox.height / 2})) {
+                return false;
+            }
+        }
+    }
+    {
+        auto start = supportBuildings.lower_bound(jam::makeEmptySupportBuilding(
+            *this, sf::Vector2i{(int)hitBox.left / jam::cellSize - 1,
+                                (int)hitBox.top / jam::cellSize - 1}));
+        auto end = supportBuildings.upper_bound(jam::makeEmptySupportBuilding(
             *this, sf::Vector2i((int)hitBox.left / jam::cellSize + 1,
                                 (int)hitBox.top / jam::cellSize + 1)));
         for (auto &i = start; i != end; i++) {
@@ -194,11 +214,23 @@ void jam::Level::updateStates() {
     for (auto &i : freeObjects) {
         i.updateAnimation();
     }
-    for (auto &i : attackBuildings) {
-        i.attack(clock1.getElapsedTime());
+    for (auto i = attackBuildings.begin(); i != attackBuildings.end();) {
+        i->attack(clock1.getElapsedTime());
+        if (map[i->getPosInMap().y][i->getPosInMap().x].getState() == WALL ||
+            map[i->getPosInMap().y][i->getPosInMap().x].getState() == LAVA) {
+            i = attackBuildings.erase(i);
+        } else {
+            i++;
+        }
     }
-    for (auto &i : supportBuildings) {
-        i.doMagic(clock1.getElapsedTime());
+    for (auto i = supportBuildings.begin(); i != supportBuildings.end();) {
+        i->doMagic(clock1.getElapsedTime());
+        if (map[i->getPosInMap().y][i->getPosInMap().x].getState() == WALL ||
+            map[i->getPosInMap().y][i->getPosInMap().x].getState() == LAVA) {
+            i = supportBuildings.erase(i);
+        } else {
+            i++;
+        }
     }
     for (auto &i : heroes) {
         i->updateState();
@@ -795,4 +827,78 @@ void jam::Level::endGame(sf::RenderWindow &window) {
         }
         window.display();
     }
+}
+bool jam::Level::addSupportBuilding(jam::SupportBuilding building) {
+    if (map[building.getPosInMap().y][building.getPosInMap().x]
+            .getBackgroundType() == ROAD) {
+        return false;
+    }
+    auto hitBox = (*building.getSprite()).getGlobalBounds();
+    {
+        auto start = freeObjects.lower_bound(
+            jam::makeTree({hitBox.left, hitBox.top - jam::cellSize}));
+        auto end = freeObjects.upper_bound(
+            jam::makeTree({hitBox.left, hitBox.top + jam::cellSize}));
+        for (auto &i = start; i != end; i++) {
+            if (i->getHitBox().intersects({hitBox.left,
+                                           hitBox.top + hitBox.height / 2,
+                                           hitBox.width, hitBox.height / 2})) {
+                return false;
+            }
+        }
+    }
+    {
+        auto start = attackBuildings.lower_bound(jam::makeEmptyAttackBuilding(
+            *this, sf::Vector2i{(int)hitBox.left / jam::cellSize - 1,
+                                (int)hitBox.top / jam::cellSize - 1}));
+        auto end = attackBuildings.upper_bound(jam::makeEmptyAttackBuilding(
+            *this, sf::Vector2i((int)hitBox.left / jam::cellSize + 1,
+                                (int)hitBox.top / jam::cellSize + 1)));
+        for (auto &i = start; i != end; i++) {
+            if (i->getHitBox().intersects({hitBox.left,
+                                           hitBox.top + hitBox.height / 2,
+                                           hitBox.width, hitBox.height / 2})) {
+                return false;
+            }
+        }
+    }
+    {
+        auto start = supportBuildings.lower_bound(jam::makeEmptySupportBuilding(
+            *this, sf::Vector2i{(int)hitBox.left / jam::cellSize - 1,
+                                (int)hitBox.top / jam::cellSize - 1}));
+        auto end = supportBuildings.upper_bound(jam::makeEmptySupportBuilding(
+            *this, sf::Vector2i((int)hitBox.left / jam::cellSize + 1,
+                                (int)hitBox.top / jam::cellSize + 1)));
+        for (auto &i = start; i != end; i++) {
+            if (i->getHitBox().intersects({hitBox.left,
+                                           hitBox.top + hitBox.height / 2,
+                                           hitBox.width, hitBox.height / 2})) {
+                return false;
+            }
+        }
+    }
+
+    for (auto &i : home) {
+        if (i.getHitBox().intersects({hitBox.left,
+                                      hitBox.top + hitBox.height / 2,
+                                      hitBox.width, hitBox.height / 2})) {
+            return false;
+        }
+    }
+
+    supportBuildings.insert(building);
+    for (auto &i : heroes) {
+        if (!(*i).isCorrectMove()) {
+            supportBuildings.erase(building);
+            return false;
+        }
+    }
+    for (auto &i : monsters) {
+        if (!(*i).isCorrectMove()) {
+            supportBuildings.erase(building);
+            return false;
+        }
+    }
+
+    return true;
 }

@@ -97,6 +97,7 @@ struct Level {
     void addMoney(const std::shared_ptr<Money> &money_);
 
     bool addAttackBuilding(AttackBuilding building);
+    bool addSupportBuilding(SupportBuilding building);
 
     void heroSetPosition(const sf::Vector2f &newPos, std::size_t i = 0);
     void monsterSetScale(const sf::Vector2f &newScale, std::size_t i = 0);
@@ -142,7 +143,7 @@ private:
     std::vector<sf::Time> lastAbilityUsageTimes;
 
 public:
-    const float maxMana = 100;
+    const float maxMana = 2000;
     mutable float mana = maxMana;
     float manaRegen = 1;
     sf::Time regenCooldown = sf::seconds(1);

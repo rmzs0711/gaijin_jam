@@ -129,7 +129,7 @@ inline jam::AttackBuilding makeWizardTower(jam::Level &level,
                                            const sf::Vector2i newPosInMap) {
     jam::AttackBuilding wizardTower(level);
     wizardTower.setAttackCooldown(sf::seconds(1.5));
-    wizardTower.setAttackRange(10 * cellSize);
+    wizardTower.setAttackRange(2 * cellSize);
     wizardTower.loadBuildingTexture(
         "data/images/MiniWorldSprites/Buildings/Cyan/CyanTower.png");
     wizardTower.setTextureRect(
@@ -252,7 +252,6 @@ inline SupportBuilding makeBarrack(jam::Level &level,
     };
     return barrack;
 }
-
 inline SupportBuilding makeHospital(jam::Level &level,
                                     const sf::Vector2i newPosInMap) {
     jam::SupportBuilding hospital(level);
@@ -319,7 +318,7 @@ inline SupportBuilding makeWell(jam::Level &level,
 inline SupportBuilding makeMinerCave(jam::Level &level,
                                      const sf::Vector2i newPosInMap) {
     jam::SupportBuilding minerCave(level);
-    minerCave.magicCooldown = sf::seconds(10);
+    minerCave.magicCooldown = sf::seconds(60);
     int goldBonus = 1;
     minerCave.loadBuildingTexture(
         "data/images/MiniWorldSprites/Buildings/Wood/CaveV2.png");
@@ -352,8 +351,8 @@ inline SupportBuilding makeMinerCave(jam::Level &level,
     minerCave.magic = [&](Level &curLevel, const SupportBuilding &building) {
         auto &map = curLevel.getMap();
         auto rect = building.getBuilding().getTextureRect();
-        level.addMoney(Money::makeMoney(
-            rect.left / assetCellSize.x + 1 + rect.top / assetCellSize.y * 3,
+        level.addMoney(Money::makeMoney(10 * (
+            rect.left / assetCellSize.x + 1 + rect.top / assetCellSize.y * 3),
             building.getBuilding().getPosition()
                 -
                 sf::Vector2f(cellSize, cellSize) / 2.f
