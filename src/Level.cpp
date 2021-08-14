@@ -193,7 +193,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
     sf::View miniMapView({0, 0, (float)(map[0].size() * cellSize),
                           (float)(map.size() * cellSize)});
 
-    miniMapView.setViewport({0.75, 0, 0.25, 0.25});
+    miniMapView.setViewport({0.74, 0.60, 0.25, 0.25});
 
     sf::RenderTexture minimap;
     minimap.create(window.getSize().x, window.getSize().y);

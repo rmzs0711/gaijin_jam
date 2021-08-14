@@ -352,3 +352,5 @@ public:
         jam::Level &level,
         sf::Vector2f position = sf::Vector2f(0, 0));
 };
+
+
