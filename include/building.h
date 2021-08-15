@@ -112,6 +112,8 @@ struct SupportBuilding : Building {
     void doMagic(const sf::Time &) const;
     mutable sf::Time lastMagicTime;
     sf::Time magicCooldown;
+
+    mutable std::vector<sf::Vector2f> path;
 };
 
 struct Home : Building {

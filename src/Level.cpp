@@ -133,6 +133,10 @@ bool jam::Level::addAttackBuilding(AttackBuilding building) {
 
 bool jam::Level::addSupportBuilding(SupportBuilding building) {
     auto hitBox = (*building.getSprite()).getGlobalBounds();
+    if (hitBox.left < 0 || hitBox.top < 0) {
+        return false;
+    }
+
     {
         auto start = freeObjects.lower_bound(
             jam::makeTree({ hitBox.left, hitBox.top - jam::cellSize }));
@@ -284,11 +288,15 @@ void jam::Level::updateStates() {
     }
     for (auto &i : supportBuildings) {
         i.doMagic(clock1.getElapsedTime());
+        std::cout << "add4\n";
     }
+    std::cout << "add4.2\n";
     for (auto &i : heroes) {
         i->updateState();
     }
+    std::cout << "add4.7\n";
     for (auto &i : monsters) {
+        std::cout << "add4.8\n";
         i->updateState();
     }
 }
@@ -400,6 +408,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
         }
 
         updateStates();
+        std::cout << "add5\n";
         sf::Event event{};
         while (window.pollEvent(event)) {
             for (auto &i : heroes) {

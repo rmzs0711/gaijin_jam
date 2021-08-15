@@ -218,7 +218,7 @@ public:
             "data/images/MiniWorldSprites/Buildings/Cyan/CyanTower.png"));
         products[products.size() - 1]->setTextureRect(0, 16);
         products.push_back(std::make_unique<Product>(
-            window, 150,
+            window, 200,
             "data/images/MiniWorldSprites/Buildings/Wood/Barracks.png"));
         products[products.size() - 1]->setTextureRect(0, 16);
         products.push_back(std::make_unique<Product>(
