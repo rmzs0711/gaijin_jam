@@ -2649,9 +2649,7 @@ struct GameSession {
 ////        levels[0].monsterSetPosition({cellSize * 6, cellSize * 2}, 1);
 
 
-        while (levels[0].addSupportBuilding(makeHomeMonster(levels[0])) == false) {
-            std::cout << "err\n";
-        }
+        while (levels[0].addSupportBuilding(makeHomeMonster(levels[0])) == false) { }
 
         while (window.isOpen()) {
             window.clear();

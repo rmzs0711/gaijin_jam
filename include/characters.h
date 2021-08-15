@@ -27,19 +27,19 @@ inline sf::Vector2i nexCell(std::vector<std::vector<jam::Cell>>& map, sf::Vector
     if (abs(first.x - second.x) > abs(first.y - second.y)) {
         if (first.x > second.x) {
             ans = first - sf::Vector2i(1, 0);
-            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+            if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                 if (first.y > second.y) {
                     ans = first - sf::Vector2i(0, 1);
-                    if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                    if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                         if (clock.getElapsedTime().asMicroseconds() % 2 == 0) {
                             ans = first + sf::Vector2i(0, 1);
-                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                            if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                                 ans = first + sf::Vector2i(1, 0);
                             }
                         }
                         else {
                             ans = first + sf::Vector2i(1, 0);
-                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                            if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                                 ans = first + sf::Vector2i(0, 1);
                             }
                         }
@@ -47,16 +47,16 @@ inline sf::Vector2i nexCell(std::vector<std::vector<jam::Cell>>& map, sf::Vector
                 }
                 else {
                     ans = first + sf::Vector2i(0, 1);
-                    if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                    if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                         if (clock.getElapsedTime().asMicroseconds() % 2 == 0) {
                             ans = first - sf::Vector2i(0, 1);
-                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                            if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                                 ans = first + sf::Vector2i(1, 0);
                             }
                         }
                         else {
                             ans = first + sf::Vector2i(1, 0);
-                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                            if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                                 ans = first - sf::Vector2i(0, 1);
                             }
                         }
@@ -66,19 +66,19 @@ inline sf::Vector2i nexCell(std::vector<std::vector<jam::Cell>>& map, sf::Vector
         }
         else {
             ans = first + sf::Vector2i(1, 0);
-            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+            if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                 if (first.y > second.y) {
                     ans = first - sf::Vector2i(0, 1);
-                    if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                    if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                         if (clock.getElapsedTime().asMicroseconds() % 2 == 0) {
                             ans = first + sf::Vector2i(0, 1);
-                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                            if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                                 ans = first - sf::Vector2i(1, 0);
                             }
                         }
                         else {
                             ans = first - sf::Vector2i(1, 0);
-                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                            if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                                 ans = first + sf::Vector2i(0, 1);
                             }
                         }
@@ -86,16 +86,16 @@ inline sf::Vector2i nexCell(std::vector<std::vector<jam::Cell>>& map, sf::Vector
                 }
                 else {
                     ans = first + sf::Vector2i(0, 1);
-                    if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                    if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                         if (clock.getElapsedTime().asMicroseconds() % 2 == 0) {
                             ans = first - sf::Vector2i(0, 1);
-                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                            if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                                 ans = first - sf::Vector2i(1, 0);
                             }
                         }
                         else {
                             ans = first - sf::Vector2i(1, 0);
-                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                            if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                                 ans = first - sf::Vector2i(0, 1);
                             }
                         }
@@ -107,19 +107,19 @@ inline sf::Vector2i nexCell(std::vector<std::vector<jam::Cell>>& map, sf::Vector
     else {
         if (first.y > second.y) {
             ans = first - sf::Vector2i(0, 1);
-            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+            if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                 if (first.x > second.x) {
                     ans = first - sf::Vector2i(1, 0);
-                    if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                    if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                         if (clock.getElapsedTime().asMicroseconds() % 2 == 0) {
                             ans = first + sf::Vector2i(1, 0);
-                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                            if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                                 ans = first + sf::Vector2i(0, 1);
                             }
                         }
                         else {
                             ans = first + sf::Vector2i(0, 1);
-                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                            if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                                 ans = first + sf::Vector2i(1, 0);
                             }
                         }
@@ -127,16 +127,16 @@ inline sf::Vector2i nexCell(std::vector<std::vector<jam::Cell>>& map, sf::Vector
                 }
                 else {
                     ans = first + sf::Vector2i(1, 0);
-                    if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                    if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                         if (clock.getElapsedTime().asMicroseconds() % 2 == 0) {
                             ans = first + sf::Vector2i(0, 1);
-                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                            if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                                 ans = first - sf::Vector2i(1, 0);
                             }
                         }
                         else {
                             ans = first - sf::Vector2i(1, 0);
-                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                            if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                                 ans = first + sf::Vector2i(0, 1);
                             }
                         }
@@ -146,19 +146,19 @@ inline sf::Vector2i nexCell(std::vector<std::vector<jam::Cell>>& map, sf::Vector
         }
         else {
             ans = first + sf::Vector2i(0, 1);
-            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+            if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                 if (first.x > second.x) {
                     ans = first - sf::Vector2i(1, 0);
-                    if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                    if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                         if (clock.getElapsedTime().asMicroseconds() % 2 == 0) {
                             ans = first - sf::Vector2i(0, 1);
-                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                            if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                                 ans = first + sf::Vector2i(1, 0);
                             }
                         }
                         else {
                             ans = first + sf::Vector2i(1, 0);
-                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                            if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                                 ans = first - sf::Vector2i(0, 1);
                             }
                         }
@@ -166,16 +166,16 @@ inline sf::Vector2i nexCell(std::vector<std::vector<jam::Cell>>& map, sf::Vector
                 }
                 else {
                     ans = first + sf::Vector2i(1, 0);
-                    if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                    if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                         if (clock.getElapsedTime().asMicroseconds() % 2 == 0) {
                             ans = first - sf::Vector2i(0, 1);
-                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                            if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                                 ans = first - sf::Vector2i(1, 0);
                             }
                         }
                         else {
                             ans = first - sf::Vector2i(1, 0);
-                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                            if (map[ans.y][ans.x].getBackgroundType() != jam::CellBackground::ROAD) {
                                 ans = first - sf::Vector2i(0, 1);
                             }
                         }
@@ -193,33 +193,37 @@ inline std::vector<sf::Vector2f> getPathMonster(std::vector<std::vector<jam::Cel
     std::vector<sf::Vector2i> map_path;
     sf::Vector2i next;
 
-    if (map[home_monsters.x + 1][home_monsters.y].getBackgroundType()
-        == jam::CellBackground::ROAD) {
-        next = home_monsters + sf::Vector2i(1, 0);
-    }
-    else if (map[home_monsters.x - 1][home_monsters.y].getBackgroundType()
-        == jam::CellBackground::ROAD) {
-        next = home_monsters - sf::Vector2i(1, 0);
-    } 
-    else if (map[home_monsters.x][home_monsters.y + 1].getBackgroundType()
+    if (home_monsters.y < 49 && map[home_monsters.y + 1][home_monsters.x].getBackgroundType()
         == jam::CellBackground::ROAD) {
         next = home_monsters + sf::Vector2i(0, 1);
     }
-    else {
+    else if (home_monsters.y > 0 && map[home_monsters.y - 1][home_monsters.x].getBackgroundType()
+        == jam::CellBackground::ROAD) {
         next = home_monsters - sf::Vector2i(0, 1);
+    } 
+    else if (home_monsters.x < 49 && map[home_monsters.y][home_monsters.x + 1].getBackgroundType()
+        == jam::CellBackground::ROAD) {
+        next = home_monsters + sf::Vector2i(1, 0);
+    }
+    else {
+        next = home_monsters - sf::Vector2i(1, 0);
     }
 
-    while (next != home) {
-     //   std::cout << "home: " << home.x << " " << home.y << " next: " << next.x << " " << next.y 
-       //     << " monster home: " << home_monsters.x << " " << home_monsters.y << '\n';
+    int t = 0;
+    while (next != home && t < 6000) {
+        t++;
         map_path.push_back(next);
         next = nexCell(map, next, home);
     }
+    if (t == 6000) {
+        std::vector<sf::Vector2f> path;
+        return path;
+    }
+
     map_path.push_back(home);
-   // std::cout << "LLLLLLLL\n";
+  
     std::vector<sf::Vector2f> path;
     for (auto& i : map_path) {
-        std::cout << i.x << " " << i.y << '\n';
         path.push_back(jam::toPosition(i));
     }
     return path;

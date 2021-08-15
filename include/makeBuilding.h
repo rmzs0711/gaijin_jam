@@ -370,12 +370,14 @@ inline SupportBuilding makeMinerCave(jam::Level &level,
 }
 
 inline bool isBackgroundForPortal(std::vector<std::vector<jam::Cell>> &map, sf::Vector2i position) {
-    std::cout << "isBackgroundForPortal: " << position.x << " " << position.y << '\n';
-    if (map[position.x][position.y].getBackgroundType() != jam::CellBackground::ROAD) {
-        if (map[position.x - 1][position.y].getBackgroundType() == jam::CellBackground::ROAD ||
-            map[position.x + 1][position.y].getBackgroundType() == jam::CellBackground::ROAD ||
-            map[position.x][position.y - 1].getBackgroundType() == jam::CellBackground::ROAD ||
-            map[position.x][position.y + 1].getBackgroundType() == jam::CellBackground::ROAD) {
+    assert(position.x >= 0 && position.x < 50 && position.y >= 0 && position.y < 50);
+
+    if (map[position.y][position.x].getBackgroundType() != jam::CellBackground::ROAD) {
+        if ((position.y > 0 && map[position.y - 1][position.x].getBackgroundType() == jam::CellBackground::ROAD) ||
+            (position.y < 49 && map[position.y + 1][position.x].getBackgroundType() == jam::CellBackground::ROAD) ||
+            (position.x > 0 && map[position.y][position.x - 1].getBackgroundType() == jam::CellBackground::ROAD) ||
+            (position.x < 49 && map[position.y][position.x + 1].getBackgroundType() == jam::CellBackground::ROAD)) {
+            
             return true;
         }
     }
@@ -402,7 +404,6 @@ inline SupportBuilding makeHomeMonster(jam::Level& level, sf::Vector2i newPosInM
 
     homeMonster.setSizeInMap({ 1, 1 });
     homeMonster.setPosInMap(newPosInMap);
-    std::cout << "Portal: " << newPosInMap.x << " " << newPosInMap.y << '\n';
 
     homeMonster.setHitBox(
         level.getMap()[homeMonster.getPosInMap().y][homeMonster.getPosInMap().x]
@@ -412,6 +413,10 @@ inline SupportBuilding makeHomeMonster(jam::Level& level, sf::Vector2i newPosInM
 
     homeMonster.path = getPathMonster(map_, level.home[clock.getElapsedTime().asMicroseconds() 
         % level.home.size()].getPosInMap(), newPosInMap);
+
+    if (homeMonster.path.size() == 0) {
+        homeMonster.path.push_back({ 0, 0 });
+    }
 
     homeMonster.magic = [&](Level& curLevel, const SupportBuilding& building) {
         auto& map = curLevel.getMap();
@@ -478,8 +483,6 @@ inline SupportBuilding makeHomeMonster(jam::Level& level, sf::Vector2i newPosInM
             }
 
             curLevel.monsters[curLevel.monsters.size() - 1]->setPosition(building.path[0]);
-
-         //   std::cout << "add2\n";
     };
     return homeMonster;
 }

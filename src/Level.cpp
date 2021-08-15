@@ -132,6 +132,9 @@ bool jam::Level::addAttackBuilding(AttackBuilding building) {
 }
 
 bool jam::Level::addSupportBuilding(SupportBuilding building) {
+    if (building.path.size() == 1) {
+        return false;
+    }
     auto hitBox = (*building.getSprite()).getGlobalBounds();
     if (hitBox.left < 0 || hitBox.top < 0) {
         return false;
@@ -255,12 +258,13 @@ jam::Level::Level(sf::RenderWindow &window,
     for (int i = 0; i < mapObjects.size(); i++) {
         map[i].resize(mapObjects[i].size());
         for (int j = 0; j < mapObjects[i].size(); j++) {
-
-           // !!! map[i][j].setPosInMap({j, i});
-            map[i][j].setPosInMap({ i, j });
-
-
+            // !!!
+            map[i][j].setPosInMap({j, i});
+           // map[i][j].setPosInMap({ i, j });
             map[i][j].setBackgroundType(mapObjects[i][j]);
+           // map[i][j].setBackgroundType(mapObjects[j][i]);
+
+
             if (!(rand() % 2) &&
                 (map[i][j].getBackgroundType() == DARK_GREEN_GRASS ||
                  map[i][j].getBackgroundType() == LIGHT_GREEN_GRASS)) {
@@ -299,7 +303,6 @@ void jam::Level::updateStates() {
     }
     for (auto i = supportBuildings.begin(); i != supportBuildings.end();) {
         i->doMagic(clock1.getElapsedTime());
-       // std::cout << "add4\n";
         if (map[i->getPosInMap().y][i->getPosInMap().x].getState() == WALL ||
             map[i->getPosInMap().y][i->getPosInMap().x].getState() == LAVA) {
             i = supportBuildings.erase(i);
@@ -307,13 +310,10 @@ void jam::Level::updateStates() {
             i++;
         }
     }
-  //  std::cout << "add4.2\n";
     for (auto &i : heroes) {
         i->updateState();
     }
-  //  std::cout << "add4.7\n";
     for (auto &i : monsters) {
-    //    std::cout << "add4.8\n";
         i->updateState();
     }
 }
@@ -433,7 +433,6 @@ void jam::Level::draw(sf::RenderWindow &window) {
         }
 
         updateStates();
-      //  std::cout << "add5\n";
         sf::Event event{};
         while (window.pollEvent(event)) {
             for (auto &i : heroes) {

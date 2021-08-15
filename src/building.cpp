@@ -214,5 +214,4 @@ void jam::SupportBuilding::doMagic(const sf::Time &curTime) const {
         magic(level, *this);
         lastMagicTime = curTime;
     }
-   // std::cout << "add3\n";
 }
