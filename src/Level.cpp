@@ -61,16 +61,14 @@ bool jam::Level::addMonster(const std::shared_ptr<Monster> &monster) {
 }
 
 bool jam::Level::addAttackBuilding(AttackBuilding building) {
-    auto hitBox = (*building.getSprite()).getGlobalBounds();
+    auto hitBox = (building).getHitBox();
     {
         auto start = freeObjects.lower_bound(
             jam::makeTree({hitBox.left, hitBox.top - jam::cellSize}));
         auto end = freeObjects.upper_bound(
             jam::makeTree({hitBox.left, hitBox.top + jam::cellSize}));
         for (auto &i = start; i != end; i++) {
-            if (i->getHitBox().intersects({hitBox.left,
-                                           hitBox.top + hitBox.height / 2,
-                                           hitBox.width, hitBox.height / 2})) {
+            if (i->getHitBox().intersects(hitBox)) {
                 return false;
             }
         }
@@ -83,9 +81,7 @@ bool jam::Level::addAttackBuilding(AttackBuilding building) {
             *this, sf::Vector2i((int)hitBox.left / jam::cellSize + 1,
                                 (int)hitBox.top / jam::cellSize + 1)));
         for (auto &i = start; i != end; i++) {
-            if (i->getHitBox().intersects({hitBox.left,
-                                           hitBox.top + hitBox.height / 2,
-                                           hitBox.width, hitBox.height / 2})) {
+            if (i->getHitBox().intersects(hitBox)) {
                 return false;
             }
         }
@@ -98,18 +94,14 @@ bool jam::Level::addAttackBuilding(AttackBuilding building) {
             *this, sf::Vector2i((int)hitBox.left / jam::cellSize + 1,
                                 (int)hitBox.top / jam::cellSize + 1)));
         for (auto &i = start; i != end; i++) {
-            if (i->getHitBox().intersects({hitBox.left,
-                                           hitBox.top + hitBox.height / 2,
-                                           hitBox.width, hitBox.height / 2})) {
+            if (i->getHitBox().intersects(hitBox)) {
                 return false;
             }
         }
     }
 
     for (auto &i : home) {
-        if (i.getHitBox().intersects({hitBox.left,
-                                      hitBox.top + hitBox.height / 2,
-                                      hitBox.width, hitBox.height / 2})) {
+        if (i.getHitBox().intersects(hitBox)) {
             return false;
         }
     }
@@ -135,7 +127,7 @@ bool jam::Level::addSupportBuilding(SupportBuilding building) {
     if (building.path.size() == 1) {
         return false;
     }
-    auto hitBox = (*building.getSprite()).getGlobalBounds();
+    auto hitBox = building.getHitBox();
     if (hitBox.left < 0 || hitBox.top < 0) {
         return false;
     }
@@ -146,9 +138,7 @@ bool jam::Level::addSupportBuilding(SupportBuilding building) {
         auto end = freeObjects.upper_bound(
             jam::makeTree({hitBox.left, hitBox.top + jam::cellSize}));
         for (auto &i = start; i != end; i++) {
-            if (i->getHitBox().intersects({hitBox.left,
-                                           hitBox.top + hitBox.height / 2,
-                                           hitBox.width, hitBox.height / 2})) {
+            if (i->getHitBox().intersects(hitBox)) {
                 return false;
             }
         }
@@ -161,9 +151,7 @@ bool jam::Level::addSupportBuilding(SupportBuilding building) {
             *this, sf::Vector2i((int)hitBox.left / jam::cellSize + 1,
                                 (int)hitBox.top / jam::cellSize + 1)));
         for (auto &i = start; i != end; i++) {
-            if (i->getHitBox().intersects({hitBox.left,
-                                           hitBox.top + hitBox.height / 2,
-                                           hitBox.width, hitBox.height / 2})) {
+            if (i->getHitBox().intersects(hitBox)) {
                 return false;
             }
         }
@@ -176,18 +164,14 @@ bool jam::Level::addSupportBuilding(SupportBuilding building) {
             *this, sf::Vector2i((int)hitBox.left / jam::cellSize + 1,
                                 (int)hitBox.top / jam::cellSize + 1)));
         for (auto &i = start; i != end; i++) {
-            if (i->getHitBox().intersects({hitBox.left,
-                                           hitBox.top + hitBox.height / 2,
-                                           hitBox.width, hitBox.height / 2})) {
+            if (i->getHitBox().intersects(hitBox)) {
                 return false;
             }
         }
     }
 
     for (auto &i : home) {
-        if (i.getHitBox().intersects({hitBox.left,
-                                      hitBox.top + hitBox.height / 2,
-                                      hitBox.width, hitBox.height / 2})) {
+        if (i.getHitBox().intersects(hitBox)) {
             return false;
         }
     }
@@ -326,7 +310,8 @@ void jam::Level::updateStates() {
                     lastPortalSpawnTime = clock1.getElapsedTime();
                 }
             } else {
-                map[portalPos.y][portalPos.x].setState(EARTHSHAKE, clock1.getElapsedTime());
+                map[portalPos.y][portalPos.x].setState(EARTHSHAKE,
+                                                       clock1.getElapsedTime());
             }
         }
     } else {

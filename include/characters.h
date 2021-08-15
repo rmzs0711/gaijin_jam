@@ -400,7 +400,8 @@ protected:
     std::vector<sf::Vector2f> positions;
     int money;
 
-    void changeState(int state_, float damage_ = 0);
+    void changeState(int state_, std::shared_ptr<TemplateCharacter> hero =
+                                     nullptr);
 
     void isFighting();
 
@@ -408,7 +409,6 @@ protected:
     void moveToPosition();
 
 public:
-
     void death();
     void updateState() override;
     Monster(const std::string &file_name,
@@ -540,7 +540,8 @@ protected:
                     sf::RenderTarget &window,
                     const sf::Time &currentTime);
 
-    void changeState(int state_, float damage_ = 0);
+    void changeState(int state_, std::shared_ptr<TemplateCharacter> enemy =
+                                     nullptr);
 
     void moveToPosition();
 

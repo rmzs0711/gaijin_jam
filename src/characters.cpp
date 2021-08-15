@@ -64,9 +64,8 @@ bool TemplateCharacter::isCorrectMove() {
             if (dynamic_cast<Monster *>(this)) {
                 if (--curLevel.health == 0) {
                     curLevel.is_end = true;
-                } else {
-                    (dynamic_cast<Monster *>(this))->death();
                 }
+                (dynamic_cast<Monster *>(this))->death();
             }
             return false;
         }
@@ -84,12 +83,13 @@ void Monster::isFighting() {
             (current_frame +
              static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
             quantity_frames;
-        changeState(FIGHTING, (*hero).getDamage());
+        changeState(FIGHTING, hero);
     } else {
         changeState(NOT_FIGHTING);
     }
 }
-void Monster::changeState(int state_, float damage_) {
+void Monster::changeState(int state_,
+                          std::shared_ptr<TemplateCharacter> enemy) {
     sf::Clock clock;
     if (state_ == NOT_FIGHTING) {
         character.setColor(sf::Color::White);
@@ -100,43 +100,28 @@ void Monster::changeState(int state_, float damage_) {
         character.setTextureRect(
             sf::IntRect((current_frame % (quantity_frames)) * size_frame.x,
                         state_ * size_frame.y, size_frame.x, size_frame.y));
-        health -= damage_;
+        enemy ? enemy->health -= damage : 0;
         return;
     } else if (state_ == FROZEN) {
-        std::shared_ptr<TemplateCharacter> hero =
-            intersectionObjects(character, curLevel.heroes, curLevel);
-        if (hero) {
-            damage_ = hero->getDamage();
-        }
         speedCoef = 0;
         state = state_;
-        health -= damage_;
         character.setColor(sf::Color::Blue);
     } else if (state_ == BURNED) {
         state = state_;
         character.setColor(sf::Color::Red);
         health -= jam::fireDamage;
-        health -= damage_;
+        enemy ? enemy->health -= damage : 0;
     } else if (state_ == SLOWED) {
         speedCoef = 0.5;
         damage = current_damage * 0.5;
-        std::shared_ptr<TemplateCharacter> hero =
-            intersectionObjects(character, curLevel.heroes, curLevel);
-        if (hero) {
-            damage_ = hero->getDamage();
-        }
         state = state_;
-        health -= damage_;
+        enemy ? enemy->health -= damage : 0;
         character.setColor(sf::Color(100, 100, 100));
     } else if (state_ == STUNNED) {
         speedCoef = 0;
         std::shared_ptr<TemplateCharacter> hero =
             intersectionObjects(character, curLevel.heroes, curLevel);
-        if (hero) {
-            damage_ = hero->getDamage();
-        }
         state = state_;
-        health -= damage_;
         health -= jam::earthShakeDamage;
     } else {
         float dx, dy;
@@ -180,8 +165,7 @@ void Monster::changeState(int state_, float damage_) {
     }
 }
 void Monster::isEffected() {
-    float damage_ = 0;
-
+    auto hero = intersectionObjects(character, curLevel.heroes, curLevel);
     sf::Vector2i cell =
         sf::Vector2i(character.getPosition() / (float)jam::cellSize);
     switch (curLevel.getMap()[cell.y][cell.x].getState()) {
@@ -190,16 +174,16 @@ void Monster::isEffected() {
             break;
         case jam::LAVA:
         case jam::BLAST:
-            changeState(BURNED, damage_);
+            changeState(BURNED);
             break;
         case jam::FROZEN_BLAST:
-            changeState(FROZEN, damage_);
+            changeState(FROZEN);
             break;
         case jam::CLOUD:
-            changeState(SLOWED, damage_);
+            changeState(SLOWED);
             break;
         case jam::EARTHSHAKE:
-            changeState(STUNNED, damage_);
+            changeState(STUNNED);
             break;
         case jam::WALL:
         case jam::NUMBER_OF_STATES:
@@ -269,15 +253,9 @@ void Hero::isFighting() {
             (current_frame +
              static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
             quantity_frames;
-        float damage_ = 0;
-        sf::Vector2i cell = sf::Vector2i(monster->getSprite()->getPosition() /
-                                         (float)jam::cellSize);
-        if (curLevel.getMap()[cell.y][cell.x].getState() != jam::FROZEN_BLAST) {
-            damage_ = monster->getDamage();
-        }
-        changeState(FIGHTING, damage_);
+        changeState(FIGHTING, monster);
     } else {
-        changeState(NOT_FIGHTING);
+        changeState(NOT_FIGHTING, monster);
     }
 }
 void Hero::clickMouse(const sf::Event &event,
@@ -304,7 +282,7 @@ void Hero::clickMouse(const sf::Event &event,
         }
     }
 }
-void Hero::changeState(int state_, float damage_) {
+void Hero::changeState(int state_, std::shared_ptr<TemplateCharacter> enemy) {
     sf::Clock clock;
     if (state_ == FIGHTING) {
         state_ = 4 + 2 * state;
@@ -314,7 +292,7 @@ void Hero::changeState(int state_, float damage_) {
              (static_cast<int>(clock.getElapsedTime().asMicroseconds()) % 2)) *
                 size_frame.y,
             size_frame.x, size_frame.y));
-        health -= damage_;
+        enemy ? enemy->health -= damage : 0;
         return;
     }
     if (state_ == NOT_FIGHTING) {
