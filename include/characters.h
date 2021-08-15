@@ -223,9 +223,11 @@ inline std::vector<sf::Vector2f> getPathMonster(std::vector<std::vector<jam::Cel
     map_path.push_back(home);
   
     std::vector<sf::Vector2f> path;
-    for (auto& i : map_path) {
-        path.push_back(jam::toPosition(i));
+
+    for (int i = map_path.size() - 1; i >= 0; i--) {
+        path.push_back(jam::toPosition(map_path[i]));
     }
+    
     return path;
 }
 

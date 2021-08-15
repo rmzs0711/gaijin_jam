@@ -482,7 +482,7 @@ inline SupportBuilding makeHomeMonster(jam::Level& level, sf::Vector2i newPosInM
                 curLevel.addMonster(Monster::makeSkeletonSoldier(level, building.path));
             }
 
-            curLevel.monsters[curLevel.monsters.size() - 1]->setPosition(building.path[0]);
+            curLevel.monsters[curLevel.monsters.size() - 1]->setPosition(building.path[building.path.size() - 1]);
     };
     return homeMonster;
 }
