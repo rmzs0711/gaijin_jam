@@ -290,11 +290,10 @@ void jam::Level::updateStates() {
         if (clock1.getElapsedTime() - lastPortalSpawnTime >
             PortalSpawnCooldown) {
             if (map[portalPos.y][portalPos.x].getState() == EARTHSHAKE) {
-                if (!addSupportBuilding(makeHomeMonster(*this, portalPos))) {
-                    portalPos = {rand() % 49, rand() % 49};
-                } else {
+                if (addSupportBuilding(makeHomeMonster(*this, portalPos))) {
                     lastPortalSpawnTime = clock1.getElapsedTime();
                 }
+                portalPos = {rand() % 49, rand() % 49};
             } else {
                 map[portalPos.y][portalPos.x].setState(EARTHSHAKE,
                                                        clock1.getElapsedTime());
