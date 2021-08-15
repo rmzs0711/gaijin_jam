@@ -341,7 +341,8 @@ bool charactersCompare(const std::shared_ptr<TemplateCharacter> &,
 
 std::shared_ptr<TemplateCharacter> intersectionObjects(
     const sf::Sprite &character,
-    const std::vector<std::shared_ptr<TemplateCharacter>> &objects);
+    const std::vector<std::shared_ptr<TemplateCharacter>> &objects,
+    jam::Level&);
 
 struct Monster : TemplateCharacter {
 protected:

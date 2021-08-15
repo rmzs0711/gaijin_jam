@@ -264,8 +264,8 @@ jam::Level::Level(sf::RenderWindow &window,
                                        (float)(rand() % cellSize),
                                    map[i][j].getGlobalBounds().top +
                                        (float)(rand() % cellSize)});
-                if (!intersectionObjects(x.getSprite(), heroes) &&
-                    !intersectionObjects(x.getSprite(), monsters)) {
+                if (!intersectionObjects(x.getSprite(), heroes, *this) &&
+                    !intersectionObjects(x.getSprite(), monsters, *this)) {
                     freeObjects.emplace(x);
                 }
             }
@@ -316,6 +316,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
     sf::Texture heartTexture;
     checkLoad(heartTexture, "data/images/heart.png");
     sf::Sprite heartSprite(heartTexture);
+    heartSprite.setPosition(0, cellSize);
     heartSprite.setScale(cellSize / heartSprite.getGlobalBounds().width,
                          cellSize / heartSprite.getGlobalBounds().height);
     auto heartEmptySprite = heartSprite;
@@ -652,7 +653,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
                         {j.getGlobalBounds().left + (float)(rand() % cellSize),
                          j.getGlobalBounds().top + (float)(rand() % cellSize)});
                     lastTreeTime = clock1.getElapsedTime();
-                    if (!intersectionObjects(x.getSprite(), heroes)) {
+                    if (!intersectionObjects(x.getSprite(), heroes, *this)) {
                         freeObjects.emplace(x);
                     }
                 }
