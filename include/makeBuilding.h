@@ -177,12 +177,12 @@ inline jam::Home makeHome(jam::Level &level, int number) {
         "data/images/MiniWorldSprites/Buildings/Purple/PurpleKeep.png");
     home.setTextureRect({0, 0, 32, 32});
     home.setSizeInMap({2, 2});
-    
+
     if (number == 1) {
         home.setPosInMap({ 1, 2 });
     }
     else {
-        home.setPosInMap({ 46, 46 });
+        home.setPosInMap({ 47, 48 });
     }
 
     home.setScale({(float)cellSize / 16, (float)cellSize / 16});
@@ -377,7 +377,7 @@ inline bool isBackgroundForPortal(std::vector<std::vector<jam::Cell>> &map, sf::
             (position.y < 49 && map[position.y + 1][position.x].getBackgroundType() == jam::CellBackground::ROAD) ||
             (position.x > 0 && map[position.y][position.x - 1].getBackgroundType() == jam::CellBackground::ROAD) ||
             (position.x < 49 && map[position.y][position.x + 1].getBackgroundType() == jam::CellBackground::ROAD)) {
-            
+
             return true;
         }
     }
@@ -387,20 +387,12 @@ inline bool isBackgroundForPortal(std::vector<std::vector<jam::Cell>> &map, sf::
 inline SupportBuilding makeHomeMonster(jam::Level& level, sf::Vector2i newPosInMap = sf::Vector2i(0, 0)) {
     sf::Clock clock;
     jam::SupportBuilding homeMonster(level);
-    homeMonster.magicCooldown = sf::seconds(7);
+    homeMonster.magicCooldown = sf::seconds(13);
 
     homeMonster.loadBuildingTexture(
         "data/images/MiniWorldSprites/Miscellaneous/Portal.png");
     homeMonster.setTextureRect(sf::IntRect(0, 0, 16, 16));
     auto& map_ = level.getMap();
-
-    // !!!
-    int x = 0, y = 0;
-    while (!isBackgroundForPortal(map_, newPosInMap)) {
-        x = (x + clock.getElapsedTime().asMicroseconds()) % 50;
-        y = (y + (clock.getElapsedTime().asMicroseconds() * 7)) % 50;
-        newPosInMap = { x, y };
-    }
 
     homeMonster.setSizeInMap({ 1, 1 });
     homeMonster.setPosInMap(newPosInMap);
@@ -411,7 +403,7 @@ inline SupportBuilding makeHomeMonster(jam::Level& level, sf::Vector2i newPosInM
     homeMonster.setScale(
         { (float)cellSize / assetCellSize.x, (float)cellSize / assetCellSize.x });
 
-    homeMonster.path = getPathMonster(map_, level.home[clock.getElapsedTime().asMicroseconds() 
+    homeMonster.path = getPathMonster(map_, level.home[rand()
         % level.home.size()].getPosInMap(), newPosInMap);
 
     if (homeMonster.path.size() == 0) {
@@ -421,11 +413,11 @@ inline SupportBuilding makeHomeMonster(jam::Level& level, sf::Vector2i newPosInM
     homeMonster.magic = [&](Level& curLevel, const SupportBuilding& building) {
         auto& map = curLevel.getMap();
 
-        if (clock.getElapsedTime().asMicroseconds() % 2 == 1) {
+        if (rand() % 2 == 1) {
             return;
         }
 
-        int randValue = clock.getElapsedTime().asMicroseconds() % 18;
+        int randValue = rand() % 18;
 
             if (randValue == 0) {
                 curLevel.addMonster(Monster::makeArmouredRedDemon(level, building.path));

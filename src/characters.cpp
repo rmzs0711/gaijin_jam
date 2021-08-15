@@ -76,13 +76,11 @@ bool TemplateCharacter::isCorrectMove() {
 }
 
 void Monster::isFighting() {
-    sf::Clock clock;
     std::shared_ptr<TemplateCharacter> hero =
         intersectionObjects(character, curLevel.heroes, curLevel);
     if (hero != nullptr) {
         current_frame =
-            (current_frame +
-             static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
+            (current_frame + rand()) %
             quantity_frames;
         changeState(FIGHTING, (*hero).getDamage());
     } else {
@@ -90,7 +88,6 @@ void Monster::isFighting() {
     }
 }
 void Monster::changeState(int state_, float damage_) {
-    sf::Clock clock;
     if (state_ == NOT_FIGHTING) {
         character.setColor(sf::Color::White);
         state = state_;
@@ -160,19 +157,12 @@ void Monster::changeState(int state_, float damage_) {
         int t = 0;
         while (!isCorrectMove() && t < 1000) {
             character.move(-dx, -dy);
-            state_ = (state_ + static_cast<int>(
-                                   clock.getElapsedTime().asMicroseconds())) %
-                     4;
+            state_ = (state_ + rand()) % 4;
             initializingCoordinates(dx, dy, state_);
             dx *= 4, dy *= 4;
             character.move(dx, dy);
             t++;
         }
-        /*if (t == 1000) {
-            positions.pop_back();
-        }
-        assert(t < 1000);*/
-
         state = state_;
         character.setTextureRect(sf::IntRect(current_frame * size_frame.x,
                                              state_ * size_frame.y,
@@ -219,7 +209,6 @@ int Monster::getState() const {
 }
 void Monster::moveToPosition() {
     if (positions.size() != 0) {
-        sf::Clock clock;
         sf::Vector2f pos = character.getPosition();
         float dx =
             (positions[positions.size() - 1] - character.getPosition()).x;
@@ -227,8 +216,7 @@ void Monster::moveToPosition() {
             (positions[positions.size() - 1] - character.getPosition()).y;
         if (abs(dx) >= speed || abs(dy) >= speed) {
             current_frame =
-                (current_frame +
-                 static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
+                (current_frame + rand()) %
                 quantity_frames;
             if (abs(dx) > abs(dy)) {
                 if (dx > 0) {
@@ -260,14 +248,12 @@ void Monster::death() {
 }
 
 void Hero::isFighting() {
-    sf::Clock clock;
     std::shared_ptr<TemplateCharacter> monster =
         intersectionObjects(character, curLevel.getMonsters(), curLevel);
     if (monster != nullptr) {
         position = character.getPosition();
         current_frame =
-            (current_frame +
-             static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
+            (current_frame + rand()) %
             quantity_frames;
         float damage_ = 0;
         sf::Vector2i cell = sf::Vector2i(monster->getSprite()->getPosition() /
@@ -305,14 +291,11 @@ void Hero::clickMouse(const sf::Event &event,
     }
 }
 void Hero::changeState(int state_, float damage_) {
-    sf::Clock clock;
     if (state_ == FIGHTING) {
         state_ = 4 + 2 * state;
         character.setTextureRect(sf::IntRect(
             (current_frame % (quantity_frames - 1)) * size_frame.x,
-            (state_ +
-             (static_cast<int>(clock.getElapsedTime().asMicroseconds()) % 2)) *
-                size_frame.y,
+            (state_ + (rand() % 2)) * size_frame.y,
             size_frame.x, size_frame.y));
         health -= damage_;
         return;
@@ -343,9 +326,7 @@ void Hero::changeState(int state_, float damage_) {
     int t = 0;
     while (!isCorrectMove() && t < 1000) {
         character.move(-dx, -dy);
-        state_ = (state_ +
-                  static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
-                 4;
+        state_ = (state_ + rand()) % 4;
         initializingCoordinates(dx, dy, state_);
         dx *= 2.5, dy *= 2.5;
         character.move(dx, dy);
@@ -358,14 +339,11 @@ void Hero::changeState(int state_, float damage_) {
                                          size_frame.y));
 }
 void Hero::moveToPosition() {
-    sf::Clock clock;
     float dx = (position - character.getPosition()).x;
     float dy = (position - character.getPosition()).y;
     if (abs(dx) >= speed || abs(dy) >= speed) {
         current_frame =
-            (current_frame +
-             static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
-            quantity_frames;
+            (current_frame + rand()) % quantity_frames;
         if (abs(dx) > abs(dy)) {
             if (dx > 0) {
                 changeState(RIGHT);
@@ -422,7 +400,6 @@ void Hero::event(const sf::Event &event,
 void Hero::drawCharacter(sf::RenderTarget &window) {
     window.draw(character);
     if (isLive()) {
-        // life_bar.draw(window, current_health, character.getPosition());
         life_bar.draw(window, health, character.getPosition());
     }
     if (isLive() && is_move) {
@@ -435,15 +412,13 @@ void Hero::drawCharacter(sf::RenderTarget &window) {
 void Hero::death() {
     if (health <= 0) {
         health = current_health + 1;
-        sf::Clock clock;
         sf::Image character_image;
         character_image.loadFromFile(
             "data/images/MiniWorldSprites/Miscellaneous/Tombstones.png");
         character_texture.loadFromImage(character_image);
         character.setTexture(character_texture);
         character.setTextureRect(sf::IntRect(
-            static_cast<int>(clock.getElapsedTime().asMicroseconds()) % 4,
-            static_cast<int>(clock.getElapsedTime().asMicroseconds()) % 2,
+            rand() % 4, rand() % 2,
             size_frame.x, size_frame.y));
     } else if (health > current_health) {
         health++;
