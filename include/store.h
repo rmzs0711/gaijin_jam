@@ -219,7 +219,8 @@ public:
             "data/images/MiniWorldSprites/Buildings/Cyan/CyanTower.png"));
         products[products.size() - 1]->setTextureRect(0, 16);
         products.push_back(std::make_unique<Product>(
-            window, 125, "data/images/MiniWorldSprites/Miscellaneous/Well"
+            window, 125,
+            "data/images/MiniWorldSprites/Miscellaneous/Well"
             ".png"));
         products[products.size() - 1]->setTextureRect(0, 16);
         products.push_back(std::make_unique<Product>(
@@ -290,6 +291,8 @@ public:
                                      mouse);
         } else if (event.type == sf::Event::MouseButtonReleased) {
             std::string file = move_product.getNameFile();
+            auto pos = jam::toMapPosition(
+                window, level.getShift() + move_product.getPosition());
             if (file ==
                 "data/images/MiniWorldSprites/Characters/Soldiers/Melee/"
                 "PurpleMelee/AssasinPurple.png") {
@@ -310,31 +313,23 @@ public:
                        "RedMelee/AssasinRed.png") {
                 add(level.addHero(Hero::makeAssasinRed(
                     level, level.getShift() + move_product.getPosition())));
+            } else if (level.getMap()[pos.y][pos.x].getBackgroundType() ==
+                     jam::ROAD) {
+                add(false);
             } else if (file ==
                        "data/images/MiniWorldSprites/Buildings/Lime/"
                        "LimeTower.png") {
-                add(level.addAttackBuilding(makeArcherBuilding(
-                    level, jam::toMapPosition(
-                               window, level.getShift() +
-                                           move_product.getPosition()))));
+                add(level.addAttackBuilding(makeArcherBuilding(level, pos)));
             } else if (file ==
                        "data/images/MiniWorldSprites/Buildings/Red/"
                        "RedTower.png") {
-                add(level.addAttackBuilding(makeSniperBuilding(
-                    level, jam::toMapPosition(
-                               window, level.getShift() +
-                                           move_product.getPosition()))));
+                add(level.addAttackBuilding(makeSniperBuilding(level, pos)));
             } else if (file ==
                        "data/images/MiniWorldSprites/Buildings/Cyan/"
                        "CyanTower.png") {
-                add(level.addAttackBuilding(makeWizardTower(
-                    level, jam::toMapPosition(
-                               window, level.getShift() +
-                                           move_product.getPosition()))));
+                add(level.addAttackBuilding(makeWizardTower(level, pos)));
             } else if (file ==
                        "data/images/MiniWorldSprites/Miscellaneous/Well.png") {
-                auto pos = jam::toMapPosition(
-                    window, level.getShift() + move_product.getPosition());
                 if (level.map[pos.y][pos.x].getState() == jam::EARTHSHAKE) {
                     add(level.addSupportBuilding(jam::makeWell(level, pos)));
                 } else {
@@ -343,16 +338,14 @@ public:
             } else if (file ==
                        "data/images/MiniWorldSprites/Buildings/Cyan"
                        "/CyanChapels.png") {
-                auto pos = jam::toMapPosition(
-                    window, level.getShift() + move_product.getPosition());
                 if (level.getMap()[pos.y][pos.x].getBackgroundType() ==
-                    jam::DARK_GREEN_GRASS ||
+                        jam::DARK_GREEN_GRASS ||
                     level.getMap()[pos.y][pos.x].getBackgroundType() ==
-                    jam::LIGHT_GREEN_GRASS) {
+                        jam::LIGHT_GREEN_GRASS) {
                     add(level.addSupportBuilding(jam::makeHospital(
                         level, jam::toMapPosition(
-                            window, level.getShift() +
-                            move_product.getPosition()))));
+                                   window, level.getShift() +
+                                               move_product.getPosition()))));
                 } else {
                     add(false);
                 }
@@ -360,10 +353,7 @@ public:
             } else if (file ==
                        "data/images/MiniWorldSprites/Buildings/Wood/"
                        "CaveV2.png") {
-                auto pos = jam::toMapPosition(
-                    window, level.getShift() + move_product.getPosition());
-                if (level.map[pos.y][pos.x].getState() == jam::WALL &&
-                    level.map[pos.y][pos.x].getBackgroundType() != jam::ROAD) {
+                if (level.map[pos.y][pos.x].getState() == jam::WALL) {
                     level.map[pos.y][pos.x].setState(jam::NORMAL);
                     level.supportBuildings.insert(
                         jam::makeMinerCave(level, pos));
@@ -374,10 +364,7 @@ public:
             } else if (file ==
                        "data/images/MiniWorldSprites/Buildings/Wood/"
                        "Barracks.png") {
-                add(level.addSupportBuilding(jam::makeBarrack(
-                    level, jam::toMapPosition(
-                               window, level.getShift() +
-                                           move_product.getPosition()))));
+                add(level.addSupportBuilding(jam::makeBarrack(level, pos)));
             }
             move_product.loadFromFile("");
         }

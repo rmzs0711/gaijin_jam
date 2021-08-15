@@ -61,11 +61,6 @@ bool jam::Level::addMonster(const std::shared_ptr<Monster> &monster) {
 }
 
 bool jam::Level::addAttackBuilding(AttackBuilding building) {
-    if (map[building.getPosInMap().y][building.getPosInMap().x]
-            .getBackgroundType() == ROAD) {
-        return false;
-    }
-
     auto hitBox = (*building.getSprite()).getGlobalBounds();
     {
         auto start = freeObjects.lower_bound(
