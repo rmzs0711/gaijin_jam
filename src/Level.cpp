@@ -139,64 +139,64 @@ bool jam::Level::addSupportBuilding(SupportBuilding building) {
 
     {
         auto start = freeObjects.lower_bound(
-            jam::makeTree({ hitBox.left, hitBox.top - jam::cellSize }));
+            jam::makeTree({hitBox.left, hitBox.top - jam::cellSize}));
         auto end = freeObjects.upper_bound(
-            jam::makeTree({ hitBox.left, hitBox.top + jam::cellSize }));
-        for (auto& i = start; i != end; i++) {
-            if (i->getHitBox().intersects({ hitBox.left,
+            jam::makeTree({hitBox.left, hitBox.top + jam::cellSize}));
+        for (auto &i = start; i != end; i++) {
+            if (i->getHitBox().intersects({hitBox.left,
                                            hitBox.top + hitBox.height / 2,
-                                           hitBox.width, hitBox.height / 2 })) {
+                                           hitBox.width, hitBox.height / 2})) {
                 return false;
             }
         }
     }
     {
         auto start = attackBuildings.lower_bound(jam::makeEmptyAttackBuilding(
-            *this, sf::Vector2i{ (int)hitBox.left / jam::cellSize - 1,
-                                (int)hitBox.top / jam::cellSize - 1 }));
+            *this, sf::Vector2i{(int)hitBox.left / jam::cellSize - 1,
+                                (int)hitBox.top / jam::cellSize - 1}));
         auto end = attackBuildings.upper_bound(jam::makeEmptyAttackBuilding(
             *this, sf::Vector2i((int)hitBox.left / jam::cellSize + 1,
-                (int)hitBox.top / jam::cellSize + 1)));
-        for (auto& i = start; i != end; i++) {
-            if (i->getHitBox().intersects({ hitBox.left,
+                                (int)hitBox.top / jam::cellSize + 1)));
+        for (auto &i = start; i != end; i++) {
+            if (i->getHitBox().intersects({hitBox.left,
                                            hitBox.top + hitBox.height / 2,
-                                           hitBox.width, hitBox.height / 2 })) {
+                                           hitBox.width, hitBox.height / 2})) {
                 return false;
             }
         }
     }
     {
         auto start = supportBuildings.lower_bound(jam::makeEmptySupportBuilding(
-            *this, sf::Vector2i{ (int)hitBox.left / jam::cellSize - 1,
-                                (int)hitBox.top / jam::cellSize - 1 }));
+            *this, sf::Vector2i{(int)hitBox.left / jam::cellSize - 1,
+                                (int)hitBox.top / jam::cellSize - 1}));
         auto end = supportBuildings.upper_bound(jam::makeEmptySupportBuilding(
             *this, sf::Vector2i((int)hitBox.left / jam::cellSize + 1,
-                (int)hitBox.top / jam::cellSize + 1)));
-        for (auto& i = start; i != end; i++) {
-            if (i->getHitBox().intersects({ hitBox.left,
+                                (int)hitBox.top / jam::cellSize + 1)));
+        for (auto &i = start; i != end; i++) {
+            if (i->getHitBox().intersects({hitBox.left,
                                            hitBox.top + hitBox.height / 2,
-                                           hitBox.width, hitBox.height / 2 })) {
+                                           hitBox.width, hitBox.height / 2})) {
                 return false;
             }
         }
     }
 
-    for (auto& i : home) {
-        if (i.getHitBox().intersects({ hitBox.left,
+    for (auto &i : home) {
+        if (i.getHitBox().intersects({hitBox.left,
                                       hitBox.top + hitBox.height / 2,
-                                      hitBox.width, hitBox.height / 2 })) {
+                                      hitBox.width, hitBox.height / 2})) {
             return false;
         }
     }
 
     supportBuildings.insert(building);
-    for (auto& i : heroes) {
+    for (auto &i : heroes) {
         if (!(*i).isCorrectMove()) {
             supportBuildings.erase(building);
             return false;
         }
     }
-    for (auto& i : monsters) {
+    for (auto &i : monsters) {
         if (!(*i).isCorrectMove()) {
             supportBuildings.erase(building);
             return false;
@@ -707,6 +707,10 @@ void jam::Level::draw(sf::RenderWindow &window) {
                         map[cell.y][cell.x].getState() == WALL ||
                     map[cell.y][cell.x].getState() == EARTHSHAKE ||
                     map[cell.y][cell.x].getState() == LAVA) {
+                    if (rand() % 10 == 0) {
+                        addMoney(Money::makeMoney(rand() % 100,
+                                                  freeObject->getPosition()));
+                    }
                     freeObject = freeObjects.erase(freeObject);
                     continue;
                 } else if (map[cell.y][cell.x].getState() == FROZEN_BLAST) {

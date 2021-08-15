@@ -58,10 +58,13 @@ bool TemplateCharacter::isCorrectMove() {
         }
     }
     for (auto &i : curLevel.home) {
-        if (i.getHitBox().intersects({hitBox.left,
+        if (i.getHitBox().intersects({hitBox
+                                                                          .left,
                                       hitBox.top + hitBox.height / 2,
                                       hitBox.width, hitBox.height / 2})) {
-            curLevel.is_end = true;
+            if (dynamic_cast<Monster*>(this)) {
+                curLevel.is_end = true;
+            }
             return false;
         }
     }
