@@ -164,11 +164,14 @@ void Monster::changeState(int state_, float damage_) {
                                    clock.getElapsedTime().asMicroseconds())) %
                      4;
             initializingCoordinates(dx, dy, state_);
-            dx *= 2.5, dy *= 2.5;
+            dx *= 4, dy *= 4;
             character.move(dx, dy);
             t++;
         }
-        assert(t < 1000);
+        /*if (t == 1000) {
+            positions.pop_back();
+        }
+        assert(t < 1000);*/
 
         state = state_;
         character.setTextureRect(sf::IntRect(current_frame * size_frame.x,
@@ -217,6 +220,7 @@ int Monster::getState() const {
 void Monster::moveToPosition() {
     if (positions.size() != 0) {
         sf::Clock clock;
+        sf::Vector2f pos = character.getPosition();
         float dx =
             (positions[positions.size() - 1] - character.getPosition()).x;
         float dy =
@@ -243,6 +247,11 @@ void Monster::moveToPosition() {
             if (positions.size() > 1) {
                 positions.pop_back();
             }
+        }
+        if (!isCorrectMove()) {
+            character.setPosition(pos);
+            positions.pop_back();
+            moveToPosition();
         }
     }
 }
