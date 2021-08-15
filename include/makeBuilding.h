@@ -182,7 +182,7 @@ inline jam::Home makeHome(jam::Level &level, int number) {
         home.setPosInMap({ 1, 2 });
     }
     else {
-        home.setPosInMap({ 46, 46 });
+        home.setPosInMap({ 47, 48 });
     }
 
     home.setScale({(float)cellSize / 16, (float)cellSize / 16});
@@ -396,11 +396,11 @@ inline SupportBuilding makeHomeMonster(jam::Level& level, sf::Vector2i newPosInM
 
     // !!!
     int x = 0, y = 0;
-    while (!isBackgroundForPortal(map_, newPosInMap)) {
-        x = (x + clock.getElapsedTime().asMicroseconds()) % 50;
-        y = (y + (clock.getElapsedTime().asMicroseconds() * 7)) % 50;
-        newPosInMap = { x, y };
-    }
+//    while (!isBackgroundForPortal(map_, newPosInMap)) {
+//        x = (x + clock.getElapsedTime().asMicroseconds()) % 50;
+//        y = (y + (clock.getElapsedTime().asMicroseconds() * 7)) % 50;
+//        newPosInMap = { x, y };
+//    }
 
     homeMonster.setSizeInMap({ 1, 1 });
     homeMonster.setPosInMap(newPosInMap);

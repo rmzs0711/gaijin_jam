@@ -260,10 +260,9 @@ jam::Level::Level(sf::RenderWindow &window,
         for (int j = 0; j < mapObjects[i].size(); j++) {
             // !!!
             map[i][j].setPosInMap({j, i});
-           // map[i][j].setPosInMap({ i, j });
+            // map[i][j].setPosInMap({ i, j });
             map[i][j].setBackgroundType(mapObjects[i][j]);
-           // map[i][j].setBackgroundType(mapObjects[j][i]);
-
+            // map[i][j].setBackgroundType(mapObjects[j][i]);
 
             if (!(rand() % 2) &&
                 (map[i][j].getBackgroundType() == DARK_GREEN_GRASS ||
@@ -316,12 +315,30 @@ void jam::Level::updateStates() {
     for (auto &i : monsters) {
         i->updateState();
     }
+
+    if (isBackgroundForPortal(map, portalPos)) {
+        if (clock1.getElapsedTime() - lastPortalSpawnTime >
+            PortalSpawnCooldown) {
+            if (map[portalPos.y][portalPos.x].getState() == EARTHSHAKE) {
+                if (!addSupportBuilding(makeHomeMonster(*this, portalPos))) {
+                    portalPos = {rand() % 49, rand() % 49};
+                } else {
+                    lastPortalSpawnTime = clock1.getElapsedTime();
+                }
+            } else {
+                map[portalPos.y][portalPos.x].setState(EARTHSHAKE, clock1.getElapsedTime());
+            }
+        }
+    } else {
+        portalPos = {rand() % 49, rand() % 49};
+    }
 }
 void jam::Level::draw(sf::RenderWindow &window) {
     sf::Texture heartTexture;
     checkLoad(heartTexture, "data/images/heart.png");
     sf::Sprite heartSprite(heartTexture);
     heartSprite.setPosition(0, cellSize);
+    heartSprite.setTextureRect({0, 100, 1080, 1100});
     heartSprite.setScale(cellSize / heartSprite.getGlobalBounds().width,
                          cellSize / heartSprite.getGlobalBounds().height);
     auto heartEmptySprite = heartSprite;
@@ -820,8 +837,10 @@ void jam::Level::draw(sf::RenderWindow &window) {
 
         object_bar.draw(heartSprite);
         heartEmptySprite.setTextureRect(
-            {0, 0, (1080),
-             (int)((1 - (float)health / (float)maxHealth) * 1200)});
+            {0, 100, (1080),
+             (int)((1 - (float)health / (float)maxHealth) * 1100)});
+        std::cout << (int)((1 - (float)health / (float)maxHealth) * 1100)
+                  << "\n";
         object_bar.draw(heartEmptySprite);
 
         abilityCircle.setPosition(

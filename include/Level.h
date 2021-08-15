@@ -129,8 +129,12 @@ struct Level {
     bool is_end;
     std::vector<Home> home;
     int maxHealth = 10;
-    int health = maxHealth;
+    int health = 10;
     sf::Clock clock1;
+
+    sf::Time lastPortalSpawnTime;
+    sf::Time PortalSpawnCooldown = sf::seconds(10);
+    sf::Vector2i portalPos = {0, 0};
 private:
 
     RectangleButton<void> menuGameButton;
