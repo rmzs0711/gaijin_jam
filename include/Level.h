@@ -127,10 +127,10 @@ struct Level {
     std::vector<std::shared_ptr<Money>> money;
     std::list<FlyingObject> flyingObjects;
     bool is_end;
+    std::vector<Home> home;
 
 private:
     sf::Clock clock1;
-    std::vector<Home> home;
 
     RectangleButton<void> menuGameButton;
     RectangleButton<void> storeButton;

@@ -9,6 +9,201 @@
 #include "building.h"
 #include "makeFreeObjects.h"
 #include "usefulFunctions.h"
+#include "Cell.h"
+
+int const UP = 1, DOWN = 0, LEFT = 3, RIGHT = 2, FIGHTING = 4,
+NOT_FIGHTING = -1;
+
+inline sf::Vector2i nexCell(std::vector<std::vector<jam::Cell>>& map, sf::Vector2i first, sf::Vector2i second) {
+    sf::Clock clock;
+    if (first == second) {
+        return second;
+    }
+    sf::Vector2i ans;
+    if (abs(first.x - second.x) > abs(first.y - second.y)) {
+        if (first.x > second.x) {
+            ans = first - sf::Vector2i(1, 0);
+            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                if (first.y > second.y) {
+                    ans = first - sf::Vector2i(0, 1);
+                    if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                        if (clock.getElapsedTime().asMicroseconds() % 2 == 0) {
+                            ans = first + sf::Vector2i(0, 1);
+                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                                ans = first + sf::Vector2i(1, 0);
+                            }
+                        }
+                        else {
+                            ans = first + sf::Vector2i(1, 0);
+                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                                ans = first + sf::Vector2i(0, 1);
+                            }
+                        }
+                    }
+                }
+                else {
+                    ans = first + sf::Vector2i(0, 1);
+                    if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                        if (clock.getElapsedTime().asMicroseconds() % 2 == 0) {
+                            ans = first - sf::Vector2i(0, 1);
+                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                                ans = first + sf::Vector2i(1, 0);
+                            }
+                        }
+                        else {
+                            ans = first + sf::Vector2i(1, 0);
+                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                                ans = first - sf::Vector2i(0, 1);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            ans = first + sf::Vector2i(1, 0);
+            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                if (first.y > second.y) {
+                    ans = first - sf::Vector2i(0, 1);
+                    if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                        if (clock.getElapsedTime().asMicroseconds() % 2 == 0) {
+                            ans = first + sf::Vector2i(0, 1);
+                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                                ans = first - sf::Vector2i(1, 0);
+                            }
+                        }
+                        else {
+                            ans = first - sf::Vector2i(1, 0);
+                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                                ans = first + sf::Vector2i(0, 1);
+                            }
+                        }
+                    }
+                }
+                else {
+                    ans = first + sf::Vector2i(0, 1);
+                    if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                        if (clock.getElapsedTime().asMicroseconds() % 2 == 0) {
+                            ans = first - sf::Vector2i(0, 1);
+                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                                ans = first - sf::Vector2i(1, 0);
+                            }
+                        }
+                        else {
+                            ans = first - sf::Vector2i(1, 0);
+                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                                ans = first - sf::Vector2i(0, 1);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else {
+        if (first.y > second.y) {
+            ans = first - sf::Vector2i(0, 1);
+            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                if (first.x > second.x) {
+                    ans = first - sf::Vector2i(1, 0);
+                    if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                        if (clock.getElapsedTime().asMicroseconds() % 2 == 0) {
+                            ans = first + sf::Vector2i(1, 0);
+                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                                ans = first + sf::Vector2i(0, 1);
+                            }
+                        }
+                        else {
+                            ans = first + sf::Vector2i(0, 1);
+                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                                ans = first + sf::Vector2i(1, 0);
+                            }
+                        }
+                    }
+                }
+                else {
+                    ans = first + sf::Vector2i(1, 0);
+                    if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                        if (clock.getElapsedTime().asMicroseconds() % 2 == 0) {
+                            ans = first + sf::Vector2i(0, 1);
+                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                                ans = first - sf::Vector2i(1, 0);
+                            }
+                        }
+                        else {
+                            ans = first - sf::Vector2i(1, 0);
+                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                                ans = first + sf::Vector2i(0, 1);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            ans = first + sf::Vector2i(0, 1);
+            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                if (first.x > second.x) {
+                    ans = first - sf::Vector2i(1, 0);
+                    if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                        if (clock.getElapsedTime().asMicroseconds() % 2 == 0) {
+                            ans = first - sf::Vector2i(0, 1);
+                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                                ans = first + sf::Vector2i(1, 0);
+                            }
+                        }
+                        else {
+                            ans = first + sf::Vector2i(1, 0);
+                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                                ans = first - sf::Vector2i(0, 1);
+                            }
+                        }
+                    }
+                }
+                else {
+                    ans = first + sf::Vector2i(1, 0);
+                    if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                        if (clock.getElapsedTime().asMicroseconds() % 2 == 0) {
+                            ans = first - sf::Vector2i(0, 1);
+                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                                ans = first - sf::Vector2i(1, 0);
+                            }
+                        }
+                        else {
+                            ans = first - sf::Vector2i(1, 0);
+                            if (map[ans.x][ans.y].getBackgroundType() != jam::CellBackground::ROAD) {
+                                ans = first - sf::Vector2i(0, 1);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return ans;
+}
+
+inline std::vector<sf::Vector2f> getPathMonster(std::vector<std::vector<jam::Cell>> &map, 
+    sf::Vector2i home, sf::Vector2i home_monsters) {
+   
+    std::vector<sf::Vector2i> map_path;
+    sf::Vector2i next = home_monsters;
+    map_path.push_back(next);
+    while (next != home) {
+     //   std::cout << "home: " << home.x << " " << home.y << " next: " << next.x << " " << next.y 
+       //     << " monster home: " << home_monsters.x << " " << home_monsters.y << '\n';
+        map_path.push_back(next);
+        next = nexCell(map, next, home);
+    }
+    map_path.push_back(home);
+   // std::cout << "LLLLLLLL\n";
+    std::vector<sf::Vector2f> path;
+    for (auto& i : map_path) {
+        std::cout << i.x << " " << i.y << '\n';
+        path.push_back(jam::toPosition(i));
+    }
+    return path;
+}
 
 struct LifeBarCharacter {
     sf::RectangleShape original;
@@ -43,8 +238,6 @@ struct LifeBarCharacter {
     }
 };
 
-int const UP = 1, DOWN = 0, LEFT = 3, RIGHT = 2, FIGHTING = 4,
-          NOT_FIGHTING = -1;
 int const BURNED = -2, FROZEN = -3, SLOWED = -4, STUNNED = -5;
 enum POWER_ELEMENT { FIRE, ICE, EARTH, NUMBER_OF_POWER_ELEMENTS };
 enum ABILITY { FIRE_BLAST, CLOUD, LAVA, FROZEN_BLAST, WALL, EARTHSHAKE,

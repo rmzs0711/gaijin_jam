@@ -2638,15 +2638,16 @@ struct GameSession {
         }};
 
         levels.emplace_back(window, firstLevel);
-        std::vector<sf::Vector2f> monster_path;
-        monster_path.emplace_back(200, 200);
-        monster_path.emplace_back(220, 280);
-        monster_path.emplace_back(260, 340);
-        levels[0].addMonster(
-            Monster::makeArmouredRedDemon(levels[0], monster_path));
-//        levels[0].addMonster(Monster::makeMammoth(levels[0], monster_path));
-        levels[0].monsterSetPosition({cellSize * 3, cellSize * 6});
-//        levels[0].monsterSetPosition({cellSize * 6, cellSize * 2}, 1);
+//        std::vector<sf::Vector2f> monster_path;
+//        monster_path.emplace_back(200, 200);
+//        monster_path.emplace_back(220, 280);
+//        monster_path.emplace_back(260, 340);
+//        levels[0].addMonster(
+//            Monster::makeArmouredRedDemon(levels[0], monster_path));
+////        levels[0].addMonster(Monster::makeMammoth(levels[0], monster_path));
+//        levels[0].monsterSetPosition({cellSize * 3, cellSize * 6});
+////        levels[0].monsterSetPosition({cellSize * 6, cellSize * 2}, 1);
+        while (levels[0].addSupportBuilding(makeHomeMonster(levels[0])) == false) {}
 
         while (window.isOpen()) {
             window.clear();

@@ -360,4 +360,106 @@ inline SupportBuilding makeMinerCave(jam::Level &level,
     };
     return minerCave;
 }
+
+inline SupportBuilding makeHomeMonster(jam::Level& level, sf::Vector2i newPosInMap = sf::Vector2i(-1, -1)) {
+    sf::Clock clock;
+    jam::SupportBuilding homeMonster(level);
+    homeMonster.magicCooldown = sf::seconds(5);
+
+    int x = clock.getElapsedTime().asMicroseconds() % 50;
+
+    homeMonster.loadBuildingTexture(
+        "data/images/MiniWorldSprites/Buildings/Enemy/Mausoleum.png");
+    homeMonster.setTextureRect(sf::IntRect(0, 0, 16, 16));
+    auto& map_ = level.getMap();
+    int y = clock.getElapsedTime().asMicroseconds() % 50;
+
+    while (newPosInMap == sf::Vector2i(-1, -1) || map_[newPosInMap.x][newPosInMap.y].getBackgroundType() != jam::CellBackground::ROAD) {
+        x = clock.getElapsedTime().asMicroseconds() % 50;
+        y = clock.getElapsedTime().asMicroseconds() % 50;
+        newPosInMap = { x, y };
+    }
+
+    homeMonster.setPosInMap(newPosInMap);
+    //std::cout << newPosInMap.x << " " << newPosInMap.y << '\n';
+
+    homeMonster.setSizeInMap({ 1, 1 });
+    homeMonster.setHitBox(
+        level.getMap()[homeMonster.getPosInMap().y][homeMonster.getPosInMap().x]
+        .getGlobalBounds());
+    homeMonster.setScale(
+        { (float)cellSize / assetCellSize.x, (float)cellSize / assetCellSize.x });
+
+  //  std::cout << "HH\n";
+    homeMonster.path = getPathMonster(map_, level.home[0].getPosInMap(), newPosInMap);
+  //  std::cout << "HHUUUU\n";
+
+    homeMonster.magic = [&](Level& curLevel, const SupportBuilding& building) {
+        auto& map = curLevel.getMap();
+
+        std::cout << "add1\n";
+
+            int randValue = clock.getElapsedTime().asMicroseconds() % 18;
+            if (randValue == 0) {
+                curLevel.addMonster(Monster::makeArmouredRedDemon(level, building.path));
+            }
+            else if (randValue == 1) {
+                curLevel.addMonster(Monster::makeRedDemon(level, building.path));
+            }
+            else if (randValue == 2) {
+                curLevel.addMonster(Monster::makePurpleDemon(level, building.path));
+            }
+            else if (randValue == 3) {
+                curLevel.addMonster(Monster::makeMammoth(level, building.path));
+            }
+            else if (randValue == 4) {
+                curLevel.addMonster(Monster::makeWendigo(level, building.path));
+            }
+            else if (randValue == 5) {
+                curLevel.addMonster(Monster::makeYeti(level, building.path));
+            }
+            else if (randValue == 6) {
+                curLevel.addMonster(Monster::makeArcherGoblin(level, building.path));
+            }
+            else if (randValue == 7) {
+                curLevel.addMonster(Monster::makeClubGoblin(level, building.path));
+            }
+            else if (randValue == 8) {
+                curLevel.addMonster(Monster::makeFarmerGoblin(level, building.path));
+            }
+            else if (randValue == 9) {
+                curLevel.addMonster(Monster::makeKamikazeGoblin(level, building.path));
+            }
+            else if (randValue == 10) {
+                curLevel.addMonster(Monster::makeOrc(level, building.path));
+            }
+            else if (randValue == 11) {
+                curLevel.addMonster(Monster::makeOrcMage(level, building.path));
+            }
+            else if (randValue == 12) {
+                curLevel.addMonster(Monster::makeOrcShaman(level, building.path));
+            }
+            else if (randValue == 13) {
+                curLevel.addMonster(Monster::makePirateCaptain(level, building.path));
+            }
+            else if (randValue == 14) {
+                curLevel.addMonster(Monster::makePirateGrunt(level, building.path));
+            }
+            else if (randValue == 15) {
+                curLevel.addMonster(Monster::makePirateGunnern(level, building.path));
+            }
+            else if (randValue == 16) {
+                curLevel.addMonster(Monster::makeNecromancer(level, building.path));
+            }
+            else if (randValue == 17) {
+                curLevel.addMonster(Monster::makeSkeletonSoldier(level, building.path));
+            }
+
+            curLevel.monsters[curLevel.monsters.size() - 1]->setPosition(building.path[0]);
+
+            std::cout << "add2\n";
+    };
+    return homeMonster;
+}
+
 }  // namespace jam
