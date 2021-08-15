@@ -373,18 +373,21 @@ void Hero::moveToPosition() {
     } else {
         auto start = std::lower_bound(
             curLevel.monsters.begin(), curLevel.monsters.end(),
-            Hero::makeEmptyHero(curLevel,
-                          character.getPosition() -
-                              sf::Vector2f{jam::cellSize, jam::cellSize}),
+            Hero::makeEmptyHero(
+                curLevel, character.getPosition() -
+                              2.f * sf::Vector2f{jam::cellSize, jam::cellSize}),
             charactersCompare);
-        auto end =
-            std::upper_bound(curLevel.monsters.begin(), curLevel.monsters.end(),
-                             Hero::makeEmptyHero(curLevel, character.getPosition()),
-                             charactersCompare);
+        auto end = std::upper_bound(
+            curLevel.monsters.begin(), curLevel.monsters.end(),
+            Hero::makeEmptyHero(
+                curLevel, character.getPosition() +
+                              2.f * sf::Vector2f{jam::cellSize, jam::cellSize}),
+            charactersCompare);
         for (auto i = start; i != end; i++) {
-            auto delta = (*i)->getSprite()->getPosition() - character
-                                                             .getPosition();
-            if (delta.x < jam::cellSize && delta.y < jam::cellSize) {
+            auto delta =
+                (*i)->getSprite()->getPosition() - character.getPosition();
+            if (abs(delta.x) < 2 * jam::cellSize &&
+                abs(delta.y) < 2 * jam::cellSize) {
                 position = (*i)->getSprite()->getPosition();
                 break;
             }
@@ -798,9 +801,8 @@ void Monster::updateState() {
 }
 
 // makeHero
-std::shared_ptr<Hero> Hero::makeEmptyHero(
-    jam::Level &level,
-    sf::Vector2f position) {
+std::shared_ptr<Hero> Hero::makeEmptyHero(jam::Level &level,
+                                          sf::Vector2f position) {
     std::shared_ptr<Hero> monster =
         std::make_shared<Hero>("", 0, 0, level, false, 0);
     (*monster).setPosition(position);
@@ -878,12 +880,16 @@ std::shared_ptr<TemplateCharacter> intersectionObjects(
     jam::Level &level) {
     auto start = std::lower_bound(
         objects.begin(), objects.end(),
-        Hero::makeEmptyHero(level, character.getPosition() -
-                                 sf::Vector2f{jam::cellSize, jam::cellSize}),
+        Hero::makeEmptyHero(level,
+                            character.getPosition() -
+                                sf::Vector2f{jam::cellSize, jam::cellSize}),
         charactersCompare);
-    auto end = std::upper_bound(objects.begin(), objects.end(),
-                                Hero::makeEmptyHero(level, character.getPosition()),
-                                charactersCompare);
+    auto end = std::upper_bound(
+        objects.begin(), objects.end(),
+        Hero::makeEmptyHero(level,
+                            character.getPosition() +
+                                sf::Vector2f{jam::cellSize, jam::cellSize}),
+        charactersCompare);
     for (auto i = start; i != end; i++) {
         if (((*i)->getSprite())
                 ->getGlobalBounds()
