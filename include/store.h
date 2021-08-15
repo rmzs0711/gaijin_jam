@@ -171,7 +171,7 @@ private:
     void add(bool condition) {
         if (condition) {
             money.changeMoney(-cost);
-        } else {
+        } else if (cost != 0){
             message.setMessage("You can't put an object here");
         }
         cost = 0;
