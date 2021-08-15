@@ -839,8 +839,6 @@ void jam::Level::draw(sf::RenderWindow &window) {
         heartEmptySprite.setTextureRect(
             {0, 100, (1080),
              (int)((1 - (float)health / (float)maxHealth) * 1100)});
-        //std::cout << (int)((1 - (float)health / (float)maxHealth) * 1100)
-        //          << "\n";
         object_bar.draw(heartEmptySprite);
 
         abilityCircle.setPosition(

@@ -393,7 +393,6 @@ inline SupportBuilding makeHomeMonster(jam::Level& level, sf::Vector2i newPosInM
         "data/images/MiniWorldSprites/Miscellaneous/Portal.png");
     homeMonster.setTextureRect(sf::IntRect(0, 0, 16, 16));
     auto& map_ = level.getMap();
-
     homeMonster.setSizeInMap({ 1, 1 });
     homeMonster.setPosInMap(newPosInMap);
 
