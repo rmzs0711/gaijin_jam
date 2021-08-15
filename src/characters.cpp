@@ -10,22 +10,6 @@
 
 bool TemplateCharacter::isCorrectMove() {
     auto hitBox = character.getGlobalBounds();
-    for (auto &i : curLevel.home) {
-        if (i.getHitBox().intersects({hitBox.left,
-                                      hitBox.top + hitBox.height / 2,
-                                      hitBox.width, hitBox.height / 2})) {
-            if (dynamic_cast<Monster *>(this)) {
-                if (--curLevel.health == 0) {
-                    curLevel.is_end = true;
-                }
-                (dynamic_cast<Monster *>(this))->death();
-            }
-            return false;
-        }
-    }
-    if (dynamic_cast<Monster *>(this)) {
-        return true;
-    }
     {
         auto start = curLevel.freeObjects.lower_bound(
             jam::makeEmptyObject({hitBox.left, hitBox.top - jam::cellSize}));
@@ -73,17 +57,42 @@ bool TemplateCharacter::isCorrectMove() {
             }
         }
     }
+    for (auto &i : curLevel.home) {
+        if (i.getHitBox().intersects({hitBox.left,
+                                      hitBox.top + hitBox.height / 2,
+                                      hitBox.width, hitBox.height / 2})) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool Monster::isCorrectMove() {
+    auto hitBox = character.getGlobalBounds();
+    for (auto& i : curLevel.home) {
+        if (i.getHitBox().intersects({ hitBox.left,
+                                      hitBox.top + hitBox.height / 2,
+                                      hitBox.width, hitBox.height / 2 })) {
+                if (--curLevel.health == 0) {
+                    curLevel.is_end = true;
+                }
+                else {
+                    death();
+                }
+            return false;
+        }
+    }
+
     return true;
 }
 
 void Monster::isFighting() {
-    sf::Clock clock;
     std::shared_ptr<TemplateCharacter> hero =
         intersectionObjects(character, curLevel.heroes, curLevel);
     if (hero != nullptr) {
         current_frame =
-            (current_frame +
-             static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
+            (current_frame + rand()) %
             quantity_frames;
         changeState(FIGHTING, hero);
     } else {
@@ -92,7 +101,6 @@ void Monster::isFighting() {
 }
 void Monster::changeState(int state_,
                           std::shared_ptr<TemplateCharacter> enemy) {
-    sf::Clock clock;
     if (state_ == NOT_FIGHTING) {
         character.setColor(sf::Color::White);
         state = state_;
@@ -129,11 +137,30 @@ void Monster::changeState(int state_,
         float dx, dy;
         initializingCoordinates(dx, dy, state_);
         character.move(speedCoef * dx, speedCoef * dy);
-        /*if (t == 1000) {
-            positions.pop_back();
+        bool isRock = false;
+        auto hitBox = character.getGlobalBounds();
+        for (auto &i : curLevel.getFreeObjects()) {
+            if (i.getObjectType() == jam::ROCK &&
+                i.getHitBox().intersects({hitBox.left,
+                                          hitBox.top + hitBox.height / 2,
+                                          hitBox.width, hitBox.height / 2})) {
+                isRock = true;
+            }
         }
-        assert(t < 1000);*/
+        if (isRock) {
+            character.move(-dx, -dy);
+            return;
+        }
 
+        int t = 0;
+        while (!isCorrectMove() && t < 1000) {
+            character.move(-dx, -dy);
+            state_ = (state_ + rand()) % 4;
+            initializingCoordinates(dx, dy, state_);
+            dx *= 4, dy *= 4;
+            character.move(dx, dy);
+            t++;
+        }
         state = state_;
         character.setTextureRect(sf::IntRect(current_frame * size_frame.x,
                                              state_ * size_frame.y,
@@ -141,7 +168,6 @@ void Monster::changeState(int state_,
     }
 }
 void Monster::isEffected() {
-    auto hero = intersectionObjects(character, curLevel.heroes, curLevel);
     sf::Vector2i cell =
         sf::Vector2i(character.getPosition() / (float)jam::cellSize);
     switch (curLevel.getMap()[cell.y][cell.x].getState()) {
@@ -179,7 +205,6 @@ int Monster::getState() const {
 }
 void Monster::moveToPosition() {
     if (positions.size() != 0) {
-        sf::Clock clock;
         sf::Vector2f pos = character.getPosition();
         float dx =
             (positions[positions.size() - 1] - character.getPosition()).x;
@@ -187,8 +212,7 @@ void Monster::moveToPosition() {
             (positions[positions.size() - 1] - character.getPosition()).y;
         if (abs(dx) >= speed || abs(dy) >= speed) {
             current_frame =
-                (current_frame +
-                 static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
+                (current_frame + rand()) %
                 quantity_frames;
             if (abs(dx) > abs(dy)) {
                 if (dx > 0) {
@@ -220,14 +244,12 @@ void Monster::death() {
 }
 
 void Hero::isFighting() {
-    sf::Clock clock;
     std::shared_ptr<TemplateCharacter> monster =
         intersectionObjects(character, curLevel.getMonsters(), curLevel);
     if (monster != nullptr) {
         position = character.getPosition();
         current_frame =
-            (current_frame +
-             static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
+            (current_frame + rand()) %
             quantity_frames;
         changeState(FIGHTING, monster);
     } else {
@@ -259,14 +281,11 @@ void Hero::clickMouse(const sf::Event &event,
     }
 }
 void Hero::changeState(int state_, std::shared_ptr<TemplateCharacter> enemy) {
-    sf::Clock clock;
     if (state_ == FIGHTING) {
         state_ = 4 + 2 * state;
         character.setTextureRect(sf::IntRect(
             (current_frame % (quantity_frames - 1)) * size_frame.x,
-            (state_ +
-             (static_cast<int>(clock.getElapsedTime().asMicroseconds()) % 2)) *
-                size_frame.y,
+            (state_ + (rand() % 2)) * size_frame.y,
             size_frame.x, size_frame.y));
         enemy ? enemy->health -= damage : 0;
         return;
@@ -301,9 +320,7 @@ void Hero::changeState(int state_, std::shared_ptr<TemplateCharacter> enemy) {
     int t = 0;
     while (!isCorrectMove() && t < 1000) {
         character.move(-dx, -dy);
-        state_ = (state_ +
-                  static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
-                 4;
+        state_ = (state_ + rand()) % 4;
         initializingCoordinates(dx, dy, state_);
         dx *= 2.5, dy *= 2.5;
         character.move(dx, dy);
@@ -316,14 +333,11 @@ void Hero::changeState(int state_, std::shared_ptr<TemplateCharacter> enemy) {
                                          size_frame.y));
 }
 void Hero::moveToPosition() {
-    sf::Clock clock;
     float dx = (position - character.getPosition()).x;
     float dy = (position - character.getPosition()).y;
     if (abs(dx) >= speed || abs(dy) >= speed) {
         current_frame =
-            (current_frame +
-             static_cast<int>(clock.getElapsedTime().asMicroseconds())) %
-            quantity_frames;
+            (current_frame + rand()) % quantity_frames;
         if (abs(dx) > abs(dy)) {
             if (dx > 0) {
                 changeState(RIGHT);
@@ -380,7 +394,6 @@ void Hero::event(const sf::Event &event,
 void Hero::drawCharacter(sf::RenderTarget &window) {
     window.draw(character);
     if (isLive()) {
-        // life_bar.draw(window, current_health, character.getPosition());
         life_bar.draw(window, health, character.getPosition());
     }
     if (isLive() && is_move) {
@@ -393,15 +406,13 @@ void Hero::drawCharacter(sf::RenderTarget &window) {
 void Hero::death() {
     if (health <= 0) {
         health = current_health + 1;
-        sf::Clock clock;
         sf::Image character_image;
         character_image.loadFromFile(
             "data/images/MiniWorldSprites/Miscellaneous/Tombstones.png");
         character_texture.loadFromImage(character_image);
         character.setTexture(character_texture);
         character.setTextureRect(sf::IntRect(
-            static_cast<int>(clock.getElapsedTime().asMicroseconds()) % 4,
-            static_cast<int>(clock.getElapsedTime().asMicroseconds()) % 2,
+            rand() % 4, rand() % 2,
             size_frame.x, size_frame.y));
     } else if (health > current_health) {
         health++;
@@ -478,7 +489,7 @@ std::shared_ptr<Monster> Monster::makeArmouredRedDemon(
         "ArmouredRedDemon.png",
         70, 0.07, monster_path, level, 4, 5);
     (*monster).setScale(3, 3);
-    (*monster).setSpeed(0.18);
+    (*monster).setSpeed(0.32);
     (*monster).setPosition(-800, -800);
     return monster;
 }
@@ -492,7 +503,7 @@ std::shared_ptr<Monster> Monster::makeRedDemon(
         "data/images/MiniWorldSprites/Characters/Monsters/Demons/RedDemon.png",
         60, 0.07, monster_path, level, 3, 5);
     (*monster).setScale(3, 3);
-    (*monster).setSpeed(0.2);
+    (*monster).setSpeed(0.4);
     (*monster).setPosition(-800, -800);
     return monster;
 }
@@ -507,7 +518,7 @@ std::shared_ptr<Monster> Monster::makePurpleDemon(
         "PurpleDemon.png",
         60, 0.07, monster_path, level, 3, 5);
     (*monster).setScale(3, 3);
-    (*monster).setSpeed(0.2);
+    (*monster).setSpeed(0.4);
     (*monster).setPosition(-800, -800);
     return monster;
 }
@@ -523,7 +534,7 @@ std::shared_ptr<Monster> Monster::makeMammoth(
         "Mammoth.png",
         150, 0.18, monster_path, level, 20, 4);
     (*monster).setScale(4.3, 4.3);
-    (*monster).setSpeed(0.15);
+    (*monster).setSpeed(0.3);
     (*monster).setPosition(-800, -800);
     return monster;
 }
@@ -537,7 +548,7 @@ std::shared_ptr<Monster> Monster::makeWendigo(
         "Wendigo.png",
         80, 0.12, monster_path, level, 8, 4);
     (*monster).setScale(4.3, 4.3);
-    (*monster).setSpeed(0.17);
+    (*monster).setSpeed(0.34);
     (*monster).setPosition(-800, -800);
     return monster;
 }
@@ -551,7 +562,7 @@ std::shared_ptr<Monster> Monster::makeYeti(
         "data/images/MiniWorldSprites/Characters/Monsters/Frostborn/Yeti.png",
         70, 0.11, monster_path, level, 7, 5);
     (*monster).setScale(4.3, 4.3);
-    (*monster).setSpeed(0.18);
+    (*monster).setSpeed(0.36);
     (*monster).setPosition(-800, -800);
     return monster;
 }
@@ -568,7 +579,7 @@ std::shared_ptr<Monster> Monster::makeArcherGoblin(
         "ArcherGoblin.png",
         50, 0.05, monster_path, level, 2, 4);
     (*monster).setScale(2.5, 2.5);
-    (*monster).setSpeed(0.22);
+    (*monster).setSpeed(0.44);
     (*monster).setPosition(-800, -800);
     return monster;
 }
@@ -582,7 +593,7 @@ std::shared_ptr<Monster> Monster::makeClubGoblin(
         "data/images/MiniWorldSprites/Characters/Monsters/Orcs/ClubGoblin.png",
         50, 0.05, monster_path, level, 2, 4);
     (*monster).setScale(2.5, 2.5);
-    (*monster).setSpeed(0.22);
+    (*monster).setSpeed(0.44);
     (*monster).setPosition(-800, -800);
     return monster;
 }
@@ -597,7 +608,7 @@ std::shared_ptr<Monster> Monster::makeFarmerGoblin(
         "FarmerGoblin.png",
         50, 0.05, monster_path, level, 2, 4);
     (*monster).setScale(2.5, 2.5);
-    (*monster).setSpeed(0.22);
+    (*monster).setSpeed(0.44);
     (*monster).setPosition(-800, -800);
     return monster;
 }
@@ -612,7 +623,7 @@ std::shared_ptr<Monster> Monster::makeKamikazeGoblin(
         "KamikazeGoblin.png",
         50, 0.05, monster_path, level, 2, 5);
     (*monster).setScale(2.5, 2.5);
-    (*monster).setSpeed(0.22);
+    (*monster).setSpeed(0.44);
     (*monster).setPosition(-800, -800);
     return monster;
 }
@@ -625,7 +636,7 @@ std::shared_ptr<Monster> Monster::makeOrc(
         "data/images/MiniWorldSprites/Characters/Monsters/Orcs/Orc.png", 60,
         0.11, monster_path, level, 5, 5);
     (*monster).setScale(2.5, 2.5);
-    (*monster).setSpeed(0.2);
+    (*monster).setSpeed(0.4);
     (*monster).setPosition(-800, -800);
     return monster;
 }
@@ -639,7 +650,7 @@ std::shared_ptr<Monster> Monster::makeOrcMage(
         "data/images/MiniWorldSprites/Characters/Monsters/Orcs/OrcMage.png", 55,
         0.12, monster_path, level, 6, 5);
     (*monster).setScale(2.5, 2.5);
-    (*monster).setSpeed(0.2);
+    (*monster).setSpeed(0.4);
     (*monster).setPosition(-800, -800);
     return monster;
 }
@@ -653,7 +664,7 @@ std::shared_ptr<Monster> Monster::makeOrcShaman(
         "data/images/MiniWorldSprites/Characters/Monsters/Orcs/OrcShaman.png",
         55, 0.12, monster_path, level, 6, 5);
     (*monster).setScale(2.5, 2.5);
-    (*monster).setSpeed(0.2);
+    (*monster).setSpeed(0.4);
     (*monster).setPosition(-800, -800);
     return monster;
 }
@@ -670,7 +681,7 @@ std::shared_ptr<Monster> Monster::makePirateCaptain(
         "PirateCaptain.png",
         88, 0.15, monster_path, level, 9, 5);
     (*monster).setScale(3.8, 3.8);
-    (*monster).setSpeed(0.2);
+    (*monster).setSpeed(0.4);
     (*monster).setPosition(-800, -800);
     return monster;
 }
@@ -685,7 +696,7 @@ std::shared_ptr<Monster> Monster::makePirateGrunt(
         "PirateGrunt.png",
         80, 0.12, monster_path, level, 8, 5);
     (*monster).setScale(3.8, 3.8);
-    (*monster).setSpeed(0.2);
+    (*monster).setSpeed(0.4);
     (*monster).setPosition(-800, -800);
     return monster;
 }
@@ -700,7 +711,7 @@ std::shared_ptr<Monster> Monster::makePirateGunnern(
         "PirateGunner.png",
         80, 0.12, monster_path, level, 8, 5);
     (*monster).setScale(3.8, 3.8);
-    (*monster).setSpeed(0.2);
+    (*monster).setSpeed(0.4);
     (*monster).setPosition(-800, -800);
     return monster;
 }
@@ -717,7 +728,7 @@ std::shared_ptr<Monster> Monster::makeNecromancer(
         "Necromancer.png",
         65, 0.07, monster_path, level, 4, 5);
     (*monster).setScale(3, 3);
-    (*monster).setSpeed(0.2);
+    (*monster).setSpeed(0.4);
     (*monster).setPosition(-800, -800);
     return monster;
 }
@@ -730,7 +741,7 @@ std::shared_ptr<Monster> Monster::makeSkeletonSoldier(
         "Skeleton-Soldier.png",
         50, 0.05, monster_path, level, 2, 5);
     (*monster).setScale(3, 3);
-    (*monster).setSpeed(0.22);
+    (*monster).setSpeed(0.44);
     (*monster).setPosition(-800, -800);
     return monster;
 }
@@ -782,7 +793,7 @@ std::shared_ptr<Hero> Hero::makeAssasinPurple(jam::Level &level,
         "AssasinPurple.png",
         90, 0.12, level, false, 5);
     (*monster).setScale(4, 4);
-    (*monster).setSpeed(0.2);
+    (*monster).setSpeed(0.4);
     (*monster).setPosition(position);
     return monster;
 }
@@ -794,7 +805,7 @@ std::shared_ptr<Hero> Hero::makeAssasinLime(jam::Level &level,
         "AssasinLime.png",
         110, 0.1, level, false, 5);
     (*monster).setScale(4.2, 4.2);
-    (*monster).setSpeed(0.2);
+    (*monster).setSpeed(0.4);
     (*monster).setPosition(position);
     return monster;
 }
@@ -807,7 +818,7 @@ std::shared_ptr<Hero> Hero::makeAssasinCyan(jam::Level &level,
         "AssasinCyan.png",
         100, 0.12, level, false, 5);
     (*monster).setScale(4.1, 4.1);
-    (*monster).setSpeed(0.25);
+    (*monster).setSpeed(0.5);
     (*monster).setPosition(position);
     return monster;
 }
@@ -820,7 +831,7 @@ std::shared_ptr<Hero> Hero::makeAssasinRed(jam::Level &level,
         "AssasinRed.png",
         110, 0.15, level, false, 5);
     (*monster).setScale(3.9, 3.9);
-    (*monster).setSpeed(0.3);
+    (*monster).setSpeed(0.6);
     (*monster).setPosition(position);
     return monster;
 }

@@ -308,10 +308,10 @@ void jam::Level::draw(sf::RenderWindow &window) {
     sf::Texture heartTexture;
     checkLoad(heartTexture, "data/images/heart.png");
     sf::Sprite heartSprite(heartTexture);
-    heartSprite.setPosition(0, cellSize);
+    heartSprite.setPosition(20, 20);
     heartSprite.setTextureRect({0, 100, 1080, 1100});
-    heartSprite.setScale(cellSize / heartSprite.getGlobalBounds().width,
-                         cellSize / heartSprite.getGlobalBounds().height);
+    heartSprite.setScale((float)cellSize / (heartSprite.getGlobalBounds().width * 1.5),
+        (float)cellSize / (heartSprite.getGlobalBounds().height * 1.5));
     auto heartEmptySprite = heartSprite;
     heartEmptySprite.setColor(sf::Color::Black);
 
@@ -807,8 +807,6 @@ void jam::Level::draw(sf::RenderWindow &window) {
         heartEmptySprite.setTextureRect(
             {0, 100, (1080),
              (int)((1 - (float)health / (float)maxHealth) * 1100)});
-        std::cout << (int)((1 - (float)health / (float)maxHealth) * 1100)
-                  << "\n";
         object_bar.draw(heartEmptySprite);
 
         abilityCircle.setPosition(

@@ -102,12 +102,12 @@ void jam::Building::setTextureRect(const sf::IntRect &newRect) {
 void jam::Building::draw(sf::RenderTarget &window) const {
     building.setTexture(buildingTexture);
     window.draw(building);
-    sf::RectangleShape rect({hitBox.width, hitBox.height});
-    rect.setPosition(hitBox.left, hitBox.top);
-    rect.setFillColor(sf::Color::Transparent);
-    rect.setOutlineThickness(5);
-    rect.setOutlineColor(sf::Color::Red);
-    window.draw(rect);
+    //sf::RectangleShape rect({hitBox.width, hitBox.height});
+    //rect.setPosition(hitBox.left, hitBox.top);
+    //rect.setFillColor(sf::Color::Transparent);
+    //rect.setOutlineThickness(5);
+    //rect.setOutlineColor(sf::Color::Red);
+    //window.draw(rect);
 }
 jam::Building::Building(jam::Level &level_) : level(level_) {}
 

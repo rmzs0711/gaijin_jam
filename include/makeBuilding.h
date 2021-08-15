@@ -387,7 +387,7 @@ inline bool isBackgroundForPortal(std::vector<std::vector<jam::Cell>> &map, sf::
 inline SupportBuilding makeHomeMonster(jam::Level& level, sf::Vector2i newPosInMap = sf::Vector2i(0, 0)) {
     sf::Clock clock;
     jam::SupportBuilding homeMonster(level);
-    homeMonster.magicCooldown = sf::seconds(7);
+    homeMonster.magicCooldown = sf::seconds(13);
 
     homeMonster.loadBuildingTexture(
         "data/images/MiniWorldSprites/Miscellaneous/Portal.png");
@@ -404,7 +404,7 @@ inline SupportBuilding makeHomeMonster(jam::Level& level, sf::Vector2i newPosInM
     homeMonster.setScale(
         { (float)cellSize / assetCellSize.x, (float)cellSize / assetCellSize.x });
 
-    homeMonster.path = getPathMonster(map_, level.home[clock.getElapsedTime().asMicroseconds()
+    homeMonster.path = getPathMonster(map_, level.home[rand()
         % level.home.size()].getPosInMap(), newPosInMap);
 
     if (homeMonster.path.size() == 0) {
@@ -414,11 +414,11 @@ inline SupportBuilding makeHomeMonster(jam::Level& level, sf::Vector2i newPosInM
     homeMonster.magic = [&](Level& curLevel, const SupportBuilding& building) {
         auto& map = curLevel.getMap();
 
-        if (clock.getElapsedTime().asMicroseconds() % 2 == 1) {
+        if (rand() % 2 == 1) {
             return;
         }
 
-        int randValue = clock.getElapsedTime().asMicroseconds() % 18;
+        int randValue = rand() % 18;
 
             if (randValue == 0) {
                 curLevel.addMonster(Monster::makeArmouredRedDemon(level, building.path));

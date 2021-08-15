@@ -122,13 +122,9 @@ inline std::vector<sf::Texture *> texturePtrs;
 inline std::vector<sf::Time> stateDurations;
 inline std::vector<sf::Time> abilityCooldowns;
 
-////////////////////////////////////
 inline sf::Vector2f toPosition(sf::Vector2i map_position) {
-    sf::Clock clock;
     sf::Vector2f pos = (sf::Vector2f)map_position;
     pos = { pos.x * cellSize + cellSize / 2, pos.y * cellSize + cellSize / 2 };
- //   int x = (static_cast<int>(clock.getElapsedTime().asMicroseconds() * 9) % cellSize);
-   // int y = (static_cast<int>(clock.getElapsedTime().asMicroseconds() * 44) % cellSize);
     return pos;
 }
 

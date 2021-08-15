@@ -21,7 +21,6 @@ int const UP = 1, DOWN = 0, LEFT = 3, RIGHT = 2, FIGHTING = 4,
 inline sf::Vector2i nexCell(std::vector<std::vector<jam::Cell>> &map,
                             sf::Vector2i first,
                             sf::Vector2i second) {
-    sf::Clock clock;
     if (first == second) {
         return second;
     }
@@ -35,7 +34,7 @@ inline sf::Vector2i nexCell(std::vector<std::vector<jam::Cell>> &map,
                     ans = first - sf::Vector2i(0, 1);
                     if (map[ans.y][ans.x].getBackgroundType() !=
                         jam::CellBackground::ROAD) {
-                        if (clock.getElapsedTime().asMicroseconds() % 2 == 0) {
+                        if (rand() % 2 == 0) {
                             ans = first + sf::Vector2i(0, 1);
                             if (map[ans.y][ans.x].getBackgroundType() !=
                                 jam::CellBackground::ROAD) {
@@ -53,7 +52,7 @@ inline sf::Vector2i nexCell(std::vector<std::vector<jam::Cell>> &map,
                     ans = first + sf::Vector2i(0, 1);
                     if (map[ans.y][ans.x].getBackgroundType() !=
                         jam::CellBackground::ROAD) {
-                        if (clock.getElapsedTime().asMicroseconds() % 2 == 0) {
+                        if (rand() % 2 == 0) {
                             ans = first - sf::Vector2i(0, 1);
                             if (map[ans.y][ans.x].getBackgroundType() !=
                                 jam::CellBackground::ROAD) {
@@ -77,7 +76,7 @@ inline sf::Vector2i nexCell(std::vector<std::vector<jam::Cell>> &map,
                     ans = first - sf::Vector2i(0, 1);
                     if (map[ans.y][ans.x].getBackgroundType() !=
                         jam::CellBackground::ROAD) {
-                        if (clock.getElapsedTime().asMicroseconds() % 2 == 0 &&
+                        if (rand() % 2 == 0 &&
                             ans.y < 49) {
                             ans = first + sf::Vector2i(0, 1);
                             if (map[ans.y][ans.x].getBackgroundType() !=
@@ -97,7 +96,7 @@ inline sf::Vector2i nexCell(std::vector<std::vector<jam::Cell>> &map,
                     ans = first + sf::Vector2i(0, 1);
                     if (map[ans.y][ans.x].getBackgroundType() !=
                         jam::CellBackground::ROAD) {
-                        if (clock.getElapsedTime().asMicroseconds() % 2 == 0 &&
+                        if (rand() % 2 == 0 &&
                             ans.y > 0) {
                             ans = first - sf::Vector2i(0, 1);
                             if (map[ans.y][ans.x].getBackgroundType() !=
@@ -125,7 +124,7 @@ inline sf::Vector2i nexCell(std::vector<std::vector<jam::Cell>> &map,
                     ans = first - sf::Vector2i(1, 0);
                     if (map[ans.y][ans.x].getBackgroundType() !=
                         jam::CellBackground::ROAD) {
-                        if (clock.getElapsedTime().asMicroseconds() % 2 == 0) {
+                        if (rand() % 2 == 0) {
                             ans = first + sf::Vector2i(1, 0);
                             if (map[ans.y][ans.x].getBackgroundType() !=
                                 jam::CellBackground::ROAD) {
@@ -143,7 +142,7 @@ inline sf::Vector2i nexCell(std::vector<std::vector<jam::Cell>> &map,
                     ans = first + sf::Vector2i(1, 0);
                     if (map[ans.y][ans.x].getBackgroundType() !=
                         jam::CellBackground::ROAD) {
-                        if (clock.getElapsedTime().asMicroseconds() % 2 == 0) {
+                        if (rand() % 2 == 0) {
                             ans = first + sf::Vector2i(0, 1);
                             if (map[ans.y][ans.x].getBackgroundType() !=
                                 jam::CellBackground::ROAD) {
@@ -167,7 +166,7 @@ inline sf::Vector2i nexCell(std::vector<std::vector<jam::Cell>> &map,
                     ans = first - sf::Vector2i(1, 0);
                     if (map[ans.y][ans.x].getBackgroundType() !=
                         jam::CellBackground::ROAD) {
-                        if (clock.getElapsedTime().asMicroseconds() % 2 == 0) {
+                        if (rand() % 2 == 0) {
                             ans = first - sf::Vector2i(0, 1);
                             if (map[ans.y][ans.x].getBackgroundType() !=
                                 jam::CellBackground::ROAD) {
@@ -185,7 +184,7 @@ inline sf::Vector2i nexCell(std::vector<std::vector<jam::Cell>> &map,
                     ans = first + sf::Vector2i(1, 0);
                     if (map[ans.y][ans.x].getBackgroundType() !=
                         jam::CellBackground::ROAD) {
-                        if (clock.getElapsedTime().asMicroseconds() % 2 == 0) {
+                        if (rand() % 2 == 0) {
                             ans = first - sf::Vector2i(0, 1);
                             if (map[ans.y][ans.x].getBackgroundType() !=
                                 jam::CellBackground::ROAD) {
@@ -338,7 +337,6 @@ protected:
         if (file_name == "") {
             return;
         }
-        sf::Clock clock;
         sf::Image character_image;
         character_image.loadFromFile(file_name);
         character_texture.loadFromImage(character_image);
@@ -353,9 +351,7 @@ protected:
         icon.setOrigin(character.getOrigin());
 
         character.setTextureRect(sf::IntRect(0, 0, size_frame.x, size_frame.y));
-        icon.setTextureRect(sf::IntRect(
-            (static_cast<int>(clock.getElapsedTime().asMicroseconds()) % 4) *
-                size_frame.x,
+        icon.setTextureRect(sf::IntRect((rand() % 4) * size_frame.x,
             0, size_frame.x, size_frame.y));
     }
     void initializingCoordinates(float &dx, float &dy, int direction) const;
@@ -363,7 +359,7 @@ protected:
 public:
     virtual void updateState() = 0;
     sf::FloatRect getGlobalBounds() const;
-    bool isCorrectMove();
+    virtual bool isCorrectMove();
     void takeDamage(float damage_);
 
     sf::Sprite *getSprite();
@@ -409,6 +405,7 @@ protected:
     void moveToPosition();
 
 public:
+    bool isCorrectMove() override;
     void death();
     void updateState() override;
     Monster(const std::string &file_name,
