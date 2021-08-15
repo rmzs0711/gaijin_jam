@@ -313,8 +313,15 @@ void jam::Level::updateStates() {
     }
 }
 void jam::Level::draw(sf::RenderWindow &window) {
+    sf::Texture heartTexture;
+    checkLoad(heartTexture, "data/images/heart.png");
+    sf::Sprite heartSprite(heartTexture);
+    heartSprite.setScale(cellSize / heartSprite.getGlobalBounds().width,
+                         cellSize / heartSprite.getGlobalBounds().height);
+    auto heartEmptySprite = heartSprite;
+    heartEmptySprite.setColor(sf::Color::Black);
+
     std::vector<sf::Texture> abilitiesTextures(NUMBER_OF_ABILITIES);
-    //    std::vector<sf::CircleShape> abilitiesCircles(NUMBER_OF_ABILITIES);
     checkLoadTexture(abilitiesTextures[ABILITY::FIRE_BLAST],
                      "data/images/fire.png", {{0, 0}, assetCellSize});
     checkLoadTexture(abilitiesTextures[ABILITY::LAVA], "data/images/lava.png",
@@ -706,7 +713,8 @@ void jam::Level::draw(sf::RenderWindow &window) {
                     freeObject->getObjectType() != ROCK &&
                         map[cell.y][cell.x].getState() == WALL ||
                     map[cell.y][cell.x].getState() == EARTHSHAKE ||
-                    map[cell.y][cell.x].getState() == LAVA) {
+                    map[cell.y][cell.x].getState() == LAVA ||
+                    freeObjects.size() > maxObjects) {
                     if (rand() % 10 == 0) {
                         addMoney(Money::makeMoney(rand() % 100,
                                                   freeObject->getPosition()));
@@ -771,14 +779,14 @@ void jam::Level::draw(sf::RenderWindow &window) {
                 freeObject++;
             } else if (poses[0] == monsterPos) {
                 checkDraw(view, dynamic_cast<Monster &>(**monster), window);
-                if (!(*monster)->isDraw()) {
+                if (!(*monster)->isDraw() || monsters.size() > maxMonsters) {
                     monster = monsters.erase(monster);
                 } else {
                     monster++;
                 }
             } else if (poses[0] == heroPos) {
                 checkDraw(view, dynamic_cast<Hero &>(**hero), window);
-                if (!(*hero)->isDraw()) {
+                if (!(*hero)->isDraw() || heroes.size() > maxHeroes) {
                     hero = heroes.erase(hero);
                 } else {
                     hero++;
@@ -801,10 +809,19 @@ void jam::Level::draw(sf::RenderWindow &window) {
         for (auto &i : money) {
             checkDraw(view, *i, window);
         }
+        if (money.size() > maxMoneys) {
+            money.pop_back();
+        }
 
         view.setCenter(shift + view.getSize() / 2.f);
         minimapSprite.setPosition(shift);
         store.drawStore(object_bar);
+
+        object_bar.draw(heartSprite);
+        heartEmptySprite.setTextureRect(
+            {0, 0, (1080),
+             (int)((1 - (float)health / (float)maxHealth) * 1200)});
+        object_bar.draw(heartEmptySprite);
 
         abilityCircle.setPosition(
             10, (float)object_bar.getSize().y / 2 + (float)(-1 * cellSize));

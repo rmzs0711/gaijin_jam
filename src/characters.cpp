@@ -58,12 +58,15 @@ bool TemplateCharacter::isCorrectMove() {
         }
     }
     for (auto &i : curLevel.home) {
-        if (i.getHitBox().intersects({hitBox
-                                                                          .left,
+        if (i.getHitBox().intersects({hitBox.left,
                                       hitBox.top + hitBox.height / 2,
                                       hitBox.width, hitBox.height / 2})) {
-            if (dynamic_cast<Monster*>(this)) {
-                curLevel.is_end = true;
+            if (dynamic_cast<Monster *>(this)) {
+                if (--curLevel.health == 0) {
+                    curLevel.is_end = true;
+                } else {
+                    (dynamic_cast<Monster *>(this))->death();
+                }
             }
             return false;
         }
@@ -779,9 +782,8 @@ void Monster::updateState() {
 static std::shared_ptr<Hero> makeEmptyHero(
     jam::Level &level,
     sf::Vector2f position = sf::Vector2f(0, 0)) {
-    std::shared_ptr<Hero> monster = std::make_shared<Hero>(
-        "",
-        0, 0, level, false, 0);
+    std::shared_ptr<Hero> monster =
+        std::make_shared<Hero>("", 0, 0, level, false, 0);
     (*monster).setPosition(position);
     return monster;
 }

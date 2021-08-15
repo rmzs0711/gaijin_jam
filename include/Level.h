@@ -128,7 +128,8 @@ struct Level {
     std::list<FlyingObject> flyingObjects;
     bool is_end;
     std::vector<Home> home;
-
+    int maxHealth = 10;
+    int health = maxHealth;
 private:
     sf::Clock clock1;
 

@@ -10,6 +10,10 @@
 #include "makeFreeObjects.h"
 #include "usefulFunctions.h"
 #include "Cell.h"
+inline const int maxHeroes = 200;
+inline const int maxMonsters = 300;
+inline const int maxMoneys = 100;
+inline const int maxObjects = 1000;
 
 int const UP = 1, DOWN = 0, LEFT = 3, RIGHT = 2, FIGHTING = 4,
 NOT_FIGHTING = -1;
@@ -349,12 +353,12 @@ protected:
 
     void isFighting();
 
-    void death();
     void isEffected();
-
     void moveToPosition();
 
 public:
+
+    void death();
     void updateState() override;
     Monster(const std::string &file_name,
             float health_,
