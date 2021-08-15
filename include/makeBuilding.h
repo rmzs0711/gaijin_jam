@@ -171,13 +171,20 @@ inline jam::AttackBuilding makeWizardTower(jam::Level &level,
     wizardTower.attackBuildingAnimatedObject.object.setScale(5, 5);
     return wizardTower;
 }
-inline jam::Home makeHome(jam::Level &level) {
+inline jam::Home makeHome(jam::Level &level, int number) {
     jam::Home home(level);
     home.loadBuildingTexture(
         "data/images/MiniWorldSprites/Buildings/Purple/PurpleKeep.png");
     home.setTextureRect({0, 0, 32, 32});
     home.setSizeInMap({2, 2});
-    home.setPosInMap({1, 1});
+
+    if (number == 1) {
+        home.setPosInMap({ 1, 2 });
+    }
+    else {
+        home.setPosInMap({ 46, 46 });
+    }
+
     home.setScale({(float)cellSize / 16, (float)cellSize / 16});
     home.setHitBox(home.getSprite()->getGlobalBounds());
 //    home.setHitBox(level.getMap()[home.getPosInMap().y][home.getPosInMap().x]
@@ -362,28 +369,41 @@ inline SupportBuilding makeMinerCave(jam::Level &level,
     return minerCave;
 }
 
-inline SupportBuilding makeHomeMonster(jam::Level& level, sf::Vector2i newPosInMap = sf::Vector2i(-1, -1)) {
+inline bool isBackgroundForPortal(std::vector<std::vector<jam::Cell>> &map, sf::Vector2i position) {
+    assert(position.x >= 0 && position.x < 50 && position.y >= 0 && position.y < 50);
+
+    if (map[position.y][position.x].getBackgroundType() != jam::CellBackground::ROAD) {
+        if ((position.y > 0 && map[position.y - 1][position.x].getBackgroundType() == jam::CellBackground::ROAD) ||
+            (position.y < 49 && map[position.y + 1][position.x].getBackgroundType() == jam::CellBackground::ROAD) ||
+            (position.x > 0 && map[position.y][position.x - 1].getBackgroundType() == jam::CellBackground::ROAD) ||
+            (position.x < 49 && map[position.y][position.x + 1].getBackgroundType() == jam::CellBackground::ROAD)) {
+
+            return true;
+        }
+    }
+    return false;
+}
+
+inline SupportBuilding makeHomeMonster(jam::Level& level, sf::Vector2i newPosInMap = sf::Vector2i(0, 0)) {
     sf::Clock clock;
     jam::SupportBuilding homeMonster(level);
-    homeMonster.magicCooldown = sf::seconds(5);
-
-    int x = clock.getElapsedTime().asMicroseconds() % 50;
+    homeMonster.magicCooldown = sf::seconds(7);
 
     homeMonster.loadBuildingTexture(
-        "data/images/MiniWorldSprites/Buildings/Enemy/Mausoleum.png");
+        "data/images/MiniWorldSprites/Miscellaneous/Portal.png");
     homeMonster.setTextureRect(sf::IntRect(0, 0, 16, 16));
     auto& map_ = level.getMap();
-    int y = clock.getElapsedTime().asMicroseconds() % 50;
 
-    while (newPosInMap == sf::Vector2i(-1, -1) || map_[newPosInMap.x][newPosInMap.y].getBackgroundType() != jam::CellBackground::ROAD) {
-        x = clock.getElapsedTime().asMicroseconds() % 50;
-        y = clock.getElapsedTime().asMicroseconds() % 50;
+    // !!!
+    int x = 0, y = 0;
+    while (!isBackgroundForPortal(map_, newPosInMap)) {
+        x = (x + clock.getElapsedTime().asMicroseconds()) % 50;
+        y = (y + (clock.getElapsedTime().asMicroseconds() * 7)) % 50;
         newPosInMap = { x, y };
     }
 
     homeMonster.setSizeInMap({ 1, 1 });
     homeMonster.setPosInMap(newPosInMap);
-    //std::cout << newPosInMap.x << " " << newPosInMap.y << '\n';
 
     homeMonster.setHitBox(
         level.getMap()[homeMonster.getPosInMap().y][homeMonster.getPosInMap().x]
@@ -391,16 +411,22 @@ inline SupportBuilding makeHomeMonster(jam::Level& level, sf::Vector2i newPosInM
     homeMonster.setScale(
         { (float)cellSize / assetCellSize.x, (float)cellSize / assetCellSize.x });
 
-  //  std::cout << "HH\n";
-    homeMonster.path = getPathMonster(map_, level.home[0].getPosInMap(), newPosInMap);
-  //  std::cout << "HHUUUU\n";
+    homeMonster.path = getPathMonster(map_, level.home[clock.getElapsedTime().asMicroseconds()
+        % level.home.size()].getPosInMap(), newPosInMap);
+
+    if (homeMonster.path.size() == 0) {
+        homeMonster.path.push_back({ 0, 0 });
+    }
 
     homeMonster.magic = [&](Level& curLevel, const SupportBuilding& building) {
         auto& map = curLevel.getMap();
 
-        std::cout << "add1\n";
+        if (clock.getElapsedTime().asMicroseconds() % 2 == 1) {
+            return;
+        }
 
-            int randValue = clock.getElapsedTime().asMicroseconds() % 18;
+        int randValue = clock.getElapsedTime().asMicroseconds() % 18;
+
             if (randValue == 0) {
                 curLevel.addMonster(Monster::makeArmouredRedDemon(level, building.path));
             }
@@ -457,8 +483,6 @@ inline SupportBuilding makeHomeMonster(jam::Level& level, sf::Vector2i newPosInM
             }
 
             curLevel.monsters[curLevel.monsters.size() - 1]->setPosition(building.path[0]);
-
-            std::cout << "add2\n";
     };
     return homeMonster;
 }
