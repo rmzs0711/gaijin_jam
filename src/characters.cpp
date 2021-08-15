@@ -366,10 +366,10 @@ void Hero::moveToPosition() {
             charactersCompare);
         for (auto i = start; i != end; i++) {
             auto delta =
-                (*i)->getSprite()->getPosition() - character.getPosition();
+                (*i)->character.getPosition() - character.getPosition();
             if (abs(delta.x) < 2 * jam::cellSize &&
                 abs(delta.y) < 2 * jam::cellSize) {
-                position = (*i)->getSprite()->getPosition();
+                position = (*i)->character.getPosition();
                 break;
             }
         }
@@ -461,9 +461,9 @@ void TemplateCharacter::setPosition(sf::Vector2f position_) {
 void TemplateCharacter::setPosition(float x, float y) {
     character.setPosition(x, y);
 }
-sf::Sprite *TemplateCharacter::getSprite() {
-    return &character;
-}
+//sf::Sprite *TemplateCharacter::getSprite() {
+//    return &character;
+//}
 void TemplateCharacter::initializingCoordinates(float &dx,
                                                 float &dy,
                                                 int direction) const {
@@ -869,10 +869,8 @@ std::shared_ptr<TemplateCharacter> intersectionObjects(
                                 sf::Vector2f{jam::cellSize, jam::cellSize}),
         charactersCompare);
     for (auto i = start; i != end; i++) {
-        if (((*i)->getSprite())
-                ->getGlobalBounds()
-                .intersects(character.getGlobalBounds()) &&
-            (*i)->getSprite() != &character) {
+        if (((*i)->character.getGlobalBounds()
+                .intersects(character.getGlobalBounds()))) {
             return *i;
         }
     }
@@ -880,14 +878,14 @@ std::shared_ptr<TemplateCharacter> intersectionObjects(
 }
 bool charactersCompare(const std::shared_ptr<TemplateCharacter> &first,
                        const std::shared_ptr<TemplateCharacter> &second) {
-    if (first->getSprite()->getPosition().y <
-        second->getSprite()->getPosition().y) {
+    if (first->character.getPosition().y <
+        second->character.getPosition().y) {
         return true;
     }
-    if (first->getSprite()->getPosition().y ==
-        second->getSprite()->getPosition().y) {
-        return first->getSprite()->getPosition().x <
-               second->getSprite()->getPosition().x;
+    if (first->character.getPosition().y ==
+        second->character.getPosition().y) {
+        return first->character.getPosition().x <
+               second->character.getPosition().x;
     }
     return false;
 }

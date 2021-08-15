@@ -31,10 +31,10 @@ bool jam::FlyingObject::isFinished() {
     object.setOrigin(getOrigin());
     object.setScale(getScale());
     auto &curPos = getPosition();
-    targetPos = {targetPtr->getSprite()->getGlobalBounds().left +
-                     targetPtr->getSprite()->getGlobalBounds().width / 2,
-                 targetPtr->getSprite()->getGlobalBounds().top +
-                     targetPtr->getSprite()->getGlobalBounds().height / 2};
+    targetPos = {targetPtr->character.getGlobalBounds().left +
+                     targetPtr->character.getGlobalBounds().width / 2,
+                 targetPtr->character.getGlobalBounds().top +
+                     targetPtr->character.getGlobalBounds().height / 2};
     auto xDist = targetPos.x - curPos.x;
     auto yDist = targetPos.y - curPos.y;
     auto Dist = std::sqrt((xDist * xDist) + (yDist * yDist));
@@ -152,9 +152,10 @@ void jam::AttackBuilding::attack(const sf::Time &currentTime) const {
             charactersCompare);
         for (auto i = start; i != end; i++) {
             sf::Vector2f dif =
-                (*i)->getSprite()->getPosition() - building.getPosition();
-            if ((*i)->isLive() && abs(dif.x) < attackRange &&
-                abs(dif.y) < attackRange) {
+                (*i)->character.getPosition() - building.getPosition();
+            if ((*i)->isLive() &&
+                std::abs(dif.x) < attackRange &&
+                std::abs(dif.y) < attackRange) {
                 flyingObject.setTexture(flyingObjectTexture);
                 flyingObject.setPosition(
                     building.getGlobalBounds().left + firePosition.x,

@@ -306,6 +306,7 @@ struct TemplateCharacter {
 
     float speedCoef = 1;
     float health, damage, current_health, current_damage, max_health;
+    sf::Sprite character, icon;
 protected:
     float speed;
     LifeBarCharacter life_bar;
@@ -313,7 +314,6 @@ protected:
     int current_frame, quantity_frames;
     sf::Vector2i size_frame;
     sf::Texture character_texture, icon_texture;
-    sf::Sprite character, icon;
     jam::Level &curLevel;
 
     TemplateCharacter(const std::string &file_name,

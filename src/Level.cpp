@@ -669,10 +669,10 @@ void jam::Level::draw(sf::RenderWindow &window) {
                                  ? freeObject->getPosition().y
                                  : std::numeric_limits<float>::max();
             auto monsterPos = monster != monsters.end()
-                                  ? (*monster)->getSprite()->getPosition().y
+                                  ? (*monster)->character.getPosition().y
                                   : std::numeric_limits<float>::max();
             auto heroPos = hero != heroes.end()
-                               ? (*hero)->getSprite()->getPosition().y
+                               ? (*hero)->character.getPosition().y
                                : std::numeric_limits<float>::max();
             auto attackBuildingPos =
                 attackBuilding != attackBuildings.end()
