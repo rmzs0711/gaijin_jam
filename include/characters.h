@@ -10,6 +10,10 @@
 #include "makeFreeObjects.h"
 #include "usefulFunctions.h"
 #include "Cell.h"
+inline const int maxHeroes = 200;
+inline const int maxMonsters = 300;
+inline const int maxMoneys = 100;
+inline const int maxObjects = 1000;
 
 int const UP = 1, DOWN = 0, LEFT = 3, RIGHT = 2, FIGHTING = 4,
 NOT_FIGHTING = -1;
@@ -187,8 +191,24 @@ inline std::vector<sf::Vector2f> getPathMonster(std::vector<std::vector<jam::Cel
     sf::Vector2i home, sf::Vector2i home_monsters) {
    
     std::vector<sf::Vector2i> map_path;
-    sf::Vector2i next = home_monsters;
-    map_path.push_back(next);
+    sf::Vector2i next;
+
+    if (map[home_monsters.x + 1][home_monsters.y].getBackgroundType()
+        == jam::CellBackground::ROAD) {
+        next = home_monsters + sf::Vector2i(1, 0);
+    }
+    else if (map[home_monsters.x - 1][home_monsters.y].getBackgroundType()
+        == jam::CellBackground::ROAD) {
+        next = home_monsters - sf::Vector2i(1, 0);
+    } 
+    else if (map[home_monsters.x][home_monsters.y + 1].getBackgroundType()
+        == jam::CellBackground::ROAD) {
+        next = home_monsters + sf::Vector2i(0, 1);
+    }
+    else {
+        next = home_monsters - sf::Vector2i(0, 1);
+    }
+
     while (next != home) {
      //   std::cout << "home: " << home.x << " " << home.y << " next: " << next.x << " " << next.y 
        //     << " monster home: " << home_monsters.x << " " << home_monsters.y << '\n';
@@ -337,7 +357,8 @@ bool charactersCompare(const std::shared_ptr<TemplateCharacter> &,
 
 std::shared_ptr<TemplateCharacter> intersectionObjects(
     const sf::Sprite &character,
-    const std::vector<std::shared_ptr<TemplateCharacter>> &objects);
+    const std::vector<std::shared_ptr<TemplateCharacter>> &objects,
+    jam::Level&);
 
 struct Monster : TemplateCharacter {
 protected:
@@ -349,12 +370,12 @@ protected:
 
     void isFighting();
 
-    void death();
     void isEffected();
-
     void moveToPosition();
 
 public:
+
+    void death();
     void updateState() override;
     Monster(const std::string &file_name,
             float health_,

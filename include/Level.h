@@ -128,7 +128,8 @@ struct Level {
     std::list<FlyingObject> flyingObjects;
     bool is_end;
     std::vector<Home> home;
-
+    int maxHealth = 10;
+    int health = maxHealth;
 private:
     sf::Clock clock1;
 
@@ -143,7 +144,7 @@ private:
     std::vector<sf::Time> lastAbilityUsageTimes;
 
 public:
-    const float maxMana = 100;
+    const float maxMana = 2000;
     mutable float mana = maxMana;
     float manaRegen = 1;
     sf::Time regenCooldown = sf::seconds(1);

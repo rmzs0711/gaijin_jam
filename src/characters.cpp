@@ -61,7 +61,13 @@ bool TemplateCharacter::isCorrectMove() {
         if (i.getHitBox().intersects({hitBox.left,
                                       hitBox.top + hitBox.height / 2,
                                       hitBox.width, hitBox.height / 2})) {
-            curLevel.is_end = true;
+            if (dynamic_cast<Monster *>(this)) {
+                if (--curLevel.health == 0) {
+                    curLevel.is_end = true;
+                } else {
+                    (dynamic_cast<Monster *>(this))->death();
+                }
+            }
             return false;
         }
     }
@@ -72,7 +78,7 @@ bool TemplateCharacter::isCorrectMove() {
 void Monster::isFighting() {
     sf::Clock clock;
     std::shared_ptr<TemplateCharacter> hero =
-        intersectionObjects(character, curLevel.heroes);
+        intersectionObjects(character, curLevel.heroes, curLevel);
     if (hero != nullptr) {
         current_frame =
             (current_frame +
@@ -88,7 +94,6 @@ void Monster::changeState(int state_, float damage_) {
     if (state_ == NOT_FIGHTING) {
         character.setColor(sf::Color::White);
         state = state_;
-        speedCoef = 1;
     } else if (state_ == FIGHTING && state != FROZEN && state != STUNNED) {
         character.setColor(sf::Color::White);
         state = FIGHTING;
@@ -99,7 +104,7 @@ void Monster::changeState(int state_, float damage_) {
         return;
     } else if (state_ == FROZEN) {
         std::shared_ptr<TemplateCharacter> hero =
-            intersectionObjects(character, curLevel.heroes);
+            intersectionObjects(character, curLevel.heroes, curLevel);
         if (hero) {
             damage_ = hero->getDamage();
         }
@@ -114,8 +119,9 @@ void Monster::changeState(int state_, float damage_) {
         health -= damage_;
     } else if (state_ == SLOWED) {
         speedCoef = 0.5;
+        damage = current_damage * 0.5;
         std::shared_ptr<TemplateCharacter> hero =
-            intersectionObjects(character, curLevel.heroes);
+            intersectionObjects(character, curLevel.heroes, curLevel);
         if (hero) {
             damage_ = hero->getDamage();
         }
@@ -125,7 +131,7 @@ void Monster::changeState(int state_, float damage_) {
     } else if (state_ == STUNNED) {
         speedCoef = 0;
         std::shared_ptr<TemplateCharacter> hero =
-            intersectionObjects(character, curLevel.heroes);
+            intersectionObjects(character, curLevel.heroes, curLevel);
         if (hero) {
             damage_ = hero->getDamage();
         }
@@ -247,7 +253,7 @@ void Monster::death() {
 void Hero::isFighting() {
     sf::Clock clock;
     std::shared_ptr<TemplateCharacter> monster =
-        intersectionObjects(character, curLevel.getMonsters());
+        intersectionObjects(character, curLevel.getMonsters(), curLevel);
     if (monster != nullptr) {
         position = character.getPosition();
         current_frame =
@@ -362,6 +368,28 @@ void Hero::moveToPosition() {
                 changeState(DOWN);
             } else {
                 changeState(UP);
+            }
+        }
+    } else {
+        auto start = std::lower_bound(
+            curLevel.monsters.begin(), curLevel.monsters.end(),
+            Hero::makeEmptyHero(
+                curLevel, character.getPosition() -
+                              2.f * sf::Vector2f{jam::cellSize, jam::cellSize}),
+            charactersCompare);
+        auto end = std::upper_bound(
+            curLevel.monsters.begin(), curLevel.monsters.end(),
+            Hero::makeEmptyHero(
+                curLevel, character.getPosition() +
+                              2.f * sf::Vector2f{jam::cellSize, jam::cellSize}),
+            charactersCompare);
+        for (auto i = start; i != end; i++) {
+            auto delta =
+                (*i)->getSprite()->getPosition() - character.getPosition();
+            if (abs(delta.x) < 2 * jam::cellSize &&
+                abs(delta.y) < 2 * jam::cellSize) {
+                position = (*i)->getSprite()->getPosition();
+                break;
             }
         }
     }
@@ -761,6 +789,10 @@ void Monster::updateState() {
                 moveToPosition();
             }
             isEffected();
+            if (state != SLOWED) {
+                speedCoef = 1;
+                damage = current_damage;
+            }
         } else {
             curLevel.addMoney(Money::makeMoney(money, character.getPosition()));
             death();
@@ -769,12 +801,10 @@ void Monster::updateState() {
 }
 
 // makeHero
-static std::shared_ptr<Hero> makeEmptyHero(
-    jam::Level &level,
-    sf::Vector2f position = sf::Vector2f(0, 0)) {
-    std::shared_ptr<Hero> monster = std::make_shared<Hero>(
-        "",
-        0, 0, level, false, 0);
+std::shared_ptr<Hero> Hero::makeEmptyHero(jam::Level &level,
+                                          sf::Vector2f position) {
+    std::shared_ptr<Hero> monster =
+        std::make_shared<Hero>("", 0, 0, level, false, 0);
     (*monster).setPosition(position);
     return monster;
 }
@@ -846,13 +876,26 @@ int Hero::getState() const {
 
 std::shared_ptr<TemplateCharacter> intersectionObjects(
     const sf::Sprite &character,
-    const std::vector<std::shared_ptr<TemplateCharacter>> &objects) {
-    for (auto &i : objects) {
-        if (((*i).getSprite())
+    const std::vector<std::shared_ptr<TemplateCharacter>> &objects,
+    jam::Level &level) {
+    auto start = std::lower_bound(
+        objects.begin(), objects.end(),
+        Hero::makeEmptyHero(level,
+                            character.getPosition() -
+                                sf::Vector2f{jam::cellSize, jam::cellSize}),
+        charactersCompare);
+    auto end = std::upper_bound(
+        objects.begin(), objects.end(),
+        Hero::makeEmptyHero(level,
+                            character.getPosition() +
+                                sf::Vector2f{jam::cellSize, jam::cellSize}),
+        charactersCompare);
+    for (auto i = start; i != end; i++) {
+        if (((*i)->getSprite())
                 ->getGlobalBounds()
                 .intersects(character.getGlobalBounds()) &&
-            (*i).getSprite() != &character) {
-            return i;
+            (*i)->getSprite() != &character) {
+            return *i;
         }
     }
     return nullptr;

@@ -15,7 +15,9 @@ public:
     virtual void moveObject(const sf::Vector2f &position) = 0;
     virtual void move_object(const sf::Vector2f &mouse,
                              sf::Vector2f &old_mouse) {
-        if (is_correct_click(mouse) && condition_for_move()) {
+        if (
+//            is_correct_click(mouse) &&
+            condition_for_move()) {
             moveObject(mouse - old_mouse);
             old_mouse = mouse;
         }

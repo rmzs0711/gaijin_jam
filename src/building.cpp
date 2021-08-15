@@ -92,7 +92,7 @@ void jam::Building::setPosInMap(const sf::Vector2i &newPosInMap) {
     Building::posInMap = newPosInMap;
     building.setPosition(sf::Vector2f(newPosInMap * (int)cellSize));
     hitBox = {building.getPosition(), {cellSize, cellSize}};
-    building.move({0.5 * cellSize, cellSize});
+    building.move({0.5f * getSizeInMap().x * cellSize, cellSize});
 }
 void jam::Building::setTextureRect(const sf::IntRect &newRect) {
     building.setTextureRect(newRect);
@@ -214,5 +214,5 @@ void jam::SupportBuilding::doMagic(const sf::Time &curTime) const {
         magic(level, *this);
         lastMagicTime = curTime;
     }
-    std::cout << "add3\n";
+   // std::cout << "add3\n";
 }

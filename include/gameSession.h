@@ -2647,7 +2647,11 @@ struct GameSession {
 ////        levels[0].addMonster(Monster::makeMammoth(levels[0], monster_path));
 //        levels[0].monsterSetPosition({cellSize * 3, cellSize * 6});
 ////        levels[0].monsterSetPosition({cellSize * 6, cellSize * 2}, 1);
-        while (levels[0].addSupportBuilding(makeHomeMonster(levels[0])) == false) {}
+
+
+        while (levels[0].addSupportBuilding(makeHomeMonster(levels[0])) == false) {
+            std::cout << "err\n";
+        }
 
         while (window.isOpen()) {
             window.clear();

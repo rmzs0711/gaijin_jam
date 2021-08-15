@@ -35,14 +35,14 @@ inline jam::AttackBuilding makeArcherBuilding(jam::Level &level,
         "data/images/MiniWorldSprites/Buildings/Lime/LimeTower.png");
     archersTower.setTextureRect({{assetCellSize.x, assetCellSize.x},
                                  {assetCellSize.x, assetCellSize.x * 2}});
-    archersTower.setPosInMap(newPosInMap);
     archersTower.setSizeInMap({1, 2});
+    archersTower.setPosInMap(newPosInMap);
+    archersTower.setScale(
+        {(float)cellSize / assetCellSize.x, (float)cellSize / assetCellSize.x});
     archersTower.setHitBox(level
                                .getMap()[archersTower.getPosInMap().y]
                                         [archersTower.getPosInMap().x]
                                .getGlobalBounds());
-    archersTower.setScale(
-        {(float)cellSize / assetCellSize.x, (float)cellSize / assetCellSize.x});
     archersTower.loadFlyingObjectTexture(
         "data/images/MiniWorldSprites/Objects/ArrowLong.png");
     archersTower.setAttackPosition({cellSize / 2, cellSize / 2});
@@ -84,13 +84,13 @@ inline jam::AttackBuilding makeSniperBuilding(jam::Level &level,
         "data/images/MiniWorldSprites/Buildings/Red/RedTower.png");
     sniperTower.setTextureRect({{assetCellSize.x, assetCellSize.x},
                                 {assetCellSize.x, assetCellSize.x * 2}});
-    sniperTower.setPosInMap(newPosInMap);
     sniperTower.setSizeInMap({1, 2});
+    sniperTower.setPosInMap(newPosInMap);
+    sniperTower.setScale(
+        {(float)cellSize / assetCellSize.x, (float)cellSize / assetCellSize.x});
     sniperTower.setHitBox(
         level.getMap()[sniperTower.getPosInMap().y][sniperTower.getPosInMap().x]
             .getGlobalBounds());
-    sniperTower.setScale(
-        {(float)cellSize / assetCellSize.x, (float)cellSize / assetCellSize.x});
     sniperTower.loadFlyingObjectTexture(
         "data/images/MiniWorldSprites/Objects/Bullet.png");
     sniperTower.setAttackPosition({cellSize / 2, cellSize / 2});
@@ -129,18 +129,18 @@ inline jam::AttackBuilding makeWizardTower(jam::Level &level,
                                            const sf::Vector2i newPosInMap) {
     jam::AttackBuilding wizardTower(level);
     wizardTower.setAttackCooldown(sf::seconds(1.5));
-    wizardTower.setAttackRange(10 * cellSize);
+    wizardTower.setAttackRange(2 * cellSize);
     wizardTower.loadBuildingTexture(
         "data/images/MiniWorldSprites/Buildings/Cyan/CyanTower.png");
     wizardTower.setTextureRect(
         {{assetCellSize.x, assetCellSize.x}, {assetCellSize.x, 32}});
-    wizardTower.setPosInMap(newPosInMap);
     wizardTower.setSizeInMap({1, 2});
+    wizardTower.setPosInMap(newPosInMap);
+    wizardTower.setScale(
+        {(float)cellSize / assetCellSize.x, (float)cellSize / assetCellSize.x});
     wizardTower.setHitBox(
         level.getMap()[wizardTower.getPosInMap().y][wizardTower.getPosInMap().x]
             .getGlobalBounds());
-    wizardTower.setScale(
-        {(float)cellSize / assetCellSize.x, (float)cellSize / assetCellSize.x});
     wizardTower.loadFlyingObjectTexture(
         "data/images/MiniWorldSprites/Objects/FireballProjectile.png");
     wizardTower.setAttackPosition({cellSize / 2, cellSize / 2 - 10});
@@ -171,16 +171,24 @@ inline jam::AttackBuilding makeWizardTower(jam::Level &level,
     wizardTower.attackBuildingAnimatedObject.object.setScale(5, 5);
     return wizardTower;
 }
-inline jam::Home makeHome(jam::Level &level) {
+inline jam::Home makeHome(jam::Level &level, int number) {
     jam::Home home(level);
     home.loadBuildingTexture(
-        "data/images/MiniWorldSprites/Buildings/Lime/LimeHouses.png");
-    home.setTextureRect({16, 3 * 16, 16, 16});
-    home.setPosInMap({1, 1});
-    home.setSizeInMap({1, 1});
-    home.setHitBox(level.getMap()[home.getPosInMap().y][home.getPosInMap().x]
-                       .getGlobalBounds());
+        "data/images/MiniWorldSprites/Buildings/Purple/PurpleKeep.png");
+    home.setTextureRect({0, 0, 32, 32});
+    home.setSizeInMap({2, 2});
+    
+    if (number == 1) {
+        home.setPosInMap({ 1, 2 });
+    }
+    else {
+        home.setPosInMap({ 46, 46 });
+    }
+
     home.setScale({(float)cellSize / 16, (float)cellSize / 16});
+    home.setHitBox(home.getSprite()->getGlobalBounds());
+//    home.setHitBox(level.getMap()[home.getPosInMap().y][home.getPosInMap().x]
+//                       .getGlobalBounds());
     return home;
 }
 
@@ -188,12 +196,12 @@ inline jam::Home makeHome(jam::Level &level) {
 inline SupportBuilding makeBarrack(jam::Level &level,
                                    const sf::Vector2i newPosInMap) {
     jam::SupportBuilding barrack(level);
-    barrack.magicCooldown = sf::seconds(60);
+    barrack.magicCooldown = sf::seconds(10);
     barrack.loadBuildingTexture(
         "data/images/MiniWorldSprites/Buildings/Wood/Barracks.png");
     barrack.setTextureRect({{0, 0}, {assetCellSize.x, assetCellSize.x}});
-    barrack.setPosInMap(newPosInMap);
     barrack.setSizeInMap({1, 1});
+    barrack.setPosInMap(newPosInMap);
     barrack.setHitBox(
         level.getMap()[barrack.getPosInMap().y][barrack.getPosInMap().x]
             .getGlobalBounds());
@@ -252,7 +260,6 @@ inline SupportBuilding makeBarrack(jam::Level &level,
     };
     return barrack;
 }
-
 inline SupportBuilding makeHospital(jam::Level &level,
                                     const sf::Vector2i newPosInMap) {
     jam::SupportBuilding hospital(level);
@@ -261,8 +268,8 @@ inline SupportBuilding makeHospital(jam::Level &level,
     hospital.loadBuildingTexture(
         "data/images/MiniWorldSprites/Buildings/Cyan/CyanChapels.png");
     hospital.setTextureRect({assetCellSize, assetCellSize});
-    hospital.setPosInMap(newPosInMap);
     hospital.setSizeInMap({1, 1});
+    hospital.setPosInMap(newPosInMap);
     hospital.setHitBox(
         level.getMap()[hospital.getPosInMap().y][hospital.getPosInMap().x]
             .getGlobalBounds());
@@ -304,8 +311,8 @@ inline SupportBuilding makeWell(jam::Level &level,
     well.loadBuildingTexture(
         "data/images/MiniWorldSprites/Miscellaneous/Well.png");
     well.setTextureRect({{0, assetCellSize.x}, assetCellSize});
-    well.setPosInMap(newPosInMap);
     well.setSizeInMap({1, 1});
+    well.setPosInMap(newPosInMap);
     well.setHitBox(level.getMap()[well.getPosInMap().y][well.getPosInMap().x]
                        .getGlobalBounds());
     well.setScale(
@@ -319,7 +326,7 @@ inline SupportBuilding makeWell(jam::Level &level,
 inline SupportBuilding makeMinerCave(jam::Level &level,
                                      const sf::Vector2i newPosInMap) {
     jam::SupportBuilding minerCave(level);
-    minerCave.magicCooldown = sf::seconds(10);
+    minerCave.magicCooldown = sf::seconds(60);
     int goldBonus = 1;
     minerCave.loadBuildingTexture(
         "data/images/MiniWorldSprites/Buildings/Wood/CaveV2.png");
@@ -342,8 +349,8 @@ inline SupportBuilding makeMinerCave(jam::Level &level,
     } else if (randValue >= 15 && randValue <= 20) {
         minerCave.setTextureRect({{0, 0}, {assetCellSize.x, assetCellSize.x}});
     }
-    minerCave.setPosInMap(newPosInMap);
     minerCave.setSizeInMap({1, 1});
+    minerCave.setPosInMap(newPosInMap);
     minerCave.setHitBox(
         level.getMap()[minerCave.getPosInMap().y][minerCave.getPosInMap().x]
             .getGlobalBounds());
@@ -352,8 +359,8 @@ inline SupportBuilding makeMinerCave(jam::Level &level,
     minerCave.magic = [&](Level &curLevel, const SupportBuilding &building) {
         auto &map = curLevel.getMap();
         auto rect = building.getBuilding().getTextureRect();
-        level.addMoney(Money::makeMoney(
-            rect.left / assetCellSize.x + 1 + rect.top / assetCellSize.y * 3,
+        level.addMoney(Money::makeMoney(10 * (
+            rect.left / assetCellSize.x + 1 + rect.top / assetCellSize.y * 3),
             building.getBuilding().getPosition()
                 -
                 sf::Vector2f(cellSize, cellSize) / 2.f
@@ -362,45 +369,59 @@ inline SupportBuilding makeMinerCave(jam::Level &level,
     return minerCave;
 }
 
-inline SupportBuilding makeHomeMonster(jam::Level& level, sf::Vector2i newPosInMap = sf::Vector2i(-1, -1)) {
+inline bool isBackgroundForPortal(std::vector<std::vector<jam::Cell>> &map, sf::Vector2i position) {
+    std::cout << "isBackgroundForPortal: " << position.x << " " << position.y << '\n';
+    if (map[position.x][position.y].getBackgroundType() != jam::CellBackground::ROAD) {
+        if (map[position.x - 1][position.y].getBackgroundType() == jam::CellBackground::ROAD ||
+            map[position.x + 1][position.y].getBackgroundType() == jam::CellBackground::ROAD ||
+            map[position.x][position.y - 1].getBackgroundType() == jam::CellBackground::ROAD ||
+            map[position.x][position.y + 1].getBackgroundType() == jam::CellBackground::ROAD) {
+            return true;
+        }
+    }
+    return false;
+}
+
+inline SupportBuilding makeHomeMonster(jam::Level& level, sf::Vector2i newPosInMap = sf::Vector2i(0, 0)) {
     sf::Clock clock;
     jam::SupportBuilding homeMonster(level);
-    homeMonster.magicCooldown = sf::seconds(5);
-
-    int x = clock.getElapsedTime().asMicroseconds() % 50;
+    homeMonster.magicCooldown = sf::seconds(7);
 
     homeMonster.loadBuildingTexture(
-        "data/images/MiniWorldSprites/Buildings/Enemy/Mausoleum.png");
+        "data/images/MiniWorldSprites/Miscellaneous/Portal.png");
     homeMonster.setTextureRect(sf::IntRect(0, 0, 16, 16));
     auto& map_ = level.getMap();
-    int y = clock.getElapsedTime().asMicroseconds() % 50;
 
-    while (newPosInMap == sf::Vector2i(-1, -1) || map_[newPosInMap.x][newPosInMap.y].getBackgroundType() != jam::CellBackground::ROAD) {
-        x = clock.getElapsedTime().asMicroseconds() % 50;
-        y = clock.getElapsedTime().asMicroseconds() % 50;
+    // !!!
+    int x = 0, y = 0;
+    while (!isBackgroundForPortal(map_, newPosInMap)) {
+        x = (x + clock.getElapsedTime().asMicroseconds()) % 50;
+        y = (y + (clock.getElapsedTime().asMicroseconds() * 7)) % 50;
         newPosInMap = { x, y };
     }
 
-    homeMonster.setPosInMap(newPosInMap);
-    //std::cout << newPosInMap.x << " " << newPosInMap.y << '\n';
-
     homeMonster.setSizeInMap({ 1, 1 });
+    homeMonster.setPosInMap(newPosInMap);
+    std::cout << "Portal: " << newPosInMap.x << " " << newPosInMap.y << '\n';
+
     homeMonster.setHitBox(
         level.getMap()[homeMonster.getPosInMap().y][homeMonster.getPosInMap().x]
         .getGlobalBounds());
     homeMonster.setScale(
         { (float)cellSize / assetCellSize.x, (float)cellSize / assetCellSize.x });
 
-  //  std::cout << "HH\n";
-    homeMonster.path = getPathMonster(map_, level.home[0].getPosInMap(), newPosInMap);
-  //  std::cout << "HHUUUU\n";
+    homeMonster.path = getPathMonster(map_, level.home[clock.getElapsedTime().asMicroseconds() 
+        % level.home.size()].getPosInMap(), newPosInMap);
 
     homeMonster.magic = [&](Level& curLevel, const SupportBuilding& building) {
         auto& map = curLevel.getMap();
 
-        std::cout << "add1\n";
+        if (clock.getElapsedTime().asMicroseconds() % 2 == 1) {
+            return;
+        }
 
-            int randValue = clock.getElapsedTime().asMicroseconds() % 18;
+        int randValue = clock.getElapsedTime().asMicroseconds() % 18;
+
             if (randValue == 0) {
                 curLevel.addMonster(Monster::makeArmouredRedDemon(level, building.path));
             }
@@ -458,7 +479,7 @@ inline SupportBuilding makeHomeMonster(jam::Level& level, sf::Vector2i newPosInM
 
             curLevel.monsters[curLevel.monsters.size() - 1]->setPosition(building.path[0]);
 
-            std::cout << "add2\n";
+         //   std::cout << "add2\n";
     };
     return homeMonster;
 }
