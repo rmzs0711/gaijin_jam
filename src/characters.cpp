@@ -10,11 +10,27 @@
 
 bool TemplateCharacter::isCorrectMove() {
     auto hitBox = character.getGlobalBounds();
+    for (auto &i : curLevel.home) {
+        if (i.getHitBox().intersects({hitBox.left,
+                                      hitBox.top + hitBox.height / 2,
+                                      hitBox.width, hitBox.height / 2})) {
+            if (dynamic_cast<Monster *>(this)) {
+                if (--curLevel.health == 0) {
+                    curLevel.is_end = true;
+                }
+                (dynamic_cast<Monster *>(this))->death();
+            }
+            return false;
+        }
+    }
+    if (dynamic_cast<Monster *>(this)) {
+        return true;
+    }
     {
         auto start = curLevel.freeObjects.lower_bound(
-            jam::makeTree({hitBox.left, hitBox.top - jam::cellSize}));
+            jam::makeEmptyObject({hitBox.left, hitBox.top - jam::cellSize}));
         auto end = curLevel.freeObjects.upper_bound(
-            jam::makeTree({hitBox.left, hitBox.top + jam::cellSize}));
+            jam::makeEmptyObject({hitBox.left, hitBox.top + jam::cellSize}));
         for (auto &i = start; i != end; i++) {
             if (i->getHitBox().intersects({hitBox.left,
                                            hitBox.top + hitBox.height / 2,
@@ -57,20 +73,6 @@ bool TemplateCharacter::isCorrectMove() {
             }
         }
     }
-    for (auto &i : curLevel.home) {
-        if (i.getHitBox().intersects({hitBox.left,
-                                      hitBox.top + hitBox.height / 2,
-                                      hitBox.width, hitBox.height / 2})) {
-            if (dynamic_cast<Monster *>(this)) {
-                if (--curLevel.health == 0) {
-                    curLevel.is_end = true;
-                }
-                (dynamic_cast<Monster *>(this))->death();
-            }
-            return false;
-        }
-    }
-
     return true;
 }
 
@@ -127,32 +129,6 @@ void Monster::changeState(int state_,
         float dx, dy;
         initializingCoordinates(dx, dy, state_);
         character.move(speedCoef * dx, speedCoef * dy);
-        bool isRock = false;
-        auto hitBox = character.getGlobalBounds();
-        for (auto &i : curLevel.getFreeObjects()) {
-            if (i.getObjectType() == jam::ROCK &&
-                i.getHitBox().intersects({hitBox.left,
-                                          hitBox.top + hitBox.height / 2,
-                                          hitBox.width, hitBox.height / 2})) {
-                isRock = true;
-            }
-        }
-        if (isRock) {
-            character.move(-dx, -dy);
-            return;
-        }
-
-        int t = 0;
-        while (!isCorrectMove() && t < 1000) {
-            character.move(-dx, -dy);
-            state_ = (state_ + static_cast<int>(
-                                   clock.getElapsedTime().asMicroseconds())) %
-                     4;
-            initializingCoordinates(dx, dy, state_);
-            dx *= 4, dy *= 4;
-            character.move(dx, dy);
-            t++;
-        }
         /*if (t == 1000) {
             positions.pop_back();
         }
@@ -183,9 +159,9 @@ void Monster::isEffected() {
             changeState(SLOWED);
             break;
         case jam::EARTHSHAKE:
+        case jam::WALL:
             changeState(STUNNED);
             break;
-        case jam::WALL:
         case jam::NUMBER_OF_STATES:
             break;
     }
@@ -306,11 +282,15 @@ void Hero::changeState(int state_, std::shared_ptr<TemplateCharacter> enemy) {
     character.move(dx, dy);
     bool isRock = false;
     auto hitBox = character.getGlobalBounds();
-    for (auto &i : curLevel.getFreeObjects()) {
-        if (i.getObjectType() == jam::ROCK &&
-            i.getHitBox().intersects({hitBox.left,
-                                      hitBox.top + hitBox.height / 2,
-                                      hitBox.width, hitBox.height / 2})) {
+    auto start = curLevel.freeObjects.lower_bound(
+        jam::makeEmptyObject({hitBox.left, hitBox.top - jam::cellSize}));
+    auto end = curLevel.freeObjects.upper_bound(
+        jam::makeEmptyObject({hitBox.left, hitBox.top + jam::cellSize}));
+    for (auto &i = start; i != end; i++) {
+        if (i->getObjectType() == jam::ROCK &&
+            i->getHitBox().intersects({hitBox.left,
+                                       hitBox.top + hitBox.height / 2,
+                                       hitBox.width, hitBox.height / 2})) {
             isRock = true;
         }
     }

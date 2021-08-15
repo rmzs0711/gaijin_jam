@@ -137,19 +137,33 @@ void jam::AttackBuilding::attack(const sf::Time &currentTime) const {
         return;
     }
     bool found = false;
-    for (auto &i : level.monsters) {
-        if (quadraticDist(building.getPosition(),
-                          i->getSprite()->getPosition()) <
-                getAttackRange() * getAttackRange() &&
-            i->isLive()) {
-            flyingObject.setTexture(flyingObjectTexture);
-            flyingObject.setPosition(
-                building.getGlobalBounds().left + firePosition.x,
-                building.getGlobalBounds().top + firePosition.y);
-            flyingObject.setTargetPtr(i);
-            level.flyingObjects.push_back(flyingObject);
-            found = true;
-            break;
+    {
+        auto start = std::lower_bound(
+            level.monsters.begin(), level.monsters.end(),
+            Hero::makeEmptyHero(level,
+                                building.getPosition() -
+                                    sf::Vector2f{attackRange, attackRange}),
+            charactersCompare);
+        auto end = std::upper_bound(
+            level.monsters.begin(), level.monsters.end(),
+            Hero::makeEmptyHero(level,
+                                building.getPosition() +
+                                    sf::Vector2f{attackRange, attackRange}),
+            charactersCompare);
+        for (auto i = start; i != end; i++) {
+            sf::Vector2f dif =
+                (*i)->getSprite()->getPosition() - building.getPosition();
+            if ((*i)->isLive() && abs(dif.x) < attackRange &&
+                abs(dif.y) < attackRange) {
+                flyingObject.setTexture(flyingObjectTexture);
+                flyingObject.setPosition(
+                    building.getGlobalBounds().left + firePosition.x,
+                    building.getGlobalBounds().top + firePosition.y);
+                flyingObject.setTargetPtr(*i);
+                level.flyingObjects.push_back(flyingObject);
+                found = true;
+                break;
+            }
         }
     }
     if (found) {

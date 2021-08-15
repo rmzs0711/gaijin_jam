@@ -105,7 +105,6 @@ bool jam::Level::addAttackBuilding(AttackBuilding building) {
             return false;
         }
     }
-
     attackBuildings.insert(building);
     for (auto &i : heroes) {
         if (!(*i).isCorrectMove()) {
@@ -113,13 +112,6 @@ bool jam::Level::addAttackBuilding(AttackBuilding building) {
             return false;
         }
     }
-    for (auto &i : monsters) {
-        if (!(*i).isCorrectMove()) {
-            attackBuildings.erase(building);
-            return false;
-        }
-    }
-
     return true;
 }
 
@@ -178,12 +170,6 @@ bool jam::Level::addSupportBuilding(SupportBuilding building) {
 
     supportBuildings.insert(building);
     for (auto &i : heroes) {
-        if (!(*i).isCorrectMove()) {
-            supportBuildings.erase(building);
-            return false;
-        }
-    }
-    for (auto &i : monsters) {
         if (!(*i).isCorrectMove()) {
             supportBuildings.erase(building);
             return false;
@@ -674,11 +660,10 @@ void jam::Level::draw(sf::RenderWindow &window) {
         auto freeObject = freeObjects.begin();
         auto monster = monsters.begin();
         auto hero = heroes.begin();
-        auto flyingObject = flyingObjects.begin();
         auto attackBuilding = attackBuildings.begin();
         auto supportBuilding = supportBuildings.begin();
         for (; freeObject != freeObjects.end() || monster != monsters.end() ||
-               hero != heroes.end() || flyingObject != flyingObjects.end() ||
+               hero != heroes.end() ||
                attackBuilding != attackBuildings.end() ||
                supportBuilding != supportBuildings.end();) {
             auto objectPos = freeObject != freeObjects.end()
@@ -690,9 +675,6 @@ void jam::Level::draw(sf::RenderWindow &window) {
             auto heroPos = hero != heroes.end()
                                ? (*hero)->getSprite()->getPosition().y
                                : std::numeric_limits<float>::max();
-            auto flyingObjectPos = flyingObject != flyingObjects.end()
-                                       ? flyingObject->getPosition().y
-                                       : std::numeric_limits<float>::max();
             auto attackBuildingPos =
                 attackBuilding != attackBuildings.end()
                     ? attackBuilding->getHitBox().top +
@@ -704,8 +686,8 @@ void jam::Level::draw(sf::RenderWindow &window) {
                           supportBuilding->getHitBox().height
                     : std::numeric_limits<float>::max();
 
-            float poses[6] = {objectPos,         monsterPos,
-                              heroPos,           flyingObjectPos,
+            float poses[5] = {objectPos,         monsterPos,
+                              heroPos,
                               attackBuildingPos, supportBuildingPos};
             std::sort(std::begin(poses), std::end(poses));
             if (poses[0] == objectPos) {
@@ -794,13 +776,6 @@ void jam::Level::draw(sf::RenderWindow &window) {
                 } else {
                     hero++;
                 }
-            } else if (poses[0] == flyingObjectPos) {
-                checkDraw(view, *flyingObject, window);
-                if (flyingObject->isFinished()) {
-                    flyingObject = flyingObjects.erase(flyingObject);
-                } else {
-                    flyingObject++;
-                }
             } else if (poses[0] == attackBuildingPos) {
                 checkDraw(view, *attackBuilding, window);
                 attackBuilding++;
@@ -814,6 +789,14 @@ void jam::Level::draw(sf::RenderWindow &window) {
         }
         if (money.size() > maxMoneys) {
             money.pop_back();
+        }
+        for (auto i = flyingObjects.begin(); i != flyingObjects.end();) {
+            checkDraw(view, *i, window);
+            if (i->isFinished()) {
+                i = flyingObjects.erase(i);
+            } else {
+                i++;
+            }
         }
 
         view.setCenter(shift + view.getSize() / 2.f);

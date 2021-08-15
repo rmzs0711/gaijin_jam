@@ -284,12 +284,12 @@ inline SupportBuilding makeHospital(jam::Level &level,
                                     building.getGlobalBounds().height};
         auto start = std::lower_bound(
             curLevel.heroes.begin(), curLevel.heroes.end(),
-            Hero::makeAssasinPurple(
+            Hero::makeEmptyHero(
                 level, startPos - sf::Vector2f(cellSize, cellSize)),
             charactersCompare);
         auto end = std::lower_bound(
             curLevel.heroes.begin(), curLevel.heroes.end(),
-            Hero::makeAssasinPurple(level,
+            Hero::makeEmptyHero(level,
                                     endPos + sf::Vector2f(cellSize, cellSize)));
         for (auto i = start; i != end; i++) {
             if ((*i)->getSprite()->getPosition().x >
@@ -394,13 +394,6 @@ inline SupportBuilding makeHomeMonster(jam::Level& level, sf::Vector2i newPosInM
     homeMonster.setTextureRect(sf::IntRect(0, 0, 16, 16));
     auto& map_ = level.getMap();
 
-    // !!!
-    int x = 0, y = 0;
-//    while (!isBackgroundForPortal(map_, newPosInMap)) {
-//        x = (x + clock.getElapsedTime().asMicroseconds()) % 50;
-//        y = (y + (clock.getElapsedTime().asMicroseconds() * 7)) % 50;
-//        newPosInMap = { x, y };
-//    }
 
     homeMonster.setSizeInMap({ 1, 1 });
     homeMonster.setPosInMap(newPosInMap);
