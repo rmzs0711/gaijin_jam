@@ -361,7 +361,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
     checkLoadTexture(abilitiesTextures[ABILITY::CLOUD],
                      "data/images/MiniWorldSprites/Objects/Bullet.png",
                      sf::IntRect(assetCellSize, assetCellSize));
-    sf::CircleShape abilityCircle(cellSize / 2);
+    sf::CircleShape abilityCircle(cellSize / 3.7);
     auto abilityCircleBackground = abilityCircle;
     abilityCircleBackground.setFillColor(sf::Color(100, 100, 100));
     sf::Texture manaTexture;
@@ -369,8 +369,8 @@ void jam::Level::draw(sf::RenderWindow &window) {
                      "data/images/MiniWorldSprites/Objects/BallistaBolt.png",
                      {{0, 0}, assetCellSize});
     sf::Sprite manaSprite(manaTexture);
-    manaSprite.scale((float)cellSize / manaSprite.getLocalBounds().width,
-                     (float)cellSize / manaSprite.getLocalBounds().height);
+    manaSprite.scale((float)cellSize / (manaSprite.getLocalBounds().width),
+                     (float)cellSize / (manaSprite.getLocalBounds().height));
     manaSprite.setColor(sf::Color::Magenta);
     sf::Sprite emptyMana = manaSprite;
     emptyMana.setColor(sf::Color::Black);
@@ -383,7 +383,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
             "data/images/MiniWorldSprites/Objects/FireballProjectile.png",
             {(1 + i) * assetCellSize.x, 0, assetCellSize.x, assetCellSize.y});
         elementsSprites[i].setTexture(elementsTextures[i]);
-        elementsSprites[i].setScale(10, 10);
+        elementsSprites[i].setScale(6, 6);
     }
 
     clock1.restart();
@@ -832,7 +832,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
         }
 
         view.setCenter(shift + view.getSize() / 2.f);
-        minimapSprite.setPosition(shift);
+        minimapSprite.setPosition(shift - sf::Vector2f(20, 0));
         store.drawStore(object_bar);
 
         object_bar.draw(heartSprite);
@@ -842,11 +842,11 @@ void jam::Level::draw(sf::RenderWindow &window) {
         object_bar.draw(heartEmptySprite);
 
         abilityCircle.setPosition(
-            10, (float)object_bar.getSize().y / 2 + (float)(-1 * cellSize));
+            25, (float)object_bar.getSize().y / 2 + (float)(-1 * cellSize));
         abilityCircleBackground.setPosition(abilityCircle.getPosition());
         object_bar.draw(abilityCircleBackground);
         abilityCircle.setOutlineColor(sf::Color::Black);
-        abilityCircle.setOutlineThickness(10);
+        abilityCircle.setOutlineThickness(8);
         abilityCircle.setTexture(&abilitiesTextures[ability]);
         abilityCircle.setFillColor(
             sf::Color(255 * std::min((clock1.getElapsedTime() -
@@ -865,11 +865,10 @@ void jam::Level::draw(sf::RenderWindow &window) {
 
         for (int i = 0; i < elements.size(); ++i) {
             elementsSprites[elements[i]].setPosition(
-                0, (float)object_bar.getSize().y / 2 + (float)(i * cellSize));
+                50, abilityCircle.getPosition().y + cellSize / 1.45 + (float)(i * cellSize) / 1.7); // !!!
             object_bar.draw(elementsSprites[elements[i]]);
         }
-        manaSprite.setPosition(
-            6, (float)object_bar.getSize().y / 2 + (float)(2 * cellSize));
+        manaSprite.setPosition(-25, abilityCircle.getPosition().y + cellSize / 1.2);
         emptyMana.setPosition(manaSprite.getPosition());
         sf::IntRect x = {{0, 0},
                          {assetCellSize.x, (int)((1 - mana / maxMana) *
@@ -883,7 +882,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
         object_bar.display();
 
         sf::Sprite storeSprite(object_bar.getTexture());
-        storeSprite.setPosition(minimapSprite.getPosition());
+        storeSprite.setPosition(shift);
 
         window.draw(storeSprite);
         window.draw(minimapSprite);

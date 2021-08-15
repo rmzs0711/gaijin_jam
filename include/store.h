@@ -31,7 +31,10 @@ public:
 
     void setScale(sf::Vector2f scale) {
         icon.setScale({ icon.getScale().x * scale.x, icon.getScale().y * scale.y });
-        drawing_money.setScale({ drawing_money.getScale().x * scale.x, drawing_money.getScale().y * scale.y });
+
+        drawing_money.setPosition(icon.getPosition() + sf::Vector2f(16 * icon.getScale().x + 5, 4 * icon.getScale().y));
+        
+        //drawing_money.setScale({ drawing_money.getScale().x * scale.x, drawing_money.getScale().y * scale.y });
     }
 
     void setMoney(int new_money) {
@@ -245,8 +248,8 @@ public:
             products[i]->move(products[i - 1]->getPosition() +
                               sf::Vector2f(50, 0));
         }
-        money.move(sf::Vector2f(jam::cellSize + 10, jam::cellSize / 3));
-        money.setScale(sf::Vector2f(1.4, 1.4));
+        money.move(sf::Vector2f(jam::cellSize + 10, jam::cellSize / 4));
+        money.setScale(sf::Vector2f(1.8, 1.8));
     }
 
     void event(const sf::Event &event,
