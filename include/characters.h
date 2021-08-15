@@ -359,7 +359,7 @@ protected:
 public:
     virtual void updateState() = 0;
     sf::FloatRect getGlobalBounds() const;
-    bool isCorrectMove();
+    virtual bool isCorrectMove();
     void takeDamage(float damage_);
 
     sf::Sprite *getSprite();
@@ -404,7 +404,7 @@ protected:
     void moveToPosition();
 
 public:
-
+    bool isCorrectMove() override;
     void death();
     void updateState() override;
     Monster(const std::string &file_name,

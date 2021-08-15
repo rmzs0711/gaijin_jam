@@ -197,19 +197,19 @@ void FreeObject::changeObjectType(const Object &newObjectType) const {
     objectType = newObjectType;
 }
 void FreeObject::draw(sf::RenderTarget &window) const {
-    sf::RectangleShape rect;
-    rect.setPosition(hitBox.left, hitBox.top);
-    rect.setSize({hitBox.width, hitBox.height});
-    rect.setFillColor(sf::Color::Transparent);
-    rect.setOutlineThickness(2);
-    rect.setOutlineColor(sf::Color::Red);
+    //sf::RectangleShape rect;
+    //rect.setPosition(hitBox.left, hitBox.top);
+    //rect.setSize({hitBox.width, hitBox.height});
+    //rect.setFillColor(sf::Color::Transparent);
+    //rect.setOutlineThickness(2);
+    //rect.setOutlineColor(sf::Color::Red);
     window.draw(object);
-    window.draw(rect);
-    rect.setPosition(object.getGlobalBounds().left,
-                     object.getGlobalBounds().top);
-    rect.setSize(
-        {object.getGlobalBounds().width, object.getGlobalBounds().height});
-    window.draw(rect);
+    //window.draw(rect);
+    //rect.setPosition(object.getGlobalBounds().left,
+    //                 object.getGlobalBounds().top);
+    //rect.setSize(
+    //    {object.getGlobalBounds().width, object.getGlobalBounds().height});
+    //window.draw(rect);
 }
 const sf::FloatRect &FreeObject::getHitBox() const {
     return hitBox;
