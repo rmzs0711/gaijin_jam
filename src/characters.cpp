@@ -12,9 +12,9 @@ bool TemplateCharacter::isCorrectMove() {
     auto hitBox = character.getGlobalBounds();
     {
         auto start = curLevel.freeObjects.lower_bound(
-            jam::makeTree({hitBox.left, hitBox.top - jam::cellSize}));
+            jam::makeEmptyObject({hitBox.left, hitBox.top - jam::cellSize}));
         auto end = curLevel.freeObjects.upper_bound(
-            jam::makeTree({hitBox.left, hitBox.top + jam::cellSize}));
+            jam::makeEmptyObject({hitBox.left, hitBox.top + jam::cellSize}));
         for (auto &i = start; i != end; i++) {
             if (i->getHitBox().intersects({hitBox.left,
                                            hitBox.top + hitBox.height / 2,
@@ -94,12 +94,13 @@ void Monster::isFighting() {
         current_frame =
             (current_frame + rand()) %
             quantity_frames;
-        changeState(FIGHTING, (*hero).getDamage());
+        changeState(FIGHTING, hero);
     } else {
         changeState(NOT_FIGHTING);
     }
 }
-void Monster::changeState(int state_, float damage_) {
+void Monster::changeState(int state_,
+                          std::shared_ptr<TemplateCharacter> enemy) {
     if (state_ == NOT_FIGHTING) {
         character.setColor(sf::Color::White);
         state = state_;
@@ -109,43 +110,28 @@ void Monster::changeState(int state_, float damage_) {
         character.setTextureRect(
             sf::IntRect((current_frame % (quantity_frames)) * size_frame.x,
                         state_ * size_frame.y, size_frame.x, size_frame.y));
-        health -= damage_;
+        enemy ? enemy->health -= damage : 0;
         return;
     } else if (state_ == FROZEN) {
-        std::shared_ptr<TemplateCharacter> hero =
-            intersectionObjects(character, curLevel.heroes, curLevel);
-        if (hero) {
-            damage_ = hero->getDamage();
-        }
         speedCoef = 0;
         state = state_;
-        health -= damage_;
         character.setColor(sf::Color::Blue);
     } else if (state_ == BURNED) {
         state = state_;
         character.setColor(sf::Color::Red);
         health -= jam::fireDamage;
-        health -= damage_;
+        enemy ? enemy->health -= damage : 0;
     } else if (state_ == SLOWED) {
         speedCoef = 0.5;
         damage = current_damage * 0.5;
-        std::shared_ptr<TemplateCharacter> hero =
-            intersectionObjects(character, curLevel.heroes, curLevel);
-        if (hero) {
-            damage_ = hero->getDamage();
-        }
         state = state_;
-        health -= damage_;
+        enemy ? enemy->health -= damage : 0;
         character.setColor(sf::Color(100, 100, 100));
     } else if (state_ == STUNNED) {
         speedCoef = 0;
         std::shared_ptr<TemplateCharacter> hero =
             intersectionObjects(character, curLevel.heroes, curLevel);
-        if (hero) {
-            damage_ = hero->getDamage();
-        }
         state = state_;
-        health -= damage_;
         health -= jam::earthShakeDamage;
     } else {
         float dx, dy;
@@ -182,8 +168,6 @@ void Monster::changeState(int state_, float damage_) {
     }
 }
 void Monster::isEffected() {
-    float damage_ = 0;
-
     sf::Vector2i cell =
         sf::Vector2i(character.getPosition() / (float)jam::cellSize);
     switch (curLevel.getMap()[cell.y][cell.x].getState()) {
@@ -192,18 +176,18 @@ void Monster::isEffected() {
             break;
         case jam::LAVA:
         case jam::BLAST:
-            changeState(BURNED, damage_);
+            changeState(BURNED);
             break;
         case jam::FROZEN_BLAST:
-            changeState(FROZEN, damage_);
+            changeState(FROZEN);
             break;
         case jam::CLOUD:
-            changeState(SLOWED, damage_);
+            changeState(SLOWED);
             break;
         case jam::EARTHSHAKE:
-            changeState(STUNNED, damage_);
-            break;
         case jam::WALL:
+            changeState(STUNNED);
+            break;
         case jam::NUMBER_OF_STATES:
             break;
     }
@@ -267,15 +251,9 @@ void Hero::isFighting() {
         current_frame =
             (current_frame + rand()) %
             quantity_frames;
-        float damage_ = 0;
-        sf::Vector2i cell = sf::Vector2i(monster->getSprite()->getPosition() /
-                                         (float)jam::cellSize);
-        if (curLevel.getMap()[cell.y][cell.x].getState() != jam::FROZEN_BLAST) {
-            damage_ = monster->getDamage();
-        }
-        changeState(FIGHTING, damage_);
+        changeState(FIGHTING, monster);
     } else {
-        changeState(NOT_FIGHTING);
+        changeState(NOT_FIGHTING, monster);
     }
 }
 void Hero::clickMouse(const sf::Event &event,
@@ -302,14 +280,14 @@ void Hero::clickMouse(const sf::Event &event,
         }
     }
 }
-void Hero::changeState(int state_, float damage_) {
+void Hero::changeState(int state_, std::shared_ptr<TemplateCharacter> enemy) {
     if (state_ == FIGHTING) {
         state_ = 4 + 2 * state;
         character.setTextureRect(sf::IntRect(
             (current_frame % (quantity_frames - 1)) * size_frame.x,
             (state_ + (rand() % 2)) * size_frame.y,
             size_frame.x, size_frame.y));
-        health -= damage_;
+        enemy ? enemy->health -= damage : 0;
         return;
     }
     if (state_ == NOT_FIGHTING) {
@@ -323,11 +301,15 @@ void Hero::changeState(int state_, float damage_) {
     character.move(dx, dy);
     bool isRock = false;
     auto hitBox = character.getGlobalBounds();
-    for (auto &i : curLevel.getFreeObjects()) {
-        if (i.getObjectType() == jam::ROCK &&
-            i.getHitBox().intersects({hitBox.left,
-                                      hitBox.top + hitBox.height / 2,
-                                      hitBox.width, hitBox.height / 2})) {
+    auto start = curLevel.freeObjects.lower_bound(
+        jam::makeEmptyObject({hitBox.left, hitBox.top - jam::cellSize}));
+    auto end = curLevel.freeObjects.upper_bound(
+        jam::makeEmptyObject({hitBox.left, hitBox.top + jam::cellSize}));
+    for (auto &i = start; i != end; i++) {
+        if (i->getObjectType() == jam::ROCK &&
+            i->getHitBox().intersects({hitBox.left,
+                                       hitBox.top + hitBox.height / 2,
+                                       hitBox.width, hitBox.height / 2})) {
             isRock = true;
         }
     }
@@ -384,10 +366,10 @@ void Hero::moveToPosition() {
             charactersCompare);
         for (auto i = start; i != end; i++) {
             auto delta =
-                (*i)->getSprite()->getPosition() - character.getPosition();
+                (*i)->character.getPosition() - character.getPosition();
             if (abs(delta.x) < 2 * jam::cellSize &&
                 abs(delta.y) < 2 * jam::cellSize) {
-                position = (*i)->getSprite()->getPosition();
+                position = (*i)->character.getPosition();
                 break;
             }
         }
@@ -479,9 +461,9 @@ void TemplateCharacter::setPosition(sf::Vector2f position_) {
 void TemplateCharacter::setPosition(float x, float y) {
     character.setPosition(x, y);
 }
-sf::Sprite *TemplateCharacter::getSprite() {
-    return &character;
-}
+//sf::Sprite *TemplateCharacter::getSprite() {
+//    return &character;
+//}
 void TemplateCharacter::initializingCoordinates(float &dx,
                                                 float &dy,
                                                 int direction) const {
@@ -887,10 +869,8 @@ std::shared_ptr<TemplateCharacter> intersectionObjects(
                                 sf::Vector2f{jam::cellSize, jam::cellSize}),
         charactersCompare);
     for (auto i = start; i != end; i++) {
-        if (((*i)->getSprite())
-                ->getGlobalBounds()
-                .intersects(character.getGlobalBounds()) &&
-            (*i)->getSprite() != &character) {
+        if (((*i)->character.getGlobalBounds()
+                .intersects(character.getGlobalBounds()))) {
             return *i;
         }
     }
@@ -898,14 +878,14 @@ std::shared_ptr<TemplateCharacter> intersectionObjects(
 }
 bool charactersCompare(const std::shared_ptr<TemplateCharacter> &first,
                        const std::shared_ptr<TemplateCharacter> &second) {
-    if (first->getSprite()->getPosition().y <
-        second->getSprite()->getPosition().y) {
+    if (first->character.getPosition().y <
+        second->character.getPosition().y) {
         return true;
     }
-    if (first->getSprite()->getPosition().y ==
-        second->getSprite()->getPosition().y) {
-        return first->getSprite()->getPosition().x <
-               second->getSprite()->getPosition().x;
+    if (first->character.getPosition().y ==
+        second->character.getPosition().y) {
+        return first->character.getPosition().x <
+               second->character.getPosition().x;
     }
     return false;
 }

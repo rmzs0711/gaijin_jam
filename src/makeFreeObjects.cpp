@@ -5,7 +5,7 @@
 #endif
 
 namespace jam {
-FreeObject makeEmptyObject(sf::Vector2f &pos) {
+FreeObject makeEmptyObject(const sf::Vector2f &pos) {
     FreeObject object(NONE);
     object.setPosition(pos);
     return object;

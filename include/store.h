@@ -302,6 +302,8 @@ public:
             std::string file = move_product.getNameFile();
             auto pos = jam::toMapPosition(
                 window, level.getShift() + move_product.getPosition());
+            pos.x = bounds(pos.x, 0, (int)level.map[0].size());
+            pos.y = bounds(pos.y, 0, (int)level.map.size());
             if (file ==
                 "data/images/MiniWorldSprites/Characters/Soldiers/Melee/"
                 "PurpleMelee/AssasinPurple.png") {

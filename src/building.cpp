@@ -31,10 +31,10 @@ bool jam::FlyingObject::isFinished() {
     object.setOrigin(getOrigin());
     object.setScale(getScale());
     auto &curPos = getPosition();
-    targetPos = {targetPtr->getSprite()->getGlobalBounds().left +
-                     targetPtr->getSprite()->getGlobalBounds().width / 2,
-                 targetPtr->getSprite()->getGlobalBounds().top +
-                     targetPtr->getSprite()->getGlobalBounds().height / 2};
+    targetPos = {targetPtr->character.getGlobalBounds().left +
+                     targetPtr->character.getGlobalBounds().width / 2,
+                 targetPtr->character.getGlobalBounds().top +
+                     targetPtr->character.getGlobalBounds().height / 2};
     auto xDist = targetPos.x - curPos.x;
     auto yDist = targetPos.y - curPos.y;
     auto Dist = std::sqrt((xDist * xDist) + (yDist * yDist));
@@ -137,19 +137,34 @@ void jam::AttackBuilding::attack(const sf::Time &currentTime) const {
         return;
     }
     bool found = false;
-    for (auto &i : level.monsters) {
-        if (quadraticDist(building.getPosition(),
-                          i->getSprite()->getPosition()) <
-                getAttackRange() * getAttackRange() &&
-            i->isLive()) {
-            flyingObject.setTexture(flyingObjectTexture);
-            flyingObject.setPosition(
-                building.getGlobalBounds().left + firePosition.x,
-                building.getGlobalBounds().top + firePosition.y);
-            flyingObject.setTargetPtr(i);
-            level.flyingObjects.push_back(flyingObject);
-            found = true;
-            break;
+    {
+        auto start = std::lower_bound(
+            level.monsters.begin(), level.monsters.end(),
+            Hero::makeEmptyHero(level,
+                                building.getPosition() -
+                                    sf::Vector2f{attackRange, attackRange}),
+            charactersCompare);
+        auto end = std::upper_bound(
+            level.monsters.begin(), level.monsters.end(),
+            Hero::makeEmptyHero(level,
+                                building.getPosition() +
+                                    sf::Vector2f{attackRange, attackRange}),
+            charactersCompare);
+        for (auto i = start; i != end; i++) {
+            sf::Vector2f dif =
+                (*i)->character.getPosition() - building.getPosition();
+            if ((*i)->isLive() &&
+                std::abs(dif.x) < attackRange &&
+                std::abs(dif.y) < attackRange) {
+                flyingObject.setTexture(flyingObjectTexture);
+                flyingObject.setPosition(
+                    building.getGlobalBounds().left + firePosition.x,
+                    building.getGlobalBounds().top + firePosition.y);
+                flyingObject.setTargetPtr(*i);
+                level.flyingObjects.push_back(flyingObject);
+                found = true;
+                break;
+            }
         }
     }
     if (found) {
