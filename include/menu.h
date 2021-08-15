@@ -29,11 +29,16 @@ struct Menu : sf::Drawable {
         background.setPosition(newPosition);
     }
 
+    void setOutlineThickness(float size) {
+        background.setOutlineThickness(size);
+        background.setOutlineColor(sf::Color(112, 80, 40));
+    }
+
     Menu(sf::RenderWindow &window) {
         background.setPosition(0, 0);
         background.setSize(
             window.mapPixelToCoords(sf::Vector2i(window.getSize())));
-        texture_background.loadFromFile("data/images/textureBase.png");
+        texture_background.loadFromFile("data/images/base.png");
         background.setTexture(&texture_background);
     }
 

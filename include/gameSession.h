@@ -2664,9 +2664,9 @@ struct GameSession {
         Menu close(window);
         close.setSize({2 * sizeBaseButton.x + 200, 400});
         sf::Texture texture;
-        texture.loadFromFile("data/images/dirt.png");
+        texture.loadFromFile("data/images/textureBase2.png");
         close.setBackground(&texture);
-
+        close.setOutlineThickness(10);
         close.setPosition(window.getView().getCenter() - close.getSize() / 2.f -
                           sf::Vector2f(0, 70));
 
