@@ -2638,18 +2638,29 @@ struct GameSession {
         }};
 
         levels.emplace_back(window, firstLevel);
-//        std::vector<sf::Vector2f> monster_path;
-//        monster_path.emplace_back(200, 200);
-//        monster_path.emplace_back(220, 280);
-//        monster_path.emplace_back(260, 340);
-//        levels[0].addMonster(
-//            Monster::makeArmouredRedDemon(levels[0], monster_path));
-////        levels[0].addMonster(Monster::makeMammoth(levels[0], monster_path));
-//        levels[0].monsterSetPosition({cellSize * 3, cellSize * 6});
-////        levels[0].monsterSetPosition({cellSize * 6, cellSize * 2}, 1);
+        //        std::vector<sf::Vector2f> monster_path;
+        //        monster_path.emplace_back(200, 200);
+        //        monster_path.emplace_back(220, 280);
+        //        monster_path.emplace_back(260, 340);
+        //        levels[0].addMonster(
+        //            Monster::makeArmouredRedDemon(levels[0], monster_path));
+        ////        levels[0].addMonster(Monster::makeMammoth(levels[0],
+        /// monster_path));
+        //        levels[0].monsterSetPosition({cellSize * 3, cellSize * 6});
+        ////        levels[0].monsterSetPosition({cellSize * 6, cellSize * 2},
+        /// 1);
 
-
-        while (levels[0].addSupportBuilding(makeHomeMonster(levels[0])) == false) { }
+        for (sf::Vector2i portalPos = {rand() % 49, rand() % 49};
+             levels[0].addSupportBuilding(
+                 makeHomeMonster(levels[0], portalPos)) == false;
+             portalPos = {rand() % 49, rand() % 49}) {
+            levels[0].map[portalPos.y][portalPos.x].setState(
+                EARTHSHAKE, levels[0].clock1.getElapsedTime());
+            if (levels[0].addSupportBuilding(
+                makeHomeMonster(levels[0], portalPos))) {
+                break;
+            }
+        }
 
         while (window.isOpen()) {
             window.clear();
@@ -2666,8 +2677,8 @@ struct GameSession {
         texture.loadFromFile("data/images/dirt.png");
         close.setBackground(&texture);
 
-        close.setPosition(window.getView().getCenter() -
-            close.getSize() / 2.f - sf::Vector2f(0, 70));
+        close.setPosition(window.getView().getCenter() - close.getSize() / 2.f -
+                          sf::Vector2f(0, 70));
 
         // window.mapPixelToCoords(sf::Vector2i(window.getSize()))
 
@@ -2675,7 +2686,7 @@ struct GameSession {
         leaveGameButton.setSize(sizeBaseButton);
         leaveGameButton.setFillColor(sf::Color(74, 53, 27));
         leaveGameButton.setPosition(window.getView().getCenter() +
-            sf::Vector2f(50, 0));
+                                    sf::Vector2f(50, 0));
         close.addButton(
             std::make_unique<RectangleButton<void>>(leaveGameButton));
 
@@ -2685,7 +2696,7 @@ struct GameSession {
         notLeaveGameButton.setSize(sizeBaseButton);
         notLeaveGameButton.setFillColor(sf::Color(74, 53, 27));
         notLeaveGameButton.setPosition(window.getView().getCenter() -
-            sf::Vector2f(50 + sizeBaseButton.x, 0));
+                                       sf::Vector2f(50 + sizeBaseButton.x, 0));
         close.addButton(
             std::make_unique<RectangleButton<void>>(notLeaveGameButton));
 

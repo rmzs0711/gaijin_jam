@@ -720,10 +720,6 @@ void jam::Level::draw(sf::RenderWindow &window) {
                     map[cell.y][cell.x].getState() == EARTHSHAKE ||
                     map[cell.y][cell.x].getState() == LAVA ||
                     freeObjects.size() > maxObjects) {
-                    if (rand() % 10 == 0) {
-                        addMoney(Money::makeMoney(rand() % 100,
-                                                  freeObject->getPosition()));
-                    }
                     freeObject = freeObjects.erase(freeObject);
                     continue;
                 } else if (map[cell.y][cell.x].getState() == FROZEN_BLAST) {

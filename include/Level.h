@@ -130,8 +130,8 @@ struct Level {
     std::vector<Home> home;
     int maxHealth = 10;
     int health = maxHealth;
-private:
     sf::Clock clock1;
+private:
 
     RectangleButton<void> menuGameButton;
     RectangleButton<void> storeButton;
