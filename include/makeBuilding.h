@@ -195,7 +195,7 @@ inline jam::Home makeHome(jam::Level &level, int number) {
 inline SupportBuilding makeBarrack(jam::Level &level,
                                    const sf::Vector2i newPosInMap) {
     jam::SupportBuilding barrack(level);
-    barrack.magicCooldown = sf::seconds(10);
+    barrack.magicCooldown = sf::seconds(60);
     barrack.loadBuildingTexture(
         "data/images/MiniWorldSprites/Buildings/Wood/Barracks.png");
     barrack.setTextureRect({{0, 0}, {assetCellSize.x, assetCellSize.x}});
@@ -213,7 +213,7 @@ inline SupportBuilding makeBarrack(jam::Level &level,
             for (int j = -1; j < 2 && cell == sf::Vector2i{-1, -1}; ++j) {
                 cell = {
                     bounds(building.getPosInMap().x + i, 0, (int)map[0].size()),
-                    bounds(building.getPosInMap().y, 0, (int)map.size())};
+                    bounds(building.getPosInMap().y + j, 0, (int)map.size())};
                 if (map[cell.y][cell.x].getBackgroundType() !=
                     jam::CellBackground::ROAD) {
                     cell = {-1, -1};
@@ -306,7 +306,7 @@ inline SupportBuilding makeWell(jam::Level &level,
                                 const sf::Vector2i newPosInMap) {
     jam::SupportBuilding well(level);
     well.magicCooldown = sf::seconds(1);
-    float manaBonus = 0.5;
+    float manaBonus = 2;
     well.loadBuildingTexture(
         "data/images/MiniWorldSprites/Miscellaneous/Well.png");
     well.setTextureRect({{0, assetCellSize.x}, assetCellSize});

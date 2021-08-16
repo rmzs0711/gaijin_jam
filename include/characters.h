@@ -12,7 +12,6 @@
 #include "usefulFunctions.h"
 inline const int maxHeroes = 200;
 inline const int maxMonsters = 300;
-inline const int maxMoneys = 100;
 inline const int maxObjects = 1000;
 
 int const UP = 1, DOWN = 0, LEFT = 3, RIGHT = 2, FIGHTING = 4,
@@ -76,8 +75,7 @@ inline sf::Vector2i nexCell(std::vector<std::vector<jam::Cell>> &map,
                     ans = first - sf::Vector2i(0, 1);
                     if (map[ans.y][ans.x].getBackgroundType() !=
                         jam::CellBackground::ROAD) {
-                        if (rand() % 2 == 0 &&
-                            ans.y < 49) {
+                        if (rand() % 2 == 0 && ans.y < 49) {
                             ans = first + sf::Vector2i(0, 1);
                             if (map[ans.y][ans.x].getBackgroundType() !=
                                 jam::CellBackground::ROAD) {
@@ -96,8 +94,7 @@ inline sf::Vector2i nexCell(std::vector<std::vector<jam::Cell>> &map,
                     ans = first + sf::Vector2i(0, 1);
                     if (map[ans.y][ans.x].getBackgroundType() !=
                         jam::CellBackground::ROAD) {
-                        if (rand() % 2 == 0 &&
-                            ans.y > 0) {
+                        if (rand() % 2 == 0 && ans.y > 0) {
                             ans = first - sf::Vector2i(0, 1);
                             if (map[ans.y][ans.x].getBackgroundType() !=
                                 jam::CellBackground::ROAD) {
@@ -299,6 +296,10 @@ enum ABILITY {
 namespace jam {
 struct FlyingObject;
 struct Level;
+inline std::map<int, sf::Time> abilityCooldowns = {
+    {FIRE_BLAST, sf::seconds(20)}, {CLOUD, sf::seconds(25)},
+    {LAVA, sf::seconds(30)},       {FROZEN_BLAST, sf::seconds(30)},
+    {WALL, sf::seconds(20)},       {EARTHSHAKE, sf::seconds(8)}};
 };  // namespace jam
 
 struct TemplateCharacter {
@@ -307,6 +308,7 @@ struct TemplateCharacter {
     float speedCoef = 1;
     float health, damage, current_health, current_damage, max_health;
     sf::Sprite character, icon;
+
 protected:
     float speed;
     LifeBarCharacter life_bar;
@@ -351,8 +353,8 @@ protected:
         icon.setOrigin(character.getOrigin());
 
         character.setTextureRect(sf::IntRect(0, 0, size_frame.x, size_frame.y));
-        icon.setTextureRect(sf::IntRect((rand() % 4) * size_frame.x,
-            0, size_frame.x, size_frame.y));
+        icon.setTextureRect(sf::IntRect((rand() % 4) * size_frame.x, 0,
+                                        size_frame.x, size_frame.y));
     }
     void initializingCoordinates(float &dx, float &dy, int direction) const;
 
@@ -396,8 +398,8 @@ protected:
     std::vector<sf::Vector2f> positions;
     int money;
 
-    void changeState(int state_, std::shared_ptr<TemplateCharacter> hero =
-                                     nullptr);
+    void changeState(int state_,
+                     std::shared_ptr<TemplateCharacter> hero = nullptr);
 
     void isFighting();
 
@@ -537,8 +539,8 @@ protected:
                     sf::RenderTarget &window,
                     const sf::Time &currentTime);
 
-    void changeState(int state_, std::shared_ptr<TemplateCharacter> enemy =
-                                     nullptr);
+    void changeState(int state_,
+                     std::shared_ptr<TemplateCharacter> enemy = nullptr);
 
     void moveToPosition();
 

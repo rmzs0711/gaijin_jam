@@ -119,12 +119,16 @@ inline std::vector<sf::Vector2i> texturesNumberOfFrames;
 
 inline const int cellSize = 128;
 inline std::vector<sf::Texture *> texturePtrs;
-inline std::vector<sf::Time> stateDurations;
-inline std::vector<sf::Time> abilityCooldowns;
+inline std::map<CellState, sf::Time> stateDurations = {
+    {BLAST, sf::seconds(5)},        {LAVA, sf::seconds(10)},
+    {EARTHSHAKE, sf::seconds(3)},   {WALL, sf::seconds(5)},
+    {FROZEN_BLAST, sf::seconds(6)}, {CLOUD, sf::seconds(10)},
+    {NORMAL, sf::seconds(0)}};
+
 
 inline sf::Vector2f toPosition(sf::Vector2i map_position) {
     sf::Vector2f pos = (sf::Vector2f)map_position;
-    pos = { pos.x * cellSize + cellSize / 2, pos.y * cellSize + cellSize / 2 };
+    pos = {pos.x * cellSize + cellSize / 2, pos.y * cellSize + cellSize / 2};
     return pos;
 }
 

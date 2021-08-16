@@ -309,7 +309,8 @@ void jam::Level::draw(sf::RenderWindow &window) {
     sf::Sprite heartSprite(heartTexture);
     heartSprite.setPosition(20, 20);
     heartSprite.setTextureRect({0, 100, 1080, 1100});
-    heartSprite.setScale((float)cellSize / (heartSprite.getGlobalBounds().width * 1.5),
+    heartSprite.setScale(
+        (float)cellSize / (heartSprite.getGlobalBounds().width * 1.5),
         (float)cellSize / (heartSprite.getGlobalBounds().height * 1.5));
     auto heartEmptySprite = heartSprite;
     heartEmptySprite.setColor(sf::Color::Black);
@@ -402,8 +403,19 @@ void jam::Level::draw(sf::RenderWindow &window) {
     sf::RenderTexture object_bar;
     object_bar.create(window.getSize().x, window.getSize().y);
     object_bar.setView(object_view);
+    bool minimapDrag = false;
+    sf::FloatRect minimapZoneOnScreen = {0, 0,
+                                         (float)(map[0].size() * cellSize),
+                                         (float)(map.size() * cellSize)};
 
     while (window.isOpen()) {
+        if (currentCode == code) {
+            addMoney(Money::makeMoney(
+                10000,
+                window.mapPixelToCoords(sf::Mouse::getPosition(window))));
+            currentCode.erase(currentCode.begin());
+            currentCode += "e";
+        }
         minimap.clear(sf::Color::Transparent);
         miniMapArea.setPosition(shift);
         minimap.draw(fullSizeMinimapSprite);
@@ -420,19 +432,56 @@ void jam::Level::draw(sf::RenderWindow &window) {
         }
 
         updateStates();
+        sf::Vector2f mos =
+            object_bar.mapPixelToCoords(sf::Mouse::getPosition(window));
+        sf::FloatRect rec = {sf::Vector2f(window.getSize()) * 0.001f,
+                             sf::Vector2f(window.getSize()) * 0.998f};
+        if (!rec.contains(mos)) {
+            shift += 0.01f * (mos - sf::Vector2f(window.getSize()) * 0.5f);
+        }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+            shift.y -= viewMoveSpeed;
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+            shift.y += viewMoveSpeed;
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+            shift.x -= viewMoveSpeed;
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+            shift.x += viewMoveSpeed;
+        }
+        {
+            sf::Vector2f mouseOnMinimap =
+                minimap.mapPixelToCoords({sf::Mouse::getPosition(window)});
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) &&
+                minimapZoneOnScreen.contains(mouseOnMinimap)) {
+                shift = mouseOnMinimap - sf::Vector2f(window.getSize()) / 2.f;
+            }
+        }
+
+        shift.x = bounds(shift.x, 0.f,
+                         (float)(cellSize * map[0].size()) - view.getSize().x);
+        shift.y = bounds(shift.y, 0.f,
+                         (float)(cellSize * map.size()) - view.getSize().y);
         sf::Event event{};
         while (window.pollEvent(event)) {
             for (auto &i : heroes) {
                 dynamic_cast<Hero &>(*i).event(event, window,
                                                clock1.getElapsedTime());
             }
-            for (auto &i : money) {
-                store.addMoney((*i).event(event, window));
-            }
+//            for (auto &i : money) {
+//                store.addMoney((*i).event(event, window));
+//            }
             store.event(event, object_bar, mouse, *this);
+
             switch (event.type) {
                 case sf::Event::Closed:
                     window.close();
+                    break;
+                case ::sf::Event::MouseButtonReleased:
+                    minimapDrag = false;
                     break;
                 case sf::Event::MouseButtonPressed:
                     if (event.mouseButton.button == sf::Mouse::Left) {
@@ -446,15 +495,6 @@ void jam::Level::draw(sf::RenderWindow &window) {
                                            {event.mouseButton.x,
                                             event.mouseButton.y}))) {
                             storeButton.handleClick();
-                        }
-                        sf::FloatRect minimapZoneOnScreen = {
-                            0, 0, (float)(map[0].size() * cellSize),
-                            (float)(map.size() * cellSize)};
-                        sf::Vector2f mouseOnMinimap = minimap.mapPixelToCoords(
-                            {event.mouseButton.x, event.mouseButton.y});
-                        if (minimapZoneOnScreen.contains(mouseOnMinimap)) {
-                            shift = mouseOnMinimap -
-                                    sf::Vector2f(window.getSize()) / 2.f;
                         }
                     }
                     if (!readyToCast) {
@@ -568,8 +608,18 @@ void jam::Level::draw(sf::RenderWindow &window) {
                     readyToCast = false;
                     break;
                 case sf::Event::KeyPressed:
+                    if (event.key.code == sf::Keyboard::Num9) {
+                        currentCode.erase(currentCode.begin());
+                        currentCode += "9";
+                    }
+                    if (event.key.code == sf::Keyboard::Num3) {
+                        currentCode.erase(currentCode.begin());
+                        currentCode += "3";
+                    }
                     if (event.key.code == sf::Keyboard::R &&
                         mana > combineCost) {
+                        currentCode.erase(currentCode.begin());
+                        currentCode += "r";
                         mana -= combineCost;
                         int whatAbility =
                             (1 << elements[0]) | (1 << elements[1]);
@@ -591,6 +641,8 @@ void jam::Level::draw(sf::RenderWindow &window) {
                         continue;
                     }
                     if (event.key.code == sf::Keyboard::E) {
+                        currentCode.erase(currentCode.begin());
+                        currentCode += "e";
                         readyToCast = true;
                         continue;
                     }
@@ -606,24 +658,6 @@ void jam::Level::draw(sf::RenderWindow &window) {
                         elements[0] = elements[1];
                         elements[1] = POWER_ELEMENT::EARTH;
                     }
-                    if (event.key.code == sf::Keyboard::W) {
-                        shift.y -= viewMoveSpeed;
-                    }
-                    if (event.key.code == sf::Keyboard::S) {
-                        shift.y += viewMoveSpeed;
-                    }
-                    if (event.key.code == sf::Keyboard::A) {
-                        shift.x -= viewMoveSpeed;
-                    }
-                    if (event.key.code == sf::Keyboard::D) {
-                        shift.x += viewMoveSpeed;
-                    }
-                    shift.x = bounds(
-                        shift.x, 0.f,
-                        (float)(cellSize * map[0].size()) - view.getSize().x);
-                    shift.y = bounds(
-                        shift.y, 0.f,
-                        (float)(cellSize * map.size()) - view.getSize().y);
                     break;
                 default:
                     break;
@@ -685,9 +719,8 @@ void jam::Level::draw(sf::RenderWindow &window) {
                           supportBuilding->getHitBox().height
                     : std::numeric_limits<float>::max();
 
-            float poses[5] = {objectPos,         monsterPos,
-                              heroPos,
-                              attackBuildingPos, supportBuildingPos};
+            float poses[5] = {objectPos, monsterPos, heroPos, attackBuildingPos,
+                              supportBuildingPos};
             std::sort(std::begin(poses), std::end(poses));
             if (poses[0] == objectPos) {
                 checkDraw(view, *freeObject, window);
@@ -784,11 +817,12 @@ void jam::Level::draw(sf::RenderWindow &window) {
             }
         }
         for (auto &i : money) {
-            checkDraw(view, *i, window);
+            store.addMoney(i->money);
         }
-        if (money.size() > maxMoneys) {
-            money.pop_back();
-        }
+        money.clear();
+        //        if (money.size() > maxMoneys) {
+        //            money.pop_back();
+        //        }
         for (auto i = flyingObjects.begin(); i != flyingObjects.end();) {
             checkDraw(view, *i, window);
             if (i->isFinished()) {
@@ -832,10 +866,12 @@ void jam::Level::draw(sf::RenderWindow &window) {
 
         for (int i = 0; i < elements.size(); ++i) {
             elementsSprites[elements[i]].setPosition(
-                50, abilityCircle.getPosition().y + cellSize / 1.45 + (float)(i * cellSize) / 1.7); // !!!
+                50, abilityCircle.getPosition().y + cellSize / 1.45 +
+                        (float)(i * cellSize) / 1.7);  // !!!
             object_bar.draw(elementsSprites[elements[i]]);
         }
-        manaSprite.setPosition(-25, abilityCircle.getPosition().y + cellSize / 1.2);
+        manaSprite.setPosition(-25,
+                               abilityCircle.getPosition().y + cellSize / 1.2);
         emptyMana.setPosition(manaSprite.getPosition());
         sf::IntRect x = {{0, 0},
                          {assetCellSize.x, (int)((1 - mana / maxMana) *
