@@ -79,6 +79,7 @@ struct Hero;
 namespace jam {
 
 struct Level {
+    void addHome(sf::Vector2i);
     friend TemplateCharacter;
     friend Monster;
     friend Hero;
@@ -137,8 +138,8 @@ struct Level {
     sf::Vector2i portalPos = {0, 0};
 private:
 
-    RectangleButton<void> menuGameButton;
-    RectangleButton<void> storeButton;
+    RectangleButton menuGameButton;
+    RectangleButton storeButton;
     bool is_active_store;
 
     // skills
@@ -155,9 +156,9 @@ public:
     sf::Time lastRegenTime;
     float combineCost = 20;
     const std::map<ABILITY, float> abilityCost = {
-        {ABILITY::FIRE_BLAST, 40},   {ABILITY::LAVA, 80},
-        {ABILITY::FROZEN_BLAST, 80}, {ABILITY::EARTHSHAKE, 40},
-        {ABILITY::WALL, 60},         {ABILITY::CLOUD, 30},
+        {ABILITY::FIRE_BLAST, 80},   {ABILITY::LAVA, 150},
+        {ABILITY::FROZEN_BLAST, 80}, {ABILITY::EARTHSHAKE, 50},
+        {ABILITY::WALL, 150},         {ABILITY::CLOUD, 30},
     };
 
 private:

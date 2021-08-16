@@ -297,9 +297,12 @@ namespace jam {
 struct FlyingObject;
 struct Level;
 inline std::map<int, sf::Time> abilityCooldowns = {
-    {FIRE_BLAST, sf::seconds(20)}, {CLOUD, sf::seconds(25)},
-    {LAVA, sf::seconds(30)},       {FROZEN_BLAST, sf::seconds(30)},
-    {WALL, sf::seconds(20)},       {EARTHSHAKE, sf::seconds(8)}};
+    {ABILITY::FIRE_BLAST, sf::seconds(20)},
+    {ABILITY::CLOUD, sf::seconds(25)},
+    {ABILITY::LAVA, sf::seconds(30)},
+    {ABILITY::FROZEN_BLAST, sf::seconds(30)},
+    {ABILITY::WALL, sf::seconds(20)},
+    {ABILITY::EARTHSHAKE, sf::seconds(8)}};
 };  // namespace jam
 
 struct TemplateCharacter {
