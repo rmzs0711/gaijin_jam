@@ -6,13 +6,13 @@
 
 const sf::Vector2f sizeBaseButton = {390, 80};
 
-inline std::unique_ptr<RectangleButton<void>> jam::Game::makeButton(
+inline std::unique_ptr<RectangleButton> jam::Game::makeButton(
     sf::RenderWindow &window,
     jam::GameSession &game,
     std::string type,
     sf::Vector2f position) {
     if (type == "default") {
-        RectangleButton<void> startGameButton(
+        RectangleButton startGameButton(
             [&]() { game.startGame(window, 0); }, "Hello!");
         startGameButton.setSize(sizeBaseButton);
         startGameButton.setFillColor(sf::Color(74, 53, 27));
@@ -20,9 +20,9 @@ inline std::unique_ptr<RectangleButton<void>> jam::Game::makeButton(
             window.mapPixelToCoords(sf::Vector2i(window.getSize())).x / 2 -
                 startGameButton.getSize().x / 2,
             position.y);
-        return std::make_unique<RectangleButton<void>>(startGameButton);
+        return std::make_unique<RectangleButton>(startGameButton);
     } else if (type == "moscow") {
-        RectangleButton<void> startGameButton(
+        RectangleButton startGameButton(
             [&]() { game.startGame(window, 1); }, "Press");
         startGameButton.setSize(sizeBaseButton);
         startGameButton.setFillColor(sf::Color(74, 53, 27));
@@ -30,9 +30,9 @@ inline std::unique_ptr<RectangleButton<void>> jam::Game::makeButton(
             window.mapPixelToCoords(sf::Vector2i(window.getSize())).x / 2 -
                 startGameButton.getSize().x / 2,
             position.y);
-        return std::make_unique<RectangleButton<void>>(startGameButton);
+        return std::make_unique<RectangleButton>(startGameButton);
     } else if (type == "dota") {
-        RectangleButton<void> startGameButton(
+        RectangleButton startGameButton(
             [&]() { game.startGame(window, 2); }, "any");
         startGameButton.setSize(sizeBaseButton);
         startGameButton.setFillColor(sf::Color(74, 53, 27));
@@ -40,9 +40,9 @@ inline std::unique_ptr<RectangleButton<void>> jam::Game::makeButton(
             window.mapPixelToCoords(sf::Vector2i(window.getSize())).x / 2 -
                 startGameButton.getSize().x / 2,
             position.y);
-        return std::make_unique<RectangleButton<void>>(startGameButton);
+        return std::make_unique<RectangleButton>(startGameButton);
     } else if (type == "panfilov") {
-        RectangleButton<void> startGameButton(
+        RectangleButton startGameButton(
             [&]() { game.startGame(window, 3); }, "button");
         startGameButton.setSize(sizeBaseButton);
         startGameButton.setFillColor(sf::Color(74, 53, 27));
@@ -50,9 +50,9 @@ inline std::unique_ptr<RectangleButton<void>> jam::Game::makeButton(
             window.mapPixelToCoords(sf::Vector2i(window.getSize())).x / 2 -
             startGameButton.getSize().x / 2,
             position.y);
-        return std::make_unique<RectangleButton<void>>(startGameButton);
+        return std::make_unique<RectangleButton>(startGameButton);
     } else if (type == "close") {
-        RectangleButton<void> closeGameButton(
+        RectangleButton closeGameButton(
             [&]() { game.closeGame(window, [&]() { window.close(); }); },
             "Not this");
         closeGameButton.setSize(sizeBaseButton);
@@ -61,10 +61,10 @@ inline std::unique_ptr<RectangleButton<void>> jam::Game::makeButton(
             window.mapPixelToCoords(sf::Vector2i(window.getSize())).x / 2 -
             closeGameButton.getSize().x / 2,
             position.y);
-        return std::make_unique<RectangleButton<void>>(closeGameButton);
+        return std::make_unique<RectangleButton>(closeGameButton);
     }
     else if (type == "rules") {
-        RectangleButton<void> rulesGameButton(
+        RectangleButton rulesGameButton(
             [&]() {
                 sf::Texture texture;
                 texture.loadFromFile("data/images/rules_of_the_game.png");
@@ -92,7 +92,7 @@ inline std::unique_ptr<RectangleButton<void>> jam::Game::makeButton(
             window.mapPixelToCoords(sf::Vector2i(window.getSize())).x / 2 -
             rulesGameButton.getSize().x / 2,
             position.y);
-        return std::make_unique<RectangleButton<void>>(rulesGameButton);
+        return std::make_unique<RectangleButton>(rulesGameButton);
     }
 
     assert(false);

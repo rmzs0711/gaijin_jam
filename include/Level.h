@@ -138,8 +138,8 @@ struct Level {
     sf::Vector2i portalPos = {0, 0};
 private:
 
-    RectangleButton<void> menuGameButton;
-    RectangleButton<void> storeButton;
+    RectangleButton menuGameButton;
+    RectangleButton storeButton;
     bool is_active_store;
 
     // skills

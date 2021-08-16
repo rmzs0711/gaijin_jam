@@ -6,7 +6,7 @@
 
 namespace jam {
 struct Game {
-    static std::unique_ptr<RectangleButton<void>> makeButton(
+    static std::unique_ptr<RectangleButton> makeButton(
         sf::RenderWindow &window,
         GameSession &game,
         std::string type,

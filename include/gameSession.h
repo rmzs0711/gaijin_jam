@@ -2859,23 +2859,23 @@ struct GameSession {
 
         // window.mapPixelToCoords(sf::Vector2i(window.getSize()))
 
-        RectangleButton<void> leaveGameButton(func, "Leave the game");
+        RectangleButton leaveGameButton(func, "Leave the game");
         leaveGameButton.setSize(sizeBaseButton);
         leaveGameButton.setFillColor(sf::Color(74, 53, 27));
         leaveGameButton.setPosition(window.getView().getCenter() +
                                     sf::Vector2f(50, 0));
         close.addButton(
-            std::make_unique<RectangleButton<void>>(leaveGameButton));
+            std::make_unique<RectangleButton>(leaveGameButton));
 
         bool f = true;
-        RectangleButton<void> notLeaveGameButton([&]() { f = false; },
+        RectangleButton notLeaveGameButton([&]() { f = false; },
                                                  "Back to the game");
         notLeaveGameButton.setSize(sizeBaseButton);
         notLeaveGameButton.setFillColor(sf::Color(74, 53, 27));
         notLeaveGameButton.setPosition(window.getView().getCenter() -
                                        sf::Vector2f(50 + sizeBaseButton.x, 0));
         close.addButton(
-            std::make_unique<RectangleButton<void>>(notLeaveGameButton));
+            std::make_unique<RectangleButton>(notLeaveGameButton));
 
         while (window.isOpen() && f) {
             sf::Event event{};

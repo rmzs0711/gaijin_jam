@@ -295,7 +295,7 @@ void jam::Level::updateStates() {
     }
 }
 void jam::Level::draw(sf::RenderWindow &window) {
-    storeButton = RectangleButton<void>(
+    storeButton = RectangleButton(
         [&]() { is_active_store = !is_active_store; }, "Store");
     storeButton.setSize({sizeBaseButton.x / 2, sizeBaseButton.y});
     storeButton.setFillColor(sf::Color(74, 53, 27));

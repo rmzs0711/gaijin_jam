@@ -105,27 +105,27 @@ struct CircleButton : Button<T>, sf::CircleShape {
 private:
 };
 
-template <typename T>
-struct RectangleButton : Button<T>, sf::RectangleShape {
-    explicit RectangleButton(std::function<T()> func = []() {return T();},
+
+struct RectangleButton : Button<void>, sf::RectangleShape {
+    explicit RectangleButton(std::function<void()> func = []() {return;},
                              const std::string &str = "")
-        : Button<T>(func, str) {}
+        : Button<void>(func, str) {}
     bool isCorrectClick(const sf::Vector2f &pos) override {
         return this->getGlobalBounds().contains(pos);
     }
     void drawButton(sf::RenderTarget &target) override {
-        Button<T>::text.setPosition(getPosition() + getSize() / 2.f);
-        Button<T>::text.setFillColor(sf::Color::White);
+        Button<void>::text.setPosition(getPosition() + getSize() / 2.f);
+        Button<void>::text.setFillColor(sf::Color::White);
         target.draw(*this);
         if (getGlobalBounds().contains(
                 target.mapPixelToCoords(sf::Mouse::getPosition()))) {
             auto texture = getTexture();
-            setTexture(Button<T>::getClickableTexture());
+            setTexture(Button<void>::getClickableTexture());
             target.draw(*this);
             setTexture(texture);
-            Button<T>::text.setFillColor(sf::Color::Red);
+            Button<void>::text.setFillColor(sf::Color::Red);
         }
-        target.draw(Button<T>::text);
+        target.draw(Button<void>::text);
     }
 
 private:
