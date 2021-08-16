@@ -7,7 +7,7 @@
 ### Скриншоты игры
 ![first](https://raw.githubusercontent.com/rmzs0711/gaijin_jam/Rama2.0/data/images/first.png)
   
-![second](https://raw.githubusercontent.com/rmzs0711/gaijin_jam/Rama2.0/data/images/second.png)
+![second](https://raw.githubusercontent.com/rmzs0711/gaijin_jam/Rama2.0/data/images/tooo.png)
   
 ![third](https://raw.githubusercontent.com/rmzs0711/gaijin_jam/Rama2.0/data/images/third.png)
 ### Управление
