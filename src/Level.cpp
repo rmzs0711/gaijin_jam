@@ -208,21 +208,14 @@ jam::Level::Level(sf::RenderWindow &window,
               });
           },
           "Menu"),
-      is_active_store(false),
-      storeButton([&]() { is_active_store = !is_active_store; }, "Store") {
+      is_active_store(false) {
     menuGameButton.setSize({sizeBaseButton.x / 2, sizeBaseButton.y});
     menuGameButton.setFillColor(sf::Color(74, 53, 27));
     menuGameButton.setPosition(
         {window.mapPixelToCoords(sf::Vector2i(window.getSize())).x -
              sizeBaseButton.x / 2 - 20,
          20});
-    storeButton.setSize({sizeBaseButton.x / 2, sizeBaseButton.y});
-    storeButton.setFillColor(sf::Color(74, 53, 27));
-    storeButton.setPosition(
-        {window.mapPixelToCoords(sf::Vector2i(window.getSize())).x -
-             sizeBaseButton.x / 2 - 20,
-         window.mapPixelToCoords(sf::Vector2i(window.getSize())).y -
-             sizeBaseButton.y - 20});
+
 
     map.resize(mapObjects.size());
     for (int i = 0; i < mapObjects.size(); i++) {
@@ -248,9 +241,7 @@ jam::Level::Level(sf::RenderWindow &window,
             }
         }
     }
-
 }
-
 
 void jam::Level::updateStates() {
     for (auto &i : map) {
@@ -304,6 +295,15 @@ void jam::Level::updateStates() {
     }
 }
 void jam::Level::draw(sf::RenderWindow &window) {
+    storeButton = RectangleButton<void>(
+        [&]() { is_active_store = !is_active_store; }, "Store");
+    storeButton.setSize({sizeBaseButton.x / 2, sizeBaseButton.y});
+    storeButton.setFillColor(sf::Color(74, 53, 27));
+    storeButton.setPosition(
+        {window.mapPixelToCoords(sf::Vector2i(window.getSize())).x -
+        sizeBaseButton.x / 2 - 20,
+        window.mapPixelToCoords(sf::Vector2i(window.getSize())).y -
+        sizeBaseButton.y - 20});
     sf::Texture heartTexture;
     checkLoad(heartTexture, "data/images/heart.png");
     sf::Sprite heartSprite(heartTexture);

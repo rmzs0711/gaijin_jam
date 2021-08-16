@@ -34,8 +34,12 @@ struct Clickable {
 
 template <typename T>
 struct Button : Clickable<T> {
-    Button() = delete;
-    explicit Button(std::function<T()> func, std::string str_ = "")
+    Button() {
+        function = [] { return T(); };
+    };
+    explicit Button(
+        std::function<T()> func = [] { return T(); },
+        std::string str_ = "")
         : function(func), str(std::move(str_)) {
         text.setString(Button<T>::getString());
         text.setCharacterSize(Button<T>::getTextSize());
@@ -103,7 +107,7 @@ private:
 
 template <typename T>
 struct RectangleButton : Button<T>, sf::RectangleShape {
-    explicit RectangleButton(std::function<T()> func,
+    explicit RectangleButton(std::function<T()> func = []() {return T();},
                              const std::string &str = "")
         : Button<T>(func, str) {}
     bool isCorrectClick(const sf::Vector2f &pos) override {
