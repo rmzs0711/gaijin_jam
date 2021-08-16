@@ -5,7 +5,6 @@
 #endif
 
 int main() {
-    setlocale(LC_ALL, "Russian");
     sf::RenderWindow window(sf::VideoMode(1920, 1080), "SFML works!",
                             sf::Style::Fullscreen);
     sf::Cursor cursor;
