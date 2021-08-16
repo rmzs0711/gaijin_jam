@@ -171,18 +171,14 @@ inline jam::AttackBuilding makeWizardTower(jam::Level &level,
     wizardTower.attackBuildingAnimatedObject.object.setScale(5, 5);
     return wizardTower;
 }
-inline jam::Home makeHome(jam::Level &level, int number) {
+inline jam::Home makeHome(jam::Level &level, sf::Vector2i pos) {
     jam::Home home(level);
     home.loadBuildingTexture(
         "data/images/MiniWorldSprites/Buildings/Purple/PurpleKeep.png");
     home.setTextureRect({0, 0, 32, 32});
     home.setSizeInMap({2, 2});
 
-    if (number == 1) {
-        home.setPosInMap({1, 2});
-    } else {
-        home.setPosInMap({47, 48});
-    }
+    home.setPosInMap(pos);
 
     home.setScale({(float)cellSize / 16, (float)cellSize / 16});
     home.setHitBox(home.getBuilding().getGlobalBounds());
@@ -292,7 +288,8 @@ inline SupportBuilding makeHospital(jam::Level &level,
                                 endPos + sf::Vector2f(cellSize, cellSize)),
             charactersCompare);
         for (auto i = start; i != end; i++) {
-            if ((*i)->isLive() && (*i)->character.getPosition().x >
+            if ((*i)->isLive() &&
+                (*i)->character.getPosition().x >
                     startPos.x - (float)cellSize &&
                 (*i)->character.getPosition().x < endPos.x + (float)cellSize &&
                 dynamic_cast<Hero &>(**i).getState() != FIGHTING) {

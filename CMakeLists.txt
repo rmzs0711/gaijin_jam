@@ -7,7 +7,7 @@ include_directories(include)
 
 add_executable(jam main.cpp src/characters.cpp src/Level.cpp src/building.cpp
         src/makeFreeObjects.cpp src/Cell.cpp src/game.cpp)
-add_executable(test src/Ramazan.cpp)
+add_executable(test Ramazan.cpp)
 
 find_package(SFML REQUIRED system window graphics network audio)
 

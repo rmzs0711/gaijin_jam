@@ -248,9 +248,9 @@ jam::Level::Level(sf::RenderWindow &window,
             }
         }
     }
-    home.push_back(makeHome(*this, 1));
-    home.push_back(makeHome(*this, 2));
+
 }
+
 
 void jam::Level::updateStates() {
     for (auto &i : map) {
@@ -942,4 +942,7 @@ void jam::Level::endGame(sf::RenderWindow &window) {
         }
         window.display();
     }
+}
+void jam::Level::addHome(sf::Vector2i pos) {
+    home.push_back(makeHome(*this, pos));
 }

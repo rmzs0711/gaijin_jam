@@ -79,6 +79,7 @@ struct Hero;
 namespace jam {
 
 struct Level {
+    void addHome(sf::Vector2i);
     friend TemplateCharacter;
     friend Monster;
     friend Hero;
