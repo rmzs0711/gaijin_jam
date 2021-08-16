@@ -148,16 +148,16 @@ private:
     std::vector<sf::Time> lastAbilityUsageTimes;
 
 public:
-    const float maxMana = 2000;
+    const float maxMana = 500;
     mutable float mana = maxMana;
-    float manaRegen = 1;
+    float manaRegen = 5;
     sf::Time regenCooldown = sf::seconds(1);
     sf::Time lastRegenTime;
-    float combineCost = 10;
+    float combineCost = 20;
     const std::map<ABILITY, float> abilityCost = {
-        {ABILITY::FIRE_BLAST, 40},   {ABILITY::LAVA, 50},
-        {ABILITY::FROZEN_BLAST, 80}, {ABILITY::EARTHSHAKE, 50},
-        {ABILITY::WALL, 80},         {ABILITY::CLOUD, 30},
+        {ABILITY::FIRE_BLAST, 40},   {ABILITY::LAVA, 80},
+        {ABILITY::FROZEN_BLAST, 80}, {ABILITY::EARTHSHAKE, 40},
+        {ABILITY::WALL, 60},         {ABILITY::CLOUD, 30},
     };
 
 private:
@@ -165,7 +165,12 @@ private:
     sf::Time treeCooldown = sf::seconds(5);
     sf::Time lastTreeTime = sf::Time::Zero;
     // View
-    float viewMoveSpeed = 100;
+    float viewMoveSpeed = 5;
     sf::Vector2f shift = {0, 0};
+
+private:
+    //Easter egg
+    std::string code = "993";
+    std::string currentCode = "111";
 };
 }  // namespace jam

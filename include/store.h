@@ -215,11 +215,11 @@ public:
             "data/images/MiniWorldSprites/Characters/Soldiers/Melee/RedMelee/"
             "AssasinRed.png"));
         products.push_back(std::make_unique<Product>(
-            window, 150,
+            window, 100,
             "data/images/MiniWorldSprites/Buildings/Lime/LimeTower.png"));
         products[products.size() - 1]->setTextureRect(0, 16);
         products.push_back(std::make_unique<Product>(
-            window, 150,
+            window, 125,
             "data/images/MiniWorldSprites/Buildings/Red/RedTower.png"));
         products[products.size() - 1]->setTextureRect(0, 16);
         products.push_back(std::make_unique<Product>(
@@ -227,7 +227,7 @@ public:
             "data/images/MiniWorldSprites/Buildings/Cyan/CyanTower.png"));
         products[products.size() - 1]->setTextureRect(0, 16);
         products.push_back(std::make_unique<Product>(
-            window, 125,
+            window, 75,
             "data/images/MiniWorldSprites/Miscellaneous/Well"
             ".png"));
         products[products.size() - 1]->setTextureRect(0, 16);
@@ -236,11 +236,11 @@ public:
             "data/images/MiniWorldSprites/Buildings/Wood/CaveV2.png"));
         products[products.size() - 1]->setTextureRect(0, 0);
         products.push_back(std::make_unique<Product>(
-            window, 200,
+            window, 175,
             "data/images/MiniWorldSprites/Buildings/Cyan/CyanChapels.png"));
         products[products.size() - 1]->setTextureRect(16, 16);
         products.push_back(std::make_unique<Product>(
-            window, 200,
+            window, 175,
             "data/images/MiniWorldSprites/Buildings/Wood/Barracks.png"));
         products[products.size() - 1]->setTextureRect(0, 0);
 

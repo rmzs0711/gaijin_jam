@@ -31,8 +31,7 @@ struct GameSession {
                 std::get<1>(assetInfo[i]).height / assetCellSize.y};
         }
 
-        stateDurations.resize(NUMBER_OF_STATES, sf::seconds(2));
-        abilityCooldowns.resize(NUMBER_OF_ABILITIES, sf::seconds(2));
+//        abilityCooldowns.resize(NUMBER_OF_ABILITIES, sf::seconds(2));
 
         std::vector<std::vector<int>> firstLevel = {{
             {
