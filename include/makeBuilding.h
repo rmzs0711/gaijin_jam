@@ -30,7 +30,7 @@ inline jam::AttackBuilding makeArcherBuilding(jam::Level &level,
                                               const sf::Vector2i newPosInMap) {
     jam::AttackBuilding archersTower(level);
     archersTower.setAttackCooldown(sf::seconds(0.7));
-    archersTower.setAttackRange(4 * cellSize);
+    archersTower.setAttackRange(5 * cellSize);
     archersTower.loadBuildingTexture(
         "data/images/MiniWorldSprites/Buildings/Lime/LimeTower.png");
     archersTower.setTextureRect({{assetCellSize.x, assetCellSize.x},
@@ -79,7 +79,7 @@ inline jam::AttackBuilding makeSniperBuilding(jam::Level &level,
                                               const sf::Vector2i newPosInMap) {
     jam::AttackBuilding sniperTower(level);
     sniperTower.setAttackCooldown(sf::seconds(2.5));
-    sniperTower.setAttackRange(6 * cellSize);
+    sniperTower.setAttackRange(10 * cellSize);
     sniperTower.loadBuildingTexture(
         "data/images/MiniWorldSprites/Buildings/Red/RedTower.png");
     sniperTower.setTextureRect({{assetCellSize.x, assetCellSize.x},
@@ -129,7 +129,7 @@ inline jam::AttackBuilding makeWizardTower(jam::Level &level,
                                            const sf::Vector2i newPosInMap) {
     jam::AttackBuilding wizardTower(level);
     wizardTower.setAttackCooldown(sf::seconds(1.5));
-    wizardTower.setAttackRange(2 * cellSize);
+    wizardTower.setAttackRange(3 * cellSize);
     wizardTower.loadBuildingTexture(
         "data/images/MiniWorldSprites/Buildings/Cyan/CyanTower.png");
     wizardTower.setTextureRect(
@@ -293,7 +293,7 @@ inline SupportBuilding makeHospital(jam::Level &level,
                     startPos.x - (float)cellSize &&
                 (*i)->character.getPosition().x < endPos.x + (float)cellSize &&
                 dynamic_cast<Hero &>(**i).getState() != FIGHTING) {
-                (*i)->takeDamage(-20);
+                (*i)->takeDamage(-heal);
             }
         }
     };

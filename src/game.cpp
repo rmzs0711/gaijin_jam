@@ -114,6 +114,9 @@ float jam::Game::indent(int number) {
     if (number == 5) {
         return 200 + 4 * (sizeBaseButton.y + 50);
     }
+    if (number == 6) {
+        return 200 + 5 * (sizeBaseButton.y + 50);
+    }
     return sizeBaseButton.y + 50 + indent(number - 1);
 }
 
@@ -128,8 +131,8 @@ void jam::Game::startGame(sf::RenderWindow &window) {
         makeButton(window, game, "dota", sf::Vector2f(0, Game::indent(3))));
     mainMenu.addButton(
         makeButton(window, game, "panfilov", sf::Vector2f(0, Game::indent(4))));
-//    mainMenu.addButton(
-//        makeButton(window, game, "rules", sf::Vector2f(0, Game::indent(2))));
+    mainMenu.addButton(
+        makeButton(window, game, "rules", sf::Vector2f(0, Game::indent(6))));
     mainMenu.addButton(
         makeButton(window, game, "close", sf::Vector2f(0, Game::indent(5))));
 

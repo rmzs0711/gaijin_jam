@@ -471,9 +471,6 @@ void jam::Level::draw(sf::RenderWindow &window) {
                 dynamic_cast<Hero &>(*i).event(event, window,
                                                clock1.getElapsedTime());
             }
-//            for (auto &i : money) {
-//                store.addMoney((*i).event(event, window));
-//            }
             store.event(event, object_bar, mouse, *this);
 
             switch (event.type) {
@@ -820,9 +817,6 @@ void jam::Level::draw(sf::RenderWindow &window) {
             store.addMoney(i->money);
         }
         money.clear();
-        //        if (money.size() > maxMoneys) {
-        //            money.pop_back();
-        //        }
         for (auto i = flyingObjects.begin(); i != flyingObjects.end();) {
             checkDraw(view, *i, window);
             if (i->isFinished()) {
