@@ -1,5 +1,4 @@
-#ifndef JAM_TEXTBOX_H
-#define JAM_TEXTBOX_H
+#pragma once
 
 #include <string>
 #include "SFML/Graphics.hpp"
@@ -115,5 +114,3 @@ private:
 
     unsigned textSize = 30;
 };
-
-#endif  // JAM_TEXTBOX_H

@@ -1,5 +1,5 @@
-#ifndef GAIJIN_JAM_BUTTON_H
-#define GAIJIN_JAM_BUTTON_H
+#pragma once
+
 #include <functional>
 #include <iostream>
 #include <utility>
@@ -34,9 +34,17 @@ struct Clickable {
 
 template <typename T>
 struct Button : Clickable<T> {
-    Button() = delete;
-    explicit Button(std::function<T()> func, std::string str_ = "")
-        : function(func), str(std::move(str_)) {}
+    Button() {
+        function = [] { return T(); };
+    };
+    explicit Button(
+        std::function<T()> func = [] { return T(); },
+        std::string str_ = "")
+        : function(func), str(std::move(str_)) {
+        text.setString(Button<T>::getString());
+        text.setCharacterSize(Button<T>::getTextSize());
+        text.centralise();
+    }
     T handleClick() override {
         return function();
     }
@@ -65,6 +73,9 @@ private:
     std::string str;
     unsigned textSize = 30;
     const sf::Texture *clickableTexture = nullptr;
+
+protected:
+    CentralisedText text;
 };
 
 template <typename T>
@@ -79,11 +90,6 @@ struct CircleButton : Button<T>, sf::CircleShape {
         if (!Button<T>::getClickableTexture()) {
             Button<T>::setClickableTexture(getTexture());
         }
-        CentralisedText text(Button<T>::getString());
-        text.setPosition(getPosition());
-        text.setCharacterSize(Button<T>::getTextSize());
-        text.centralise();
-        target.draw(text);
         auto hitBox = getGlobalBounds();
         target.draw(*this);
         if (hitBox.contains(target.mapPixelToCoords(sf::Mouse::getPosition(
@@ -99,33 +105,28 @@ struct CircleButton : Button<T>, sf::CircleShape {
 private:
 };
 
-template <typename T>
-struct RectangleButton : Button<T>, sf::RectangleShape {
-    explicit RectangleButton(std::function<T()> func,
+
+struct RectangleButton : Button<void>, sf::RectangleShape {
+    explicit RectangleButton(std::function<void()> func = []() {return;},
                              const std::string &str = "")
-        : Button<T>(func, str) {}
+        : Button<void>(func, str) {}
     bool isCorrectClick(const sf::Vector2f &pos) override {
         return this->getGlobalBounds().contains(pos);
     }
     void drawButton(sf::RenderTarget &target) override {
-        CentralisedText text;
-        text.setString("go");
-        text.setCharacterSize(Button<T>::getTextSize());
-        text.centralise();
-        text.setPosition(getPosition() + getSize() / 2.f);
-        target.draw(text);
+        Button<void>::text.setPosition(getPosition() + getSize() / 2.f);
+        Button<void>::text.setFillColor(sf::Color::White);
         target.draw(*this);
-        auto hitBox = getGlobalBounds();
-        if (hitBox.contains(
+        if (getGlobalBounds().contains(
                 target.mapPixelToCoords(sf::Mouse::getPosition()))) {
             auto texture = getTexture();
-            setTexture(Button<T>::getClickableTexture());
+            setTexture(Button<void>::getClickableTexture());
             target.draw(*this);
             setTexture(texture);
+            Button<void>::text.setFillColor(sf::Color::Red);
         }
+        target.draw(Button<void>::text);
     }
 
 private:
 };
-
-#endif  // GAIJIN_JAM_BUTTON_H
