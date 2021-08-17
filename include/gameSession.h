@@ -2819,7 +2819,7 @@ struct GameSession {
         levels[0].addHome({48, 49});
         levels.emplace_back(window, moscow);
         levels[1].addHome({23, 24});
-        levels.emplace_back(window, dota);
+        levels.emplace_back(window, dota, 1);
         levels[2].addHome({2, 47});
         levels[2].addHome({46, 3});
         levels.emplace_back(window, panfilov);

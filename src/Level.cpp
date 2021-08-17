@@ -115,7 +115,7 @@ bool jam::Level::addAttackBuilding(AttackBuilding building) {
     return true;
 }
 
-bool jam::Level::addSupportBuilding(SupportBuilding building) {
+bool jam::Level::addSupportBuilding(const SupportBuilding &building) {
     if (building.path.size() == 1) {
         return false;
     }
@@ -193,7 +193,8 @@ void jam::Level::heroSetScale(const sf::Vector2f &newScale, std::size_t i) {
 }
 
 jam::Level::Level(sf::RenderWindow &window,
-                  const std::vector<std::vector<int>> &mapObjects)
+                  const std::vector<std::vector<int>> &mapObjects,
+                  int h)
     : is_end(false),
       lastAbilityUsageTimes(NUMBER_OF_ABILITIES),
       ability(FIRE_BLAST),
@@ -209,14 +210,15 @@ jam::Level::Level(sf::RenderWindow &window,
           },
           "Menu"),
       is_active_store(false) {
+    if (h > 0) {
+        phonk = true;
+    }
     menuGameButton.setSize({sizeBaseButton.x / 2, sizeBaseButton.y});
     menuGameButton.setFillColor(sf::Color(74, 53, 27));
     menuGameButton.setPosition(
         {window.mapPixelToCoords(sf::Vector2i(window.getSize())).x -
              sizeBaseButton.x / 2 - 20,
          20});
-
-
     map.resize(mapObjects.size());
     for (int i = 0; i < mapObjects.size(); i++) {
         map[i].resize(mapObjects[i].size());
@@ -295,15 +297,23 @@ void jam::Level::updateStates() {
     }
 }
 void jam::Level::draw(sf::RenderWindow &window) {
-    storeButton = RectangleButton(
-        [&]() { is_active_store = !is_active_store; }, "Store");
+    sf::Music music;
+    if (!music.openFromFile("data/Bullet.wav")) {
+        return;
+    }
+    if (phonk) {
+        music.setLoop(true);
+        music.play();
+    }
+    storeButton =
+        RectangleButton([&]() { is_active_store = !is_active_store; }, "Store");
     storeButton.setSize({sizeBaseButton.x / 2, sizeBaseButton.y});
     storeButton.setFillColor(sf::Color(74, 53, 27));
     storeButton.setPosition(
         {window.mapPixelToCoords(sf::Vector2i(window.getSize())).x -
-        sizeBaseButton.x / 2 - 20,
-        window.mapPixelToCoords(sf::Vector2i(window.getSize())).y -
-        sizeBaseButton.y - 20});
+             sizeBaseButton.x / 2 - 20,
+         window.mapPixelToCoords(sf::Vector2i(window.getSize())).y -
+             sizeBaseButton.y - 20});
     sf::Texture heartTexture;
     checkLoad(heartTexture, "data/images/heart.png");
     sf::Sprite heartSprite(heartTexture);
@@ -486,7 +496,9 @@ void jam::Level::draw(sf::RenderWindow &window) {
                                 object_bar.mapPixelToCoords(
                                     {event.mouseButton.x,
                                      event.mouseButton.y}))) {
+                            music.pause();
                             menuGameButton.handleClick();
+                            music.play();
                         } else if (storeButton.isCorrectClick(
                                        object_bar.mapPixelToCoords(
                                            {event.mouseButton.x,
@@ -887,6 +899,7 @@ void jam::Level::draw(sf::RenderWindow &window) {
         window.display();
 
         if (is_end) {
+            music.stop();
             endGame(window);
         }
     }

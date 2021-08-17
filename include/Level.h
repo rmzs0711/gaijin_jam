@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <array>
 #include <limits>
 #include <memory>
@@ -79,6 +80,7 @@ struct Hero;
 namespace jam {
 
 struct Level {
+    bool phonk = false;
     void addHome(sf::Vector2i);
     friend TemplateCharacter;
     friend Monster;
@@ -90,7 +92,7 @@ struct Level {
     friend SupportBuilding;
 
     explicit Level(sf::RenderWindow &window,
-                   const std::vector<std::vector<int>> &mapObjects);
+                   const std::vector<std::vector<int>> &mapObjects, int h = 0);
 
     bool addHero(const std::shared_ptr<Hero> &hero);
 
@@ -98,7 +100,7 @@ struct Level {
     void addMoney(const std::shared_ptr<Money> &money_);
 
     bool addAttackBuilding(AttackBuilding building);
-    bool addSupportBuilding(SupportBuilding building);
+    bool addSupportBuilding(const SupportBuilding& building);
 
     void heroSetPosition(const sf::Vector2f &newPos, std::size_t i = 0);
     void monsterSetScale(const sf::Vector2f &newScale, std::size_t i = 0);
